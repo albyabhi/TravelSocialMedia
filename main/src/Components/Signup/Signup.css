@@ -1,0 +1,223 @@
+/* SignUpForm.css */
+
+body {
+    font-family: 'Work Sans', sans-serif;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(to top right, #0c134f, #2c347d, #0c134f, #2c347d);
+    background-size: 300% 300%;
+    animation: rotateGradient 10s linear infinite, pulseOpacity 2s ease infinite alternate;
+}
+
+
+
+
+
+.logo {
+    width: 100px; /* Fixed width */
+    height: auto;
+    position: fixed;
+    top: 4%; /* 4% from the top of the viewport */
+    left: 5%; /* 5% from the left of the viewport */
+    z-index: 2;
+    transform: scale(2.0); /* Use the 'transform' property for scaling */
+}
+
+
+.second-image {
+    width: 100vw; /* Set the width to 100% of the viewport width */
+    height: 100vh;
+    object-fit: cover;
+    position: fixed;
+    top: 0;
+    left: 0;
+    opacity: 70%;
+   
+}
+
+
+
+.left-heading {
+    width: 90vw; 
+    height: 60vh;
+    font-size: 32px;
+    color: #ffffff;
+    margin-bottom: 8px; /* Adjusted margin for spacing */
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.left-heading:hover {
+    color: #ffffff; /* Highlight color on hover */
+    transform: scale(1.05);
+}
+
+.left-paragraph {
+    position: fixed;
+    top: 30%; /* Adjusted top position for spacing */
+    left: 5%;
+    width: 300px; /* Adjust the width based on your preference */
+    color: #ffffff;
+    font-size: 18px;
+    line-height: 1.5;
+    opacity: 0.8; /* Reduced opacity for a softer appearance */
+    transition: color 0.3s ease, opacity 0.3s ease, transform 0.2s ease;
+}
+
+
+
+
+.left-heading {
+    /* ... existing styles ... */
+    transform: translateX(-100%); /* Initially position outside the viewport */
+    transition: transform 0.3s ease;
+}
+
+.left-heading.show {
+    transform: translateX(0); /* Move to the normal position */
+}
+
+.left-paragraph {
+    /* ... existing styles ... */
+    transform: translateX(-130%); /* Initially position outside the viewport */
+    transition: transform 0.3s ease;
+}
+
+.left-paragraph.show {
+    transform: translateX(0); /* Move to the normal position */
+}
+
+.sign-up-container:hover .left-heading,
+.sign-up-container:hover .left-paragraph {
+    transform: translateX(0); /* Slide in on hover */
+}
+
+/* ... existing styles ... */
+
+
+
+
+
+
+.sign-up-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #061227;
+    padding: 40px;
+    box-sizing: border-box;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 400px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, opacity 0.3s ease, right 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    transform: translateY(0) scale(0.95); /* Adjusted scale for a subtle effect */
+    opacity: 0.8; /* Reduced opacity for a softer appearance */
+    position: absolute;
+    top: 20%;
+    right: 10%;
+    margin-right: 10px;
+}
+
+.sign-up-container:hover {
+    background-color: #05101d;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    transform: translateY(5px) scale(1); /* Adjusted translateY and scale for a smoother hover effect */
+    opacity: 1; /* Set opacity back to 1 on hover */
+}
+
+.sign-up-container.active {
+    transform: translateY(0) scale(1);
+}
+.sign-up-wrapper {
+    width: 100%;
+}
+
+.sign-up-heading {
+    color: #d4adfc;
+    margin-top: 0;
+    font-size: 24px;
+}
+
+.sign-up-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* SignUpForm.css */
+
+/* ... existing styles ... */
+
+.sign-up-label {
+    margin-bottom: 8px;
+    color: #d4adfc;
+    font-size: 14px;
+    position: absolute;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    transform-origin: top left;
+    transform: translate(10px, 16px) scale(1);
+}
+
+.sign-up-input {
+    padding: 10px;
+    margin-bottom: 16px;
+    border: 1px solid #d4adfc;
+    border-radius: 4px;
+    background-color: #1d267d;
+    color: #d4adfc;
+    width: 100%;
+    font-size: 16px;
+    transition: border-color 0.3s ease, padding 0.3s ease;
+}
+
+.sign-up-input:focus {
+    outline: none;
+    border-color: #5c469c;
+    padding: 18px; /* Increase padding on focus */
+}
+
+/* Style label when input is focused or not empty */
+.sign-up-input:focus + .sign-up-label,
+.sign-up-input:not(:placeholder-shown) + .sign-up-label {
+    transform: translate(10px, 8px) scale(0.8);
+    color: #5c469c; /* Highlight color on focus or when not empty */
+}
+
+/* ... existing styles ... */
+
+
+.sign-up-button {
+    padding: 12px;
+    background-color: #5c469c;
+    color: #d4adfc;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-size: 16px;
+   
+}
+
+.sign-up-button:hover {
+    background-color: #d4adfc;
+    color: #0c134f;
+    
+    transform: scale(1.1) translateY(-5px);
+}
+
