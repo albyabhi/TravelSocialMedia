@@ -10,6 +10,9 @@ const ProfileEd = () => {
   const [bio, setBio] = useState('');
   const [highlightedPlaces, setHighlightedPlaces] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -74,6 +77,9 @@ const ProfileEd = () => {
       formData.append('profilePicture', profilePicture);
       formData.append('bio', bio);
       formData.append('highlightedPlaces', JSON.stringify(highlightedPlaces));
+      formData.append('firstName', firstName);
+      formData.append('lastName', lastName);
+      formData.append('phoneNumber', phoneNumber);
 
       // Send a POST request to update the profile
       await axios.post('http://localhost:5000/api/profile/update', formData, {
@@ -99,6 +105,25 @@ const ProfileEd = () => {
   return (
     <div>
       <h2>Welcome, {userData.username}!</h2>
+
+      {/* First Name */}
+<label>
+  First Name:
+  <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+</label>
+
+{/* Last Name */}
+<label>
+  Last Name:
+  <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+</label>
+
+{/* Phone Number */}
+<label>
+  Phone Number:
+  <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+</label>
+
 
       {/* Profile Picture */}
       <label>
