@@ -1,4 +1,6 @@
 
+import AdminSignup from "./Components/Admin/AdminSignup";
+
 import Login from "./Components/Login/Login";
 import ProfileEd from "./Components/Profile/ProfileEd";
 
@@ -17,8 +19,8 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/profile" element={<ProfileEd /> } />
-       
-        {/* Add other routes as needed */}
+        <Route path="/Adminsignup" element={<AdminSignup /> } />
+        
       </Routes>
     </Router>
     </div>

@@ -5,44 +5,42 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const ProfileData = require('../models/profileDataModel');
-const { authenticateToken } = require('../middleware/authMiddleware');
-const config = require('../config/config'); // Import the config object
-const upload = require('../uploads/upload'); // Import the upload middleware
+const AdminDetails = require('../models/AdminDetails'); // Correct casing
+const { authenticateToken, authenticateAdminToken } = require('../middleware/authMiddleware');
+const config = require('../config/config');
+const upload = require('../uploads/upload');
 const router = express.Router();
 const secretKey = config.secretKey;
+const adminRouter = express.Router();
 
-// ... (rest of the code)
 
 
 // Signup Endpoint
 router.post('/signup', async (req, res) => {
-    try {
-        const { username, email, password } = req.body;
-    
-        // Check if user with the same email already exists
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-          return res.status(400).json({ message: 'User with this email already exists.' });
-        }
-    
-        // Hash the password before saving to the database
-        const hashedPassword = await bcrypt.hash(password, 10);
-    
-        // Create a new user
-        const newUser = new User({
-          username,
-          email,
-          password: hashedPassword,
-        });
-    
-        // Save the user to the database
-        await newUser.save();
-    
-        res.status(201).json({ message: 'User registered successfully.' });
-      } catch (error) {
-        console.error('Signup failed:', error);
-        res.status(500).json({ message: 'Internal server error.' });
-      }
+  try {
+    const { username, email, password } = req.body;
+
+    // Check if user with the same email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User with this email already exists.' });
+    }
+
+    // Create a new user
+    const newUser = new User({
+      username,
+      email,
+      password, // Save the plain text password
+    });
+
+    // Save the user to the database (password will be automatically hashed)
+    await newUser.save();
+
+    res.status(201).json({ message: 'User registered successfully.' });
+  } catch (error) {
+    console.error('Signup failed:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
 });
 
 // Login Endpoint
@@ -172,5 +170,66 @@ router.post('/profile/upload', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Internal server error.' });
       }
 });
+
+// Admin Signup Endpoint
+
+
+router.post('/admin/signup', async (req, res) => {
+  try {
+    const { adminEmail, adminId, adminPassword } = req.body;
+
+    // Check if admin with the same email or ID already exists
+    const existingAdmin = await AdminDetails.findOne({ $or: [{ adminEmail }, { adminId }] });
+
+    if (existingAdmin) {
+      return res.status(400).json({ message: 'Admin with this email or ID already exists.' });
+    }
+
+    // Hash the admin password
+    const hashedPassword = await bcrypt.hash(adminPassword, 10);
+
+    // Create a new admin
+    const newAdmin = new AdminDetails({
+      adminEmail,
+      adminId,
+      adminPassword: hashedPassword,
+    });
+
+    // Save the new admin to the database
+    await newAdmin.save();
+
+    res.status(201).json({ message: 'Admin registered successfully.' });
+  } catch (error) {
+    console.error('Error in admin signup:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
+
+
+
+// Admin Login Endpoint
+router.post('/admin/login', async (req, res) => {
+  try {
+    const { adminId, adminPassword } = req.body;
+
+    // Find the admin by adminId
+    const admin = await AdminDetails.findOne({ adminId });
+
+    // Check if the admin exists and if the password is correct
+    if (!admin || !(await bcrypt.compare(adminPassword, admin.adminPassword))) {
+      return res.status(401).json({ message: 'Invalid admin ID or password.' });
+    }
+
+    // Generate a JWT token
+    const token = jwt.sign({ adminId: admin.id }, 'your_secret_key', { expiresIn: '1h' });
+
+    res.json({ token });
+  } catch (error) {
+    console.error('Admin login failed:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
 
 module.exports = router;

@@ -1,6 +1,7 @@
 // src/models/profileDataModel.js
 const mongoose = require('mongoose');
 
+
 const profileDataSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,

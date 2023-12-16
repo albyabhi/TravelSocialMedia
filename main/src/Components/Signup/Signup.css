@@ -10,6 +10,7 @@ body {
     background: linear-gradient(to top right, #0c134f, #2c347d, #0c134f, #2c347d);
     background-size: 300% 300%;
     animation: rotateGradient 10s linear infinite, pulseOpacity 2s ease infinite alternate;
+   
 }
 
 

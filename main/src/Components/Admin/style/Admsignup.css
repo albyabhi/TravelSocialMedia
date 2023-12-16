@@ -1,0 +1,80 @@
+/* Add Admin Registration Form styles */
+.admin-form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #061227;
+    padding: 40px;
+    box-sizing: border-box;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 400px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, opacity 0.3s ease, right 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    transform: translateY(0) scale(0.95); /* Adjusted scale for a subtle effect */
+    opacity: 0.8; /* Reduced opacity for a softer appearance */
+    margin-top: 50px;
+  }
+  
+  .admin-form-container:hover {
+    background-color: #05101d;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    transform: translateY(5px) scale(1); /* Adjusted translateY and scale for a smoother hover effect */
+    opacity: 1; /* Set opacity back to 1 on hover */
+  }
+  
+  .admin-form-container.active {
+    transform: translateY(0) scale(1);
+  }
+  
+  .admin-form-heading {
+    color: #d4adfc;
+    margin-bottom: 20px;
+    font-size: 24px;
+  }
+  
+  .admin-form label {
+    margin-bottom: 20px;
+    color: #d4adfc;
+    font-size: 14px;
+    display: block;
+  }
+  
+  .admin-form input {
+    padding: 10px;
+    margin-bottom: 16px;
+    border: 1px solid #d4adfc;
+    border-radius: 4px;
+    background-color: #1d267d;
+    color: #d4adfc;
+    width: 100%;
+    font-size: 16px;
+    transition: border-color 0.3s ease, padding 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .admin-form input:focus {
+    outline: none;
+    border-color: #5c469c;
+    padding: 18px; /* Increase padding on focus */
+    box-shadow: 0 0 10px rgba(92, 70, 156, 0.5); /* Add box shadow on focus */
+  }
+  
+  .admin-form button {
+    padding: 12px;
+    background-color: #5c469c;
+    color: #d4adfc;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-size: 16px;
+    margin-top: 10px;
+  }
+  
+  .admin-form button:hover {
+    background-color: #d4adfc;
+    color: #0c134f;
+    transform: scale(1.1);
+  }
+  
