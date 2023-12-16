@@ -1,6 +1,4 @@
-// src/models/profileDataModel.js
 const mongoose = require('mongoose');
-
 
 const profileDataSchema = new mongoose.Schema({
   userId: {
@@ -17,4 +15,6 @@ const profileDataSchema = new mongoose.Schema({
 });
 
 const ProfileData = mongoose.model('ProfileData', profileDataSchema);
+
 module.exports = ProfileData;
+ 

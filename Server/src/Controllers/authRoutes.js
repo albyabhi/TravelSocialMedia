@@ -1,19 +1,17 @@
-// src/routes/authRoutes.js
-// src/routes/authRoutes.js
 const express = require('express');
-const bcrypt = require('bcrypt');
+const bcrypt= require('bcrypt');
 const jwt = require('jsonwebtoken');
-const User = require('../models/userModel');
+const User = require('../models/userModel'); // Import the User model
+const { authenticateToken } = require('../middleware/authMiddleware.js');
 const ProfileData = require('../models/profileDataModel');
-const AdminDetails = require('../models/AdminDetails'); // Correct casing
-const { authenticateToken, authenticateAdminToken } = require('../middleware/authMiddleware');
 const config = require('../config/config');
-const upload = require('../uploads/upload');
-const router = express.Router();
 const secretKey = config.secretKey;
-const adminRouter = express.Router();
+const upload = require('../uploads/upload');
 
 
+
+
+const router = express.Router();
 
 // Signup Endpoint
 router.post('/signup', async (req, res) => {
@@ -26,11 +24,15 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ message: 'User with this email already exists.' });
     }
 
+    // Hash the user password
+    const salt = await bcrypt.genSalt();
+    const passwordHash = await bcrypt.hash(password, salt);
+
     // Create a new user
     const newUser = new User({
       username,
       email,
-      password, // Save the plain text password
+      password: passwordHash, // Save the hashed password
     });
 
     // Save the user to the database (password will be automatically hashed)
@@ -45,28 +47,32 @@ router.post('/signup', async (req, res) => {
 
 // Login Endpoint
 router.post('/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-    
-        // Find the user by email
-        const user = await User.findOne({ email });
-    
-        // Check if the user exists and if the password is correct
-        if (!user || !(await bcrypt.compare(password, user.password))) {
-          return res.status(401).json({ message: 'Invalid email or password.' });
-        }
-    
-        // Generate a JWT token
-        const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
-    
-        res.json({ token });
-      } catch (error) {
-        console.error('Login failed:', error);
-        res.status(500).json({ message: 'Internal server error.' });
-      }
+  try {
+    const { email, password } = req.body;
+
+    // Find the user by email
+    const user = await User.findOne({ email });
+
+    // Check if the user exists and if the password is correct
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ message: 'Invalid email or password.' });
+    }
+
+    // Generate a JWT token
+    const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
+
+    res.json({ token });
+  } catch (error) {
+    console.error('Login failed:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
 });
 
-// Protected Profile Endpoint
+// Protected route for testing authentication
+router.get('/protected', authenticateToken, (req, res) => {
+  res.json({ message: 'Protected route accessed successfully.' });
+});
+
 router.get('/profile', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -155,7 +161,7 @@ router.post('/profile/update', authenticateToken, upload.single('profilePicture'
 
 // Profile Picture Upload Endpoint
 router.post('/profile/upload', authenticateToken, async (req, res) => {
-    try {
+  try {
         const profilePictureFilename = req.file.filename;
         const userId = req.user.userId;
     
@@ -171,65 +177,6 @@ router.post('/profile/upload', authenticateToken, async (req, res) => {
       }
 });
 
-// Admin Signup Endpoint
-
-
-router.post('/admin/signup', async (req, res) => {
-  try {
-    const { adminEmail, adminId, adminPassword } = req.body;
-
-    // Check if admin with the same email or ID already exists
-    const existingAdmin = await AdminDetails.findOne({ $or: [{ adminEmail }, { adminId }] });
-
-    if (existingAdmin) {
-      return res.status(400).json({ message: 'Admin with this email or ID already exists.' });
-    }
-
-    // Hash the admin password
-    const hashedPassword = await bcrypt.hash(adminPassword, 10);
-
-    // Create a new admin
-    const newAdmin = new AdminDetails({
-      adminEmail,
-      adminId,
-      adminPassword: hashedPassword,
-    });
-
-    // Save the new admin to the database
-    await newAdmin.save();
-
-    res.status(201).json({ message: 'Admin registered successfully.' });
-  } catch (error) {
-    console.error('Error in admin signup:', error);
-    res.status(500).json({ message: 'Internal server error.' });
-  }
-});
-
-
-
-
-// Admin Login Endpoint
-router.post('/admin/login', async (req, res) => {
-  try {
-    const { adminId, adminPassword } = req.body;
-
-    // Find the admin by adminId
-    const admin = await AdminDetails.findOne({ adminId });
-
-    // Check if the admin exists and if the password is correct
-    if (!admin || !(await bcrypt.compare(adminPassword, admin.adminPassword))) {
-      return res.status(401).json({ message: 'Invalid admin ID or password.' });
-    }
-
-    // Generate a JWT token
-    const token = jwt.sign({ adminId: admin.id }, 'your_secret_key', { expiresIn: '1h' });
-
-    res.json({ token });
-  } catch (error) {
-    console.error('Admin login failed:', error);
-    res.status(500).json({ message: 'Internal server error.' });
-  }
-});
 
 
 module.exports = router;

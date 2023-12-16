@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './style/Admsignup.css';
+import { useNavigate } from "react-router-dom";
 
-const AdminSignup = ({ navigate }) => {
+
+
+const AdminSignup = () => {
+  const navigate = useNavigate();
   const [adminData, setAdminData] = useState({
     adminEmail: '',
     adminId: '',
@@ -20,7 +24,11 @@ const AdminSignup = ({ navigate }) => {
   
       const response = await axios.post('http://localhost:5000/admin/signup', adminData);
       console.log('Response:', response.data);
-  
+      
+      if (response.data.message === 'Admin registered successfully.') {
+        navigate('/adminlogin');
+      }
+      
     } catch (error) {
       console.error('Admin registration failed:', error.response.data.message);
     }

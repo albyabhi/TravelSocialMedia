@@ -1,4 +1,5 @@
 
+import AdminLogin from "./Components/Admin/AdminLogin";
 import AdminSignup from "./Components/Admin/AdminSignup";
 
 import Login from "./Components/Login/Login";
@@ -20,7 +21,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/profile" element={<ProfileEd /> } />
         <Route path="/Adminsignup" element={<AdminSignup /> } />
-        
+        <Route path="/Adminlogin" element={<AdminLogin/>}/>
       </Routes>
     </Router>
     </div>

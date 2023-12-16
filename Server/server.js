@@ -4,9 +4,13 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const config = require('./src/config/config');
-const { authenticateToken } = require('./src/middleware/authMiddleware');
-const authRoutes = require('./src/routes/authRoutes');
-const adminRoutes = require('./src/routes/authRoutes'); // Import your adminRoutes module
+const authRoutes = require('./src/Controllers/authRoutes');
+const adminRoutes = require('./src/Controllers/adminRoutes');
+require('dotenv').config();
+
+
+
+
 const portfinder = require('portfinder');
 
 process.on('SIGINT', () => {
@@ -31,6 +35,12 @@ const startServer = async () => {
 
     const db = mongoose.connection;
 
+    
+    // Use Auth Routes
+    app.use('/api', authRoutes);
+
+    app.use('/admin', adminRoutes);
+   
     db.on('error', (err) => {
         console.error('MongoDB connection error:', err);
     });
@@ -39,14 +49,12 @@ const startServer = async () => {
         console.log('Connected to MongoDB');
     });
 
-    // Use Auth Routes
-    app.use('/api', authRoutes);
-
-    // Use Admin Routes
-    app.use('/admin', adminRoutes); // Assuming your admin routes start with '/admin'
+    // Other route configurations and server setup go here...
 
     // Automatically find an available port
-    portfinder.getPortPromise({ port: config.port })
+    const defaultPort = 5000;
+
+    portfinder.getPortPromise({ port: defaultPort })
         .then((port) => {
             // Start the server
             app.listen(port, () => {

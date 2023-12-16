@@ -1,5 +1,3 @@
-// src/models/AdminDetails.js
-
 const mongoose = require('mongoose');
 
 const adminDetailsSchema = new mongoose.Schema({

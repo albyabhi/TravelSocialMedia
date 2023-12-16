@@ -24,14 +24,17 @@ const Signup = () => {
 
   const handleSignup = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/signup",
-        userData
-      );
-      console.log(response.data); // You can handle success or redirect to login page
-      navigate("/login");
+      const response = await axios.post("http://localhost:5000/api/signup", userData);
+
+  
+      if (response && response.data) {
+        console.log(response.data); // You can handle success or redirect to login page
+        navigate("/login");
+      } else {
+        console.error("Signup failed: No data in response");
+      }
     } catch (error) {
-      console.error("Signup failed:", error.response.data.message);
+      console.error("Signup failed:", error.response ? error.response.data.message : error.message);
     }
   };
   

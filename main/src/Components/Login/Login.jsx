@@ -27,7 +27,7 @@ const Login = () => {
       localStorage.setItem('token', response.data.token);
       console.log(response.data); // You can handle success or redirect to the main page
       navigate('/profile');
-    } catch (error) {
+    } catch (error) {  
       if (error.response.status === 401) {
         setErrorMessage('incorrect Email or Password');
       } else if (error.response.status === 404) {

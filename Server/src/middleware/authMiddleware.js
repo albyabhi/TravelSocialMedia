@@ -1,12 +1,8 @@
-// src/middleware/authMiddleware.js
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
-
 const secretKey = config.secretKey;
 
-
-
-// user token
+// User token
 const authenticateToken = (req, res, next) => {
   const token = req.headers['authorization'];
 
@@ -20,7 +16,7 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// admin token
+// Admin token
 const authenticateAdminToken = (req, res, next) => {
   const token = req.headers['authorization'];
 
