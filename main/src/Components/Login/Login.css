@@ -1,6 +1,4 @@
-* {
-    color: aliceblue;
-}
+
 
 .Card-container {
     background-color: #061227;
@@ -12,6 +10,9 @@
     text-align: center;
     transition: transform 0.3s ease; /* Add transition for smoother scaling */
 }
+.lab1{
+    color: aqua;
+}
 
 .Card-container:hover {
     transform: scale(1.05); /* Scale up on hover for a subtle effect */
@@ -21,6 +22,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    color: aqua;
 }
 
 .login-input {
@@ -39,6 +41,7 @@
     outline: none;
     border-color: #5c469c;
     padding: 16px;
+    color: aqua;
 }
 
 .login-button {
@@ -50,6 +53,7 @@
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
     font-size: 16px;
+    color: aqua;
 }
 
 .login-button:hover {

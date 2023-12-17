@@ -51,7 +51,7 @@ const Signup = () => {
   return (
     <div className="content">
       <img src={Logo} alt="My Logo" className="logo" />
-      <img src={SecondImage} alt="Second Image" className="second-image" />
+      <img src={SecondImage} alt="Second" className="second-image" />
       
       <h1 className="left-heading">Welcome to Nomad Gram</h1>
       <p className="left-paragraph">
