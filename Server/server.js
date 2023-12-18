@@ -6,6 +6,7 @@ const path = require('path');
 const config = require('./src/config/config');
 const authRoutes = require('./src/Controllers/authRoutes');
 const adminRoutes = require('./src/Controllers/adminRoutes');
+const locationRoutes = require('./src/Controllers/locationRoutes');
 require('dotenv').config();
 
 
@@ -40,6 +41,8 @@ const startServer = async () => {
     app.use('/api', authRoutes);
 
     app.use('/admin', adminRoutes);
+
+    app.use('/map', locationRoutes);
    
     db.on('error', (err) => {
         console.error('MongoDB connection error:', err);
