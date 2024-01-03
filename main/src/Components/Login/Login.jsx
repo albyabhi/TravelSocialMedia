@@ -1,11 +1,27 @@
-// Login.js
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import '../Login/Login.css'
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import { styled } from '@mui/system';
+import { theme } from '../Home/theme';
+
+// Apply the styles using styled(Box)
+const FormWrapper = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  padding: "1.5rem 1.5rem 0.75rem 1.5rem",
+  backgroundColor: theme.palette.secondary.main,
+  borderRadius: "0.75rem",
+  boxShadow: "none",  // Remove the shadow
+  maxWidth: "300px", // Adjust the max width as needed
+  margin: "auto", // Center the Wrapper
+}));
 
 const Login = () => {
-
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -14,22 +30,32 @@ const Login = () => {
     password: '',
   });
 
-  
-
   const handleInputChange = (e) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
   };
 
   const handleLogin = async () => {
     try {
-      console.log('Login data:', loginData);
+      
       const response = await axios.post('http://localhost:5000/api/login', loginData);
+      const { status, profileupdate } = response.data.user;
+      
+      if (status === 'Inactive') {
+        // Hide loading state if needed
+        // You can set setIsLoading(false) here
+        setErrorMessage('Authentication rejected. User is inactive.');
+        return;
+      }
       localStorage.setItem('token', response.data.token);
-      console.log(response.data); // You can handle success or redirect to the main page
-      navigate('/profile');
-    } catch (error) {  
+      if (profileupdate === 'Done') {
+        navigate('/home');
+      } else {
+        navigate('/profile');
+      }
+
+    } catch (error) {
       if (error.response.status === 401) {
-        setErrorMessage('incorrect Email or Password');
+        setErrorMessage('Incorrect Email or Password');
       } else if (error.response.status === 404) {
         setErrorMessage('User not found. Check your email.');
       } else {
@@ -40,28 +66,54 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className='Card-container' 
-      
-      
-      >
-  <h2 className='lab1'>Login</h2>
-  <form className="login-form">
-    <label >Email:</label>
-    <input type="email" name="email" className="login-input" onChange={handleInputChange} />
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      height="100vh"
+      backgroundColor={theme.palette.primary.main}
+    >
+      <FormWrapper>
+        <Typography variant="h4" gutterBottom>
+          Login
+        </Typography>
+        <form className="login-form">
+          <TextField
+            label="Email"
+            type="email"
+            name="email"
+            className="login-input"
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+          />
 
-    <label>Password:</label>
-    <input type="password" name="password" className="login-input" onChange={handleInputChange} />
+          <TextField
+            label="Password"
+            type="password"
+            name="password"
+            className="login-input"
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+          />
 
-    <button type="button" className="login-button" onClick={handleLogin}>
-      Login
-    </button>
-    {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-  </form>
-  </div>
-</div>
-
+          {/* Center the button using marginLeft */}
+          <Button variant="contained" color="primary" onClick={handleLogin} style={{ marginLeft: '50%', transform: 'translateX(-50%)', marginTop: '1rem' }}>
+            Login
+          </Button>
+          {errorMessage && <Typography variant="body2" color="error">{errorMessage}</Typography>}
+        </form>
+      </FormWrapper>
+    </Box>
   );
 };
 
 export default Login;
+
+
+
+
+
+
+

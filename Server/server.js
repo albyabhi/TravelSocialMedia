@@ -40,6 +40,7 @@ const startServer = async () => {
     // Use Auth Routes
     app.use('/api', authRoutes);
 
+
     app.use('/admin', adminRoutes);
 
     app.use('/map', locationRoutes);

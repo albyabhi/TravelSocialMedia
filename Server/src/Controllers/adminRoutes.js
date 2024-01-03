@@ -11,32 +11,33 @@ const router = express.Router();
 // Admin Signup Endpoint
 router.post('/signup', async (req, res) => {
   try {
-    const { adminEmail, adminId, adminPassword } = req.body;
+    const { username, email, password } = req.body;
 
-    // Check if admin with the same email or ID already exists
-    const existingAdmin = await AdminDetails.findOne({ $or: [{ adminEmail }, { adminId }] });
-
-    if (existingAdmin) {
-      return res.status(400).json({ message: 'Admin with this email or ID already exists.' });
+    // Check if user with the same email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User with this email already exists.' });
     }
 
-    // Hash the admin password
+    // Hash the user password
     const salt = await bcrypt.genSalt();
-    const passwordHash = await bcrypt.hash(adminPassword, salt);
+    const passwordHash = await bcrypt.hash(password, salt);
 
-    // Create a new admin
-    const newAdmin = new AdminDetails({
-      adminEmail,
-      adminId,
-      adminPassword: passwordHash,
+    // Create a new user with additional fields
+    const newUser = new User({
+      username,
+      email,
+      password: passwordHash,
+      status: 'Active',        // Set status to 'Active'
+      profileupdate: 'Undone', // Set profileupdate to 'Undone'
     });
 
-    // Save the new admin to the database
-    await newAdmin.save();
+    // Save the user to the database (password will be automatically hashed)
+    await newUser.save();
 
-    res.status(201).json({ message: 'Admin registered successfully.' });
+    res.status(201).json({ message: 'User registered successfully.' });
   } catch (error) {
-    console.error('Error in admin signup:', error);
+    console.error('Signup failed:', error);
     res.status(500).json({ message: 'Internal server error.' });
   }
 });
