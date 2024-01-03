@@ -8,7 +8,7 @@ const profileDataSchema = new mongoose.Schema({
   },
   bio: String,
   highlightedPlaces: [String],
-  profilePicture: String,
+  profilePicture: Buffer,
   firstName: String,
   lastName: String,
   phoneNumber: String,
@@ -17,4 +17,3 @@ const profileDataSchema = new mongoose.Schema({
 const ProfileData = mongoose.model('ProfileData', profileDataSchema);
 
 module.exports = ProfileData;
- 

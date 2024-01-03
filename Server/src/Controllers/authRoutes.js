@@ -113,10 +113,10 @@ router.get("/profile", authenticateToken, async (req, res) => {
   }
 });
 
+
+
 // update profile
-router.post(
-  "/profile/update",
-  authenticateToken,
+router.post("/profile/update",authenticateToken,
   upload.single("profilePicture"),
   async (req, res) => {
     try {
@@ -148,7 +148,7 @@ router.post(
       }
 
       // Save the updated user data to the database
-
+      existingUser.profileupdate ='Done';
       await existingUser.save();
 
       // Update or create ProfileData entry
@@ -268,5 +268,31 @@ router.delete("/users/:userId", async (req, res) => {
     res.status(500).json({ message: "Internal server error." });
   }
 });
+
+router.put("/users/:userId/status", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Find the user by ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Toggle the user's status
+    user.status = user.status === 'Active' ? 'Inactive' : 'Active';
+
+    // Save the updated user status to the database
+    await user.save();
+
+    res.json({ message: `User status toggled successfully. New status: ${user.status}` });
+  } catch (error) {
+    console.error("Error toggling user status:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+
 
 module.exports = router;
