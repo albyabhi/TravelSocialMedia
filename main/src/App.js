@@ -11,6 +11,7 @@ import Signup from "./Components/Signup/Signup";
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { theme } from './Components/Home/theme';
 
+
 function App() {
   return (
     <ThemeProvider theme={theme}>

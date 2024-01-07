@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Container, Grid, Typography, TextField, Button } from "@mui/material";
+import { Container, Grid, Typography, TextField, Button, Modal, Box } from "@mui/material";
+import ProfilePictureWidget from "../Home/Widgets/ProfilePictureWidget"; // Adjust the import path as needed
 
 const ProfileEd = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
-  const [profilePicture, setProfilePicture] = useState(null);
   const [bio, setBio] = useState("");
   const [highlightedPlaces, setHighlightedPlaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [isUploadModalOpen, setUploadModalOpen] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -35,10 +36,7 @@ const ProfileEd = () => {
           setFirstName(response.data.firstName || "");
           setLastName(response.data.lastName || "");
           setPhoneNumber(response.data.phoneNumber || "");
-
-          
-          setBio(response.data.bio || ""); 
-
+          setBio(response.data.bio || "");
           setHighlightedPlaces(response.data.highlightedPlaces || []);
           setLoading(false);
         }
@@ -64,10 +62,12 @@ const ProfileEd = () => {
     navigate("/login");
   };
 
-  const handleProfilePictureChange = (event) => {
-    // Handle profile picture file change
-    const file = event.target.files[0];
-    setProfilePicture(file);
+  const handleOpenUploadModal = () => {
+    setUploadModalOpen(true);
+  };
+
+  const handleCloseUploadModal = () => {
+    setUploadModalOpen(false);
   };
 
   const handleAddPlace = () => {
@@ -82,23 +82,25 @@ const ProfileEd = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const formData = new FormData();
-      formData.append("profilePicture", profilePicture);
-      formData.append("bio", bio);
-      formData.append("highlightedPlaces", JSON.stringify(highlightedPlaces));
-      formData.append("firstName", firstName);
-      formData.append("lastName", lastName);
-      formData.append("phoneNumber", phoneNumber);
+      const requestData = {
+        bio,
+        highlightedPlaces,
+        firstName,
+        lastName,
+        phoneNumber,
+      };
 
       // Send a POST request to update the profile
-      await axios.post("http://localhost:5000/api/profile/update", formData, {
-        headers: {
-          Authorization: token,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await axios.post(
+        "http://localhost:5000/api/profile/update",
+        requestData,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
 
-  
       navigate("/home");
     } catch (error) {
       console.error("Error updating profile:", error.response.data.message);
@@ -115,7 +117,18 @@ const ProfileEd = () => {
         <Grid item xs={12}>
           <Typography variant="h2">Welcome, {userData.username}!</Typography>
         </Grid>
-
+  
+        {/* New Upload Profile Picture Button */}
+        <Grid item xs={12}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleOpenUploadModal}
+          >
+            Upload Profile Picture
+          </Button>
+        </Grid>
+  
         <Grid item xs={6}>
           {/* First Name */}
           <TextField
@@ -126,7 +139,7 @@ const ProfileEd = () => {
             fullWidth
           />
         </Grid>
-
+  
         <Grid item xs={6}>
           {/* Last Name */}
           <TextField
@@ -137,7 +150,7 @@ const ProfileEd = () => {
             fullWidth
           />
         </Grid>
-
+  
         <Grid item xs={6}>
           {/* Phone Number */}
           <TextField
@@ -148,19 +161,10 @@ const ProfileEd = () => {
             fullWidth
           />
         </Grid>
-
-        {/* Profile Picture */}
-        <Grid item xs={6}>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleProfilePictureChange}
-          />
-        </Grid>
-
+  
         {/* Bio */}
         <Grid item xs={12}>
-        <Typography variant="h5">Add new bio :</Typography>
+          <Typography variant="h5">Add new bio :</Typography>
           <TextField
             label="Bio"
             multiline
@@ -169,9 +173,9 @@ const ProfileEd = () => {
             onChange={(e) => setBio(e.target.value)}
             fullWidth
           />
-          {console.log("Bio value for TextField:", bio)} {/* Add this line */}
+          {console.log("Bio value for TextField:", bio)}
         </Grid>
-
+  
         {/* Highlighted Places */}
         <Grid item xs={12}>
           <Typography variant="h5">Highlighted Places:</Typography>
@@ -184,7 +188,7 @@ const ProfileEd = () => {
             Add Place
           </Button>
         </Grid>
-
+  
         {/* Submit button */}
         <Grid item xs={12}>
           <Button
@@ -195,13 +199,34 @@ const ProfileEd = () => {
             Save Changes
           </Button>
         </Grid>
-
+  
         {/* Logout button */}
         <Grid item xs={12}>
-          <Button variant="contained" color="primary" onClick={handleLogout}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleLogout}
+          >
             Logout
           </Button>
         </Grid>
+  
+        {/* Modal for uploading profile picture */}
+        <Modal
+          open={isUploadModalOpen}
+          onClose={handleCloseUploadModal}
+          aria-labelledby="upload-profile-modal"
+          aria-describedby="upload-profile-description"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Box>
+            <ProfilePictureWidget />
+          </Box>
+        </Modal>
       </Grid>
     </Container>
   );

@@ -4,20 +4,18 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Divider, Typography } from '@mui/material';
 import FlexBetween from '../Props/FlexBetween';
 import WidgetWrapper from '../Props/WidgetWrapper';
+import { Buffer } from 'buffer';
 
 const UserWidget = () => {
   const [user, setUser] = useState(null);
-
+  const [profilePicture, setProfilePicture] = useState(null);
   const navigate = useNavigate();
 
   const getUser = async () => {
     try {
       const token = localStorage.getItem('token');
 
-      if (!token) {
-        navigate('/login');
-        return;
-      }
+      
 
       const [userResponse, profileResponse] = await Promise.all([
         axios.get('http://localhost:5000/api/profile', {
@@ -35,8 +33,12 @@ const UserWidget = () => {
         userId: userData._id,
         username: userData.username,
         bio: profileData?.bio || '',
+        profilePicture: profileData?.profilePicture || null,
       };
 
+      setProfilePicture(profileData?.profilePicture || null);
+      console.log('Profile Picture Data:', profileData?.profilePicture);
+      
       setUser(userProfile);
     } catch (error) {
       console.error('Error fetching user data:', error.response?.data?.message);
@@ -54,6 +56,9 @@ const UserWidget = () => {
   if (!user) {
     return null;
   }
+  
+
+  
 
   const { username, bio } = user;
 
@@ -67,7 +72,13 @@ const UserWidget = () => {
         alignItems="center"
       >
         {/* Display profile picture */}
-       
+        {profilePicture && profilePicture.data && (
+  <img
+    src={`data:${profilePicture.contentType};base64,${Buffer.from(profilePicture.data)}`}
+    alt={username}
+    style={{ width: '50px', height: '50px', borderRadius: '50%' }}
+  />
+)}
       </FlexBetween>
 
       {/* FIRST ROW (Centered) */}
