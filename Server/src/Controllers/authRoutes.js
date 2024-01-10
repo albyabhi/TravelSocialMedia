@@ -7,6 +7,7 @@ const ProfileData = require("../models/profileDataModel");
 const config = require("../config/config");
 const secretKey = config.secretKey;
 const upload = require("../uploads/upload");
+const fs = require('fs');
 
 const router = express.Router();
 
@@ -116,12 +117,11 @@ router.get("/profile", authenticateToken, async (req, res) => {
 
 
 // update profile
-router.post("/profile/update",authenticateToken,
-  upload.single("profilePicture"),
+router.post("/profile/update",authenticateToken,upload.single("profilePicture"),
   async (req, res) => {
     try {
       const userId = req.user.userId;
-
+      console.log("Received file:", req.file);
       // Fetch the existing user data
       const existingUser = await User.findById(userId);
 
@@ -135,20 +135,23 @@ router.post("/profile/update",authenticateToken,
         existingUser.bio = req.body.bio.trim();
       }
 
-      if (
-        req.body.highlightedPlaces !== undefined &&
-        req.body.highlightedPlaces.length > 0
-      ) {
-        existingUser.highlightedPlaces = req.body.highlightedPlaces;
-      }
-
-      // If a profile picture is uploaded, update it
       if (req.file) {
-        existingUser.profilePicture = req.file.filename;
+        // Read the file as binary data
+        const fileData = fs.readFileSync(req.file.path);
+  
+        // Encode the binary data to Base64
+        const base64Data = fileData.toString('base64');
+  
+        // Update profile picture in the format you specified
+        existingUser.profilePicture = {
+          data: base64Data,
+          contentType: req.file.mimetype,
+        };
+       
       }
 
       // Save the updated user data to the database
-      existingUser.profileupdate ='Done';
+      existingUser.profileupdate = 'Done';
       await existingUser.save();
 
       // Update or create ProfileData entry
@@ -199,6 +202,7 @@ router.post("/profile/update",authenticateToken,
 );
 
 
+
 //fetctprofiledata
 router.get('/profiledata', authenticateToken, async (req, res) => {
   try {
@@ -218,22 +222,56 @@ router.get('/profiledata', authenticateToken, async (req, res) => {
   }
 });
 
-// Profile Picture Upload Endpoint
-router.post("/profile/upload", authenticateToken, async (req, res) => {
+// Fetch profilepicture data by user ID
+router.get('/profiledata/:userId', authenticateToken, async (req, res) => {
   try {
-    const profilePictureFilename = req.file.filename;
-    const userId = req.user.userId;
+    const { userId } = req.params;
 
-    // Update the user's profile picture field in the database
-    await User.findByIdAndUpdate(userId, {
-      profilePicture: profilePictureFilename,
-    });
+    // Fetch profile data from the ProfileData collection using userId
+    const profileData = await ProfileData.findOne({ userId });
 
-    console.log("Profile Picture Uploaded:", profilePictureFilename);
+    if (!profileData) {
+      return res.status(404).json({ message: 'Profile data not found.' });
+    }
 
-    res.json({ message: "Profile picture uploaded successfully." });
+    res.json(profileData);
   } catch (error) {
-    console.error("Profile picture upload failed:", error);
+    console.error('Error fetching profile data by user ID:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
+//fetch by userId
+router.get("/user/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    // Fetch user data from the User collection using userId
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Fetch profile data from the ProfileData collection using userId
+    const profileData = await ProfileData.findOne({ userId });
+
+    // Combine user and profile data into a single object
+    const userProfile = {
+      userId: user._id,
+      username: user.username,
+      email: user.email,
+      profilePicture: user.profilePicture,
+      bio: profileData?.bio || "", // Use profileData for bio
+      highlightedPlaces: user.highlightedPlaces,
+      firstName: profileData?.firstName || "",
+      lastName: profileData?.lastName || "",
+      phoneNumber: profileData?.phoneNumber || "",
+    };
+
+    res.json(userProfile);
+  } catch (error) {
+    console.error("Error fetching user data:", error);
     res.status(500).json({ message: "Internal server error." });
   }
 });

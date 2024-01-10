@@ -37,6 +37,9 @@ const Navbar = () => {
   const toggleAddPost = () => {
     setAddPostVisibility((prevVisibility) => !prevVisibility);
   };
+  const closeAddPost = () => {
+    setAddPostVisibility(false);
+  };
 
   return (
     <>
@@ -61,7 +64,7 @@ const Navbar = () => {
       </AppBar>
       {isAddPostVisible && (
         <CenteredContainer>
-          <AddPost />
+          <AddPost onClose={closeAddPost} />
         </CenteredContainer>
       )}
     </>

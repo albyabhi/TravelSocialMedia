@@ -8,11 +8,15 @@ const profileDataSchema = new mongoose.Schema({
   },
   bio: String,
   highlightedPlaces: [String],
-  profilePicture: Buffer,
+  profilePicture: {
+    data: String,
+    contentType: String, // MIME type
+  },
   firstName: String,
   lastName: String,
   phoneNumber: String,
 });
+
 
 const ProfileData = mongoose.model('ProfileData', profileDataSchema);
 

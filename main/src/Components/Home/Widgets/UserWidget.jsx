@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Divider, Typography } from '@mui/material';
 import FlexBetween from '../Props/FlexBetween';
 import WidgetWrapper from '../Props/WidgetWrapper';
-import { Buffer } from 'buffer';
+
 
 const UserWidget = () => {
   const [user, setUser] = useState(null);
@@ -14,8 +14,6 @@ const UserWidget = () => {
   const getUser = async () => {
     try {
       const token = localStorage.getItem('token');
-
-      
 
       const [userResponse, profileResponse] = await Promise.all([
         axios.get('http://localhost:5000/api/profile', {
@@ -37,12 +35,10 @@ const UserWidget = () => {
       };
 
       setProfilePicture(profileData?.profilePicture || null);
-      console.log('Profile Picture Data:', profileData?.profilePicture);
-      
       setUser(userProfile);
     } catch (error) {
       console.error('Error fetching user data:', error.response?.data?.message);
-      navigate('/login');
+      
     }
   };
 
@@ -50,36 +46,31 @@ const UserWidget = () => {
     getUser();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
- 
-   
-
   if (!user) {
     return null;
   }
-  
-
-  
 
   const { username, bio } = user;
-
+  
   return (
     <WidgetWrapper>
       {/* UPPER ROW (Centered) */}
       <FlexBetween
-        gap="0.5rem"
-        pb="0.5rem"
-        justifyContent="center"
-        alignItems="center"
-      >
-        {/* Display profile picture */}
-        {profilePicture && profilePicture.data && (
-  <img
-    src={`data:${profilePicture.contentType};base64,${Buffer.from(profilePicture.data)}`}
-    alt={username}
-    style={{ width: '50px', height: '50px', borderRadius: '50%' }}
-  />
-)}
-      </FlexBetween>
+  gap="0.5rem"
+  pb="0.5rem"
+  justifyContent="center"
+  alignItems="center"
+  style={{ flexDirection: 'column', textAlign: 'center' }}
+>
+  {/* Display profile picture */}
+  {profilePicture && profilePicture.data && (
+    <img
+      src={`data:${profilePicture.contentType};base64,${profilePicture.data.toString('base64')}`}
+      alt={username}
+      style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover' }}
+    />
+  )}
+</FlexBetween>
 
       {/* FIRST ROW (Centered) */}
       <FlexBetween
@@ -90,20 +81,20 @@ const UserWidget = () => {
         style={{ cursor: 'pointer' }}
         onClick={() => navigate('/profile')}
       >
-        <Typography variant="h4" fontWeight="500">
+        <Typography variant="h4" fontWeight="500" style={{ textAlign: 'center' }}>
           {username}
         </Typography>
       </FlexBetween>
-
+      <Divider />
       {/* SECOND ROW (Centered) */}
       <FlexBetween gap="1rem" justifyContent="center" alignItems="center">
-        <Box>
+        <Box style={{ textAlign: 'center' }}>
           {/* Display bio */}
-          <Typography>{bio}</Typography>
+          <Typography style={{ margin: '0' }}>{bio}</Typography>
         </Box>
       </FlexBetween>
 
-      <Divider />
+      
     </WidgetWrapper>
   );
 };

@@ -1,9 +1,9 @@
 // PostWidget.js
-import React from "react";
-import { Box, Typography, IconButton } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Box, Typography, IconButton, Avatar } from "@mui/material";
 import { styled } from "@mui/system";
-import { theme } from "../theme"; // Adjust the import path as needed
-import { ThumbUpOutlined, ChatBubbleOutline, Share } from "@mui/icons-material";
+import { ThumbUpOutlined } from "@mui/icons-material";
+import axios from 'axios';
 
 const WidgetWrapper = styled(Box)(({ theme }) => ({
   padding: "1.5rem",
@@ -11,44 +11,61 @@ const WidgetWrapper = styled(Box)(({ theme }) => ({
   borderRadius: "0.75rem",
 }));
 
-const PostWidget = () => {
-  // Demo data
-  const demoUser = {
-    username: "John Doe",
-    avatar: "https://placekitten.com/40/40", // Placeholder avatar image
-  };
+const PostWidget = ({ post }) => {
+  const { userId, postId, postImage, description } = post;
+  const [userData, setUserData] = useState(null);
+  const [profileData, setProfileData] = useState(null);
 
-  const demoPost = {
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis vel nisi vitae mi accumsan fermentum. Proin vel justo nec mi euismod facilisis.",
-    mediaUrl: "https://placekitten.com/400/300", // Placeholder image URL
-  };
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const [userResponse, profileDataResponse] = await Promise.all([
+          axios.get(`http://localhost:5000/api/user/${userId}`),
+          axios.get(`http://localhost:5000/api/profiledata/${userId}`)
+        ]);
 
-  // Placeholder data for likes, comments, and shares
-  const likesCount = 50;
-  const commentsCount = 10;
-  const sharesCount = 5;
+        const user = userResponse.data;
+        const profileData = profileDataResponse.data;
+        
+        setUserData(user);
+        setProfileData(profileData);
+      } catch (error) {
+        console.error('Error fetching user data:', error.response?.data?.message);
+      }
+    };
 
+    fetchUserData();
+  }, [userId]);
+
+  // Convert ObjectID to string for rendering
+  const userIdString = userId.toString();
+ 
   return (
-    <WidgetWrapper theme={theme}>
-      {/* Avatar and Username */}
-      <Box display="flex" alignItems="center" mb="1rem">
-        <img src={demoUser.avatar} alt="User Avatar" style={{ borderRadius: "50%", marginRight: "0.5rem" }} />
-        <Typography variant="subtitle1" fontWeight="500">
-          {demoUser.username}
-        </Typography>
-      </Box>
+    <WidgetWrapper>
+      {/* UserId, PostId, etc. */}
+      {userData && profileData && (
+        <Box>
+          <Avatar
+            src={`data:${profileData.profilePicture.contentType};base64,${profileData.profilePicture.data.toString('base64')}`}
+            alt={userData.username}
+            style={{ borderRadius: "50%", marginRight: "0.5rem", width: '40px', height: '40px' }}
+          />
+          <Typography variant="subtitle1" fontWeight="500">
+            {userData.username}
+          </Typography>
+          {/* Other user information */}
+        </Box>
+      )}
 
       {/* Description */}
       <Typography variant="body1" mb="1rem">
-        {demoPost.description}
+        {description}
       </Typography>
 
-      {/* Media (Image/Video) */}
-      {demoPost.mediaUrl && (
+      {/* PostImage */}
+      {postImage && (
         <Box mb="1rem">
-          {/* Assuming mediaUrl is the URL of the image or video */}
-          <img src={demoPost.mediaUrl} alt="Media" style={{ width: "100%", borderRadius: "0.5rem" }} />
+          <img src={`data:${postImage.contentType};base64,${postImage.data}`} alt="Post" style={{ width: "100%", borderRadius: "0.5rem" }} />
         </Box>
       )}
 
@@ -56,25 +73,11 @@ const PostWidget = () => {
       <Box display="flex" justifyContent="center" alignItems="center">
         <IconButton>
           <ThumbUpOutlined />
-          <Typography variant="caption" ml="0.5rem">
-            {likesCount} Likes
-          </Typography>
+          {/* Likes count or other information */}
         </IconButton>
-        <IconButton>
-          <ChatBubbleOutline />
-          <Typography variant="caption" ml="0.5rem">
-            {commentsCount} Comments
-          </Typography>
-        </IconButton>
-        <IconButton>
-          <Share />
-          <Typography variant="caption" ml="0.5rem">
-            {sharesCount} Shares
-          </Typography>
-        </IconButton>
+        {/* Other icons... */}
       </Box>
     </WidgetWrapper>
-    
   );
 };
 
