@@ -121,13 +121,17 @@ router.post("/profile/update",authenticateToken,upload.single("profilePicture"),
   async (req, res) => {
     try {
       const userId = req.user.userId;
-      console.log("Received file:", req.file);
+      
       // Fetch the existing user data
       const existingUser = await User.findById(userId);
 
       // Verify that the user exists
       if (!existingUser) {
         return res.status(404).json({ message: "User not found." });
+      }
+
+      if (req.body.username !== undefined && req.body.username.trim() !== "") {
+        existingUser.username = req.body.username.trim();
       }
 
       // Update user data based on the received data
@@ -162,6 +166,10 @@ router.post("/profile/update",authenticateToken,upload.single("profilePicture"),
             req.body.bio !== undefined && req.body.bio.trim() !== ""
               ? req.body.bio.trim()
               : existingUser.bio,
+              username:
+              req.body.username !== undefined
+                ? req.body.username
+                : existingUser.username, 
           highlightedPlaces:
             req.body.highlightedPlaces !== undefined &&
             req.body.highlightedPlaces.length > 0

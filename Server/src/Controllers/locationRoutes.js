@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const { Nation, State, Location } = require('../models/locationModels');
+const mongoose = require('mongoose');
 
 
 
@@ -59,7 +60,7 @@ router.post('/locations', async (req, res) => {
     }
 
     // Create a new location
-    const location = new Location({ name: locationName, state: state._id });
+    const location = new Location({ name: locationName, state: state._id, nation: nation._id });
     await location.save();
 
     res.status(201).json({ message: 'Location created successfully.' });
@@ -84,12 +85,99 @@ router.post('/locations', async (req, res) => {
   // Endpoint to get all states
   router.get('/fetchstates', async (req, res) => {
     try {
-      const states = await State.find();
+      const { nation } = req.query;
+  
+      // Check if the nation parameter is provided
+      if (!nation) {
+        return res.status(400).json({ message: 'Nation parameter is missing.' });
+      }
+  
+      // Fetch states based on the provided nation ID
+      const states = await State.find({ nation });
       res.status(200).json(states);
     } catch (error) {
       console.error('Error fetching states:', error);
       res.status(500).json({ message: 'Internal server error.' });
     }
   });
+
+  // Add this route in routes/locations.js
+  router.get('/locations/suggestions', async (req, res) => {
+    try {
+        const { input } = req.query;
+
+        // Use a regex to perform a case-insensitive search for location names
+        const locations = await Location.find({ name: { $regex: new RegExp(input, 'i') } })
+            .populate({
+                path: 'state',
+                select: 'name', // Only select the 'name' property
+            })
+            .populate({
+                path: 'nation',
+                select: 'name', // Only select the 'name' property
+            })
+            .limit(10); // Limit the number of suggestions returned
+
+        const suggestions = locations.map((location) => ({
+            label: location.name,
+            state: location.state ? location.state.name : '', // Check if state is populated
+            nation: location.nation ? location.nation.name : '', // Check if nation is populated
+        }));
+
+        res.status(200).json(suggestions);
+    } catch (error) {
+        console.error('Error fetching location suggestions:', error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+});
+ 
+// Fetch state details by ID
+router.get('/state/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const state = await State.findById(id);
+    if (!state) {
+      return res.status(404).json({ message: 'State not found.' });
+    }
+    res.status(200).json(state);
+  } catch (error) {
+    console.error('Error fetching state by ID:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
+// Fetch nation details by ID
+router.get('/nation/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const nation = await Nation.findById(id);
+    if (!nation) {
+      return res.status(404).json({ message: 'Nation not found.' });
+    }
+    res.status(200).json(nation);
+  } catch (error) {
+    console.error('Error fetching nation by ID:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
+router.get('/getIdByName/:name', async (req, res) => {
+  try {
+    const location = await Location.findOne({ label: req.params.name });
+   
+    if (!location) {
+      return res.status(404).json({ message: 'Location not found' });
+    }
+
+    // Assuming the ID you want to fetch is in the _id field
+    const locationId = location._id;
+
+    res.json({ locationId });
+  } catch (error) {
+    console.error('Error fetching location ID:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
 
 module.exports = router;

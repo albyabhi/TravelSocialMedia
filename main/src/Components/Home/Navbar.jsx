@@ -81,7 +81,12 @@ const Navbar = () => {
           <AddPost onClose={closeAddPost} />
         </CenteredContainer>
       )}
-      {isProfileWidgetVisible && <ProfileEdWidget onClose={toggleProfileWidget} />}
+      {isProfileWidgetVisible && (
+        <CenteredContainer>
+       <ProfileEdWidget onClose={toggleProfileWidget} />
+       </CenteredContainer>     
+      )}
+
     </>
   );
 };

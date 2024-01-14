@@ -61,7 +61,7 @@ const PostWidget = ({ post }) => {
   }, [userId]);
 
   return (
-    <WidgetWrapper elevation={3}>
+    <WidgetWrapper elevation={3} >
       {userData && profileData && (
         <UserInfoContainer>
           <Avatar

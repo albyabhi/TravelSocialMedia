@@ -44,6 +44,11 @@ const locationSchema = new mongoose.Schema({
     ref: 'State',
     required: true,
   },
+  nation: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Nation',
+    required: true,
+  },
 });
 
 const Location = mongoose.model('Location', locationSchema);

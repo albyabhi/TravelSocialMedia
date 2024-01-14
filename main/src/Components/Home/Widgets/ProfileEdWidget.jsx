@@ -7,7 +7,6 @@ import {
   Input,
   TextField,
   Button,
-  Paper,
   IconButton,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
@@ -24,6 +23,7 @@ const ProfileEdWidget = ({ onClose }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [profilePicture, setProfilePicture] = useState(null);
   const [savedImage, setSavedImage] = useState(null);
+  const [username, setUserName] = useState("");
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -53,6 +53,8 @@ const ProfileEdWidget = ({ onClose }) => {
 
         if (isMounted) {
           setUserData(response.data);
+          setUserName(response.data.username || "");
+
           setFirstName(response.data.firstName || "");
           setLastName(response.data.lastName || "");
           setPhoneNumber(response.data.phoneNumber || "");
@@ -104,6 +106,9 @@ const ProfileEdWidget = ({ onClose }) => {
       const token = localStorage.getItem("token");
 
       const formData = new FormData();
+      formData.append("username", username);
+
+
       formData.append("bio", bio);
       formData.append(
         "highlightedPlaces",
@@ -142,7 +147,7 @@ const ProfileEdWidget = ({ onClose }) => {
   }
 
   return (
-    <WidgetWrapper style={{ maxWidth: '50vw' }}>
+    <WidgetWrapper style={{ maxWidth: '60vw', marginTop: '60px'}}>
      
         <Grid container spacing={2}>
           
@@ -183,6 +188,15 @@ const ProfileEdWidget = ({ onClose }) => {
   </label>
 </Grid>
 
+<Grid item xs={12}>
+  <TextField
+    label="Username"
+    type="text"
+    value={username}
+    onChange={(e) => setUserName(e.target.value)}
+    fullWidth
+  />
+</Grid>
           <Grid item xs={12}>
             <TextField
               label="First Name"

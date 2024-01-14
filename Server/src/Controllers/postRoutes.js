@@ -6,51 +6,57 @@ const ProfileData = require("../models/profileDataModel");
 const  Post = require('../models/postModel');
 const upload = require('../uploads/upload');
 const fs = require('fs');
-// Create a new post
 router.post('/newposts', authenticateToken, upload.single('postImage'), async (req, res) => {
-    try {
-        // Get userId from authenticated user
-        const userId = req.user.userId;
+  try {
+    // Get userId from authenticated user
+    const userId = req.user.userId;
 
-        // Fetch the existing user data
-        const existingUser = await User.findById(userId);
+    // Fetch the existing user data
+    const existingUser = await User.findById(userId);
 
-        // Verify that the user exists
-        if (!existingUser) {
-            return res.status(404).json({ message: 'User not found.' });
-        }
-
-        // Create a new post
-        const newPost = new Post({
-            userId,
-            postId: generatePostId(), // Generate or set postId here
-            description: req.body.description,
-            location: req.body.location,
-        });
-
-        // Handle post image upload logic
-        if (req.file) {
-            // Read the file as binary data
-            const fileData = fs.readFileSync(req.file.path);
-
-            // Encode the binary data to Base64
-            const base64Data = fileData.toString('base64');
-
-            // Update post image in the format you specified
-            newPost.postImage = {
-                data: base64Data,
-                contentType: req.file.mimetype,
-            };
-        }
-
-        // Save the post to the database
-        await newPost.save();
-
-        res.status(201).json(newPost);
-    } catch (error) {
-        console.error('Error creating post:', error);
-        res.status(500).json({ message: 'Internal server error.' });
+    // Verify that the user exists
+    if (!existingUser) {
+      return res.status(404).json({ message: 'User not found.' });
     }
+
+    // Fetch the location details from the request
+    const { location } = req.body;
+
+    console.log('Location name:', location); // Add this line for logging
+
+    // Create a new post
+    const newPost = new Post({
+      userId,
+      postId: generatePostId(),
+      description: req.body.description,
+      postImage: {},
+      location,
+      
+    });
+
+    // Handle post image upload logic
+    if (req.file) {
+      // Read the file as binary data
+      const fileData = fs.readFileSync(req.file.path);
+
+      // Encode the binary data to Base64
+      const base64Data = fileData.toString('base64');
+
+      // Update post image in the format you specified
+      newPost.postImage = {
+        data: base64Data,
+        contentType: req.file.mimetype,
+      };
+    }
+
+    // Save the post to the database
+    await newPost.save();
+
+    res.status(201).json(newPost);
+  } catch (error) {
+    console.error('Error creating post:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
 });
 
 

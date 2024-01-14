@@ -10,6 +10,7 @@ import ProfileEd from "./Components/Profile/ProfileEd";
 import Signup from "./Components/Signup/Signup";
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { theme } from './Components/Home/theme';
+import State from "./Components/Admin/Adminmain/Dashboard/State";
 
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
             <Route path="/location" element={<Locationtab />} />
             <Route path="/viewedit" element={<Viewedit />} />
             <Route path="/home" element={<Home />} />
+            <Route path="/state" element={<State />} />
           </Routes>
         </Router>
       </div>

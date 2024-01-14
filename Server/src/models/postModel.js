@@ -1,4 +1,3 @@
-// PostModel.js
 const mongoose = require("mongoose");
 
 const postSchema = new mongoose.Schema({
@@ -17,7 +16,10 @@ const postSchema = new mongoose.Schema({
     contentType: String,
   },
   description: String,
+ 
   location: String,
+    
+  
 });
 
 const PostModel = mongoose.model("Postdata", postSchema);

@@ -13,8 +13,8 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import PersonIcon from '@mui/icons-material/Person';
-import { AddLocationAlt } from '@mui/icons-material';
-import EditIcon from '@mui/icons-material/Edit';
+import { AddLocationAlt, FlagCircle } from '@mui/icons-material';
+import PublicIcon from '@mui/icons-material/Public';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../appStore';
 
@@ -50,9 +50,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
-
-
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
+const CustomDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
     width: drawerWidth,
     flexShrink: 0,
@@ -71,19 +69,14 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 export default function Sidenav() {
   const theme = useTheme();
-  // const [open, setOpen] = React.useState(false);
-  const navigate =useNavigate();
-  const open = useAppStore((state) =>state.dopen)
-
-
-
-  
+  const navigate = useNavigate();
+  const open = useAppStore((state) => state.dopen);
 
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <Box height={30} />
-      <Drawer variant="permanent" open={open}>
+      <CustomDrawer variant="permanent" open={open}>
         <DrawerHeader>
           <IconButton >
             {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
@@ -162,16 +155,40 @@ export default function Sidenav() {
                     justifyContent: 'center',
                   }}
                 >
-                  <EditIcon/>
+                  <PublicIcon/>
                 </ListItemIcon>
-                <ListItemText primary='View/Edit' sx={{ opacity: open ? 1 : 0 }} />
+                <ListItemText primary='Country' sx={{ opacity: open ? 1 : 0 }} />
+              </ListItemButton>
+            </ListItem>
+
+
+
+
+            <ListItem  disablePadding sx={{ display: 'block' }} onClick={()=>(navigate("/state"))}>
+              <ListItemButton
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? 'initial' : 'center',
+                  px: 2.5,
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : 'auto',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <FlagCircle/>
+                </ListItemIcon>
+                <ListItemText primary='State' sx={{ opacity: open ? 1 : 0 }} />
               </ListItemButton>
             </ListItem>
 
         </List>
         <Divider />
         
-      </Drawer>
+      </CustomDrawer>
       
     </Box>
   );

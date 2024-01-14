@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, TextField, Select, MenuItem, InputLabel } from '@mui/material';
+import { Box, Button, TextField, InputLabel } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import axios from 'axios';
+import DeleteIcon from '@mui/icons-material/Delete';
 import Sidenav from '../Dashboard/Sidenav';
 import Navbar from '../Dashboard/Navbar';
-import axios from 'axios';
+import { Delete } from '@mui/icons-material';
 
 const Viewedit = () => {
   const [nation, setNation] = useState('');
-  const [state, setState] = useState('');
   const [nations, setNations] = useState([]);
-  const [selectedNation, setSelectedNation] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
@@ -22,12 +24,12 @@ const Viewedit = () => {
     };
 
     fetchNations();
-  }, []); 
+  }, []);
 
   const handleNationSave = async () => {
     try {
       const nationResponse = await axios.post('http://localhost:5000/map/nations', { name: nation });
-      setSelectedNation(nationResponse.data._id);
+      setNations([...nations, nationResponse.data]);
       console.log('Country saved successfully:', nationResponse.data);
     } catch (error) {
       if (error.response && error.response.status === 409) {
@@ -39,21 +41,7 @@ const Viewedit = () => {
     }
   };
 
-  const handleStateSave = async () => {
-    try {
-      const stateResponse = await axios.post('http://localhost:5000/map/states', { name: state, nation: selectedNation });
-      console.log('State saved successfully:', stateResponse.data);
-      // Add logic to store data in the Location model with the reference to the state
-    } catch (error) {
-      if (error.response && error.response.status === 409) {
-        // HTTP status code 409 indicates a conflict, i.e., unique constraint violation
-        setErrorMessage('State already exists');
-      } else {
-        console.error('Error saving state:', error.response ? error.response.data.message : error.message);
-      }
-    }
-  };
-
+  
   return (
     <>
       <Navbar />
@@ -67,6 +55,8 @@ const Viewedit = () => {
             </div>
           )}
 
+          <br />
+          <InputLabel>Country</InputLabel>
           <TextField
             className="whitetext"
             label="Country"
@@ -83,27 +73,33 @@ const Viewedit = () => {
           </Button>
           <br />
           <br />
-          <InputLabel>Nation</InputLabel>
-          <Select value={selectedNation} label="Nation" onChange={(e) => setSelectedNation(e.target.value)}>
-            {nations.map((nation) => (
-              <MenuItem key={nation._id} value={nation._id}>
-                {nation.name}
-              </MenuItem>
-            ))}
-          </Select>
-          <TextField
-            fullWidth
-            label="State"
-            value={state}
-            onChange={(e) => setState(e.target.value)}
-            sx={{ mb: 2 }}
-            InputLabelProps={{
-              style: { color: "#ffffff" },
-            }}
-          />
-          <Button variant="contained" onClick={handleStateSave}>
-            Save State
-          </Button>
+        </Box>
+      </Box>
+
+      <Box height={30} />
+
+      <Box sx={{ display: 'flex' }}>
+        <Sidenav />
+        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+          <h1>Country Management</h1>
+
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Country Name</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {nations.map((nation) => (
+                  <TableRow key={nation._id}>
+                    <TableCell>{nation.name}</TableCell>
+                    
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Box>
       </Box>
     </>
