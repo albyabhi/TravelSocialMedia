@@ -1,21 +1,24 @@
+// Navbar.js
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { AppBar, Badge, Box, InputBase, Toolbar, Typography } from '@mui/material';
-import { PostAdd, Mail, Notifications } from '@mui/icons-material';
-import AddPost from './Widgets/Addpost'; // Adjust the import path based on your project structure
-import { CenteredContainer } from './Props/CenteredContainer'; // Create a CenteredContainer styled component
+import { PostAdd, Mail, Notifications, AccountCircle } from '@mui/icons-material';
+import AddPost from './Widgets/Addpost';
+import { CenteredContainer } from './Props/CenteredContainer';
+import ProfileEdWidget from './Widgets/ProfileEdWidget'; // Adjust the import path as needed
+import { useMediaQuery } from '@mui/material';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
   backgroundColor: theme.palette.primary.main,
-  margin: 0, // Remove margin
-  padding: '0 16px', // Add padding if needed
+  margin: 0,
+  padding: '0 16px',
 }));
 
 const SearchContainer = styled('div')(({ theme }) => ({
-  backgroundColor: theme.palette.secondary.main, // Use secondary color
+  backgroundColor: theme.palette.secondary.main,
   padding: '0 10px',
   borderRadius: '10px',
   display: 'flex',
@@ -33,10 +36,18 @@ const Icons = styled(Box)(({ theme }) => ({
 
 const Navbar = () => {
   const [isAddPostVisible, setAddPostVisibility] = useState(false);
+  const [isProfileWidgetVisible, setProfileWidgetVisibility] = useState(false);
+
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
   const toggleAddPost = () => {
     setAddPostVisibility((prevVisibility) => !prevVisibility);
   };
+
+  const toggleProfileWidget = () => {
+    setProfileWidgetVisibility((prevVisibility) => !prevVisibility);
+  };
+
   const closeAddPost = () => {
     setAddPostVisibility(false);
   };
@@ -52,6 +63,9 @@ const Navbar = () => {
             <InputBase placeholder="Search" />
           </SearchContainer>
           <Icons>
+            {isMobile && (
+              <AccountCircle fontSize="large" color="black" onClick={toggleProfileWidget} />
+            )}
             <PostAdd fontSize="large" color="black" onClick={toggleAddPost} />
             <Badge badgeContent={4} color="error">
               <Mail />
@@ -67,6 +81,7 @@ const Navbar = () => {
           <AddPost onClose={closeAddPost} />
         </CenteredContainer>
       )}
+      {isProfileWidgetVisible && <ProfileEdWidget onClose={toggleProfileWidget} />}
     </>
   );
 };

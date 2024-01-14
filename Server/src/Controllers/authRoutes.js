@@ -184,8 +184,8 @@ router.post("/profile/update",authenticateToken,upload.single("profilePicture"),
         { upsert: true, new: true }
       );
 
-      console.log("Updated User:", existingUser);
-      console.log("Updated ProfileData:", updatedProfileData);
+      
+      
 
       res.json({
         message: "Profile updated successfully.",
@@ -223,7 +223,7 @@ router.get('/profiledata', authenticateToken, async (req, res) => {
 });
 
 // Fetch profilepicture data by user ID
-router.get('/profiledata/:userId', authenticateToken, async (req, res) => {
+router.get('/profiledata/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
 

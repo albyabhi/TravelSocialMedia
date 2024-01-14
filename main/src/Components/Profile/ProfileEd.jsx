@@ -23,21 +23,16 @@ const ProfileEd = () => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("token");
-
+    
         if (!token) {
           navigate("/login");
           return;
         }
-
-        const [response, profileResponse] = await Promise.all([
-          axios.get("http://localhost:5000/api/profile", {
-            headers: { Authorization: token },
-          }),
-          axios.get("http://localhost:5000/api/profiledata", {
-            headers: { Authorization: token },
-          }),
-        ]);
-      
+    
+        const response = await axios.get("http://localhost:5000/api/profile", {
+          headers: { Authorization: token },
+        });
+    
         if (isMounted) {
           setUserData(response.data);
           setFirstName(response.data.firstName || "");
@@ -45,18 +40,32 @@ const ProfileEd = () => {
           setPhoneNumber(response.data.phoneNumber || "");
           setBio(response.data.bio || "");
           setHighlightedPlaces(response.data.highlightedPlaces || []);
-          setProfilePicture(profileResponse.profilePicture || null);
-          setLoading(false);
-          if (profileResponse.data && profileResponse.data.profilePicture) {
-            const imageDataUri = `data:${profileResponse.data.profilePicture.contentType};base64,${profileResponse.data.profilePicture.data.toString(
-              "base64"
-            )}`;
-            setSavedImage(imageDataUri);
+    
+          // Check if profile data exists before making the request
+          if (response.data.profileDataExists) {
+            const profileResponse = await axios.get(
+              "http://localhost:5000/api/profiledata",
+              {
+                headers: { Authorization: token },
+              }
+            );
+    
+            setProfilePicture(profileResponse.data.profilePicture || null);
+    
+            if (profileResponse.data.profilePicture) {
+              const imageDataUri = `data:${profileResponse.data.profilePicture.contentType};base64,${profileResponse.data.profilePicture.data.toString(
+                "base64"
+              )}`;
+              setSavedImage(imageDataUri);
+            } else {
+              console.log("No Profile Picture Found in the Response");
+            }
           } else {
-            console.log("No Profile Picture Found in the Response");
+            console.log("No Profile Data Found");
           }
+    
+          setLoading(false);
         }
-
       } catch (error) {
         console.error(
           "Failed to fetch user data:",

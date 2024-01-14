@@ -1,26 +1,34 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Grid,
-  Typography,
-  TextField,
-  Button,
-} from "@mui/material";
-import WidgetWrapper from "../Props/WidgetWrapper";
-import FlexBetween from "../Props/FlexBetween";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import {
+  Grid,
+  Typography,
+  Input,
+  TextField,
+  Button,
+  Paper,
+  IconButton,
+} from "@mui/material";
+import { Close as CloseIcon } from "@mui/icons-material";
+import WidgetWrapper from "../Props/WidgetWrapper"; // Adjust the import path as needed
 
-const ProfileEdWidget = () => {
+const ProfileEdWidget = ({ onClose }) => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
-  const [profilePicture, setProfilePicture] = useState(null);
   const [bio, setBio] = useState("");
   const [highlightedPlaces, setHighlightedPlaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [savedImage, setSavedImage] = useState(null);
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    setProfilePicture(file);
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -34,9 +42,14 @@ const ProfileEdWidget = () => {
           return;
         }
 
-        const response = await axios.get("http://localhost:5000/api/profile", {
-          headers: { Authorization: token },
-        });
+        const [response, profileResponse] = await Promise.all([
+          axios.get("http://localhost:5000/api/profile", {
+            headers: { Authorization: token },
+          }),
+          axios.get("http://localhost:5000/api/profiledata", {
+            headers: { Authorization: token },
+          }),
+        ]);
 
         if (isMounted) {
           setUserData(response.data);
@@ -45,7 +58,16 @@ const ProfileEdWidget = () => {
           setPhoneNumber(response.data.phoneNumber || "");
           setBio(response.data.bio || "");
           setHighlightedPlaces(response.data.highlightedPlaces || []);
+          setProfilePicture(profileResponse.profilePicture || null);
           setLoading(false);
+          if (profileResponse.data && profileResponse.data.profilePicture) {
+            const imageDataUri = `data:${profileResponse.data.profilePicture.contentType};base64,${profileResponse.data.profilePicture.data.toString(
+              "base64"
+            )}`;
+            setSavedImage(imageDataUri);
+          } else {
+            console.log("No Profile Picture Found in the Response");
+          }
         }
       } catch (error) {
         console.error(
@@ -63,7 +85,14 @@ const ProfileEdWidget = () => {
     };
   }, [navigate]);
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    // Navigate to the login page
+    navigate("/login");
+  };
+
   const handleAddPlace = () => {
+    // Handle adding a highlighted place
     const newPlace = prompt("Enter a place:");
     if (newPlace) {
       setHighlightedPlaces([...highlightedPlaces, newPlace]);
@@ -73,33 +102,39 @@ const ProfileEdWidget = () => {
   const handleSubmitChanges = async () => {
     try {
       const token = localStorage.getItem("token");
-  
+
       const formData = new FormData();
-      formData.append("profilePicture", profilePicture);
       formData.append("bio", bio);
-      formData.append("highlightedPlaces", JSON.stringify(highlightedPlaces));
+      formData.append(
+        "highlightedPlaces",
+        JSON.stringify(highlightedPlaces)
+      );
       formData.append("firstName", firstName);
       formData.append("lastName", lastName);
       formData.append("phoneNumber", phoneNumber);
-  
-      // Wait for the asynchronous request to complete
-      await axios.post("http://localhost:5000/api/profile/update", formData, {
-        headers: {
-          Authorization: token,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-  
-      // Navigate to the home page after the request is completed
-      navigate("/home");
-    } catch (error) {
-      console.error("Error updating profile:", error.response.data.message);
-    }
-  };
+      if (profilePicture) {
+        formData.append("profilePicture", profilePicture);
+      }
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
+      // Send a POST request to update the profile
+      await axios.post(
+        "http://localhost:5000/api/profile/update",
+        formData,
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      onClose();
+    } catch (error) {
+      console.error(
+        "Error updating profile:",
+        error.response.data.message
+      );
+    }
   };
 
   if (loading) {
@@ -107,103 +142,132 @@ const ProfileEdWidget = () => {
   }
 
   return (
-    <WidgetWrapper>
-      <FlexBetween gap="1.5rem">
-        <Container>
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <Typography variant="h2">Welcome, {userData.username}!</Typography>
-            </Grid>
+    <WidgetWrapper style={{ maxWidth: '50vw' }}>
+     
+        <Grid container spacing={2}>
+          
 
-            <Grid item xs={6}>
-              <TextField
-                label="First Name"
-                type="text"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                fullWidth
-              />
-            </Grid>
+          <Grid item xs={12} container direction="column" alignItems="center">
+  {savedImage && (
+    <img
+      src={savedImage}
+      alt="Saved Profile"
+      style={{
+        maxWidth: "100%",
+        maxHeight: "100px",
+        borderRadius: "8px",
+        marginBottom: "8px",
+      }}
+    />
+  )}
+  <label htmlFor="profile-picture-upload">
+    <Input
+      type="file"
+      id="profile-picture-upload"
+      accept="image/*"
+      onChange={handleFileChange}
+      style={{ display: "none" }}
+    />
+    <Button
+      component="span"
+      variant="contained"
+      color="primary"
+      style={{
+        borderRadius: "50%",
+        width: "100px",
+        height: "100px",
+      }}
+    >
+      <Typography variant="subtitle2">Upload</Typography>
+    </Button>
+  </label>
+</Grid>
 
-            <Grid item xs={6}>
-              <TextField
-                label="Last Name"
-                type="text"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                fullWidth
-              />
-            </Grid>
-
-            <Grid item xs={6}>
-              <TextField
-                label="Phone Number"
-                type="text"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                fullWidth
-              />
-            </Grid>
-
-            <Grid item xs={6}>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setProfilePicture(e.target.files[0])}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <Typography variant="h5">Add new bio :</Typography>
-              <TextField
-                label="Bio"
-                multiline
-                rows={4}
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                fullWidth
-              />
-              {console.log("Bio value for TextField:", bio)}
-            </Grid>
-
-            <Grid item xs={12}>
-              <Typography variant="h5">Highlighted Places:</Typography>
-              <ul>
-                {highlightedPlaces.map((place, index) => (
-                  <li key={index}>{place}</li>
-                ))}
-              </ul>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleAddPlace}
-              >
-                Add Place
-              </Button>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSubmitChanges}
-              >
-                Save Changes
-              </Button>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleLogout}
-              >
-                Logout
-              </Button>
-            </Grid>
+          <Grid item xs={12}>
+            <TextField
+              label="First Name"
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              fullWidth
+            />
           </Grid>
-        </Container>
-      </FlexBetween>
+
+          <Grid item xs={12}>
+            <TextField
+              label="Last Name"
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              fullWidth
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              label="Phone Number"
+              type="text"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              fullWidth
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <Typography variant="subtitle2">Add new bio :</Typography>
+            <TextField
+              label="Bio"
+              multiline
+              rows={4}
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              fullWidth
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <Typography variant="subtitle2">Highlighted Places:</Typography>
+            <ul>
+              {highlightedPlaces.map((place, index) => (
+                <li key={index}>{place}</li>
+              ))}
+            </ul>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleAddPlace}
+            >
+              Add Place
+            </Button>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSubmitChanges}
+            >
+              Save Changes
+            </Button>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleLogout}
+            >
+              Logout
+            </Button>
+          </Grid>
+        </Grid>
+     
+      <IconButton
+        style={{ position: "absolute", top: "8px", right: "8px" }}
+        onClick={onClose}
+      >
+        <CloseIcon />
+      </IconButton>
     </WidgetWrapper>
   );
 };

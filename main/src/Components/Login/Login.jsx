@@ -24,7 +24,7 @@ const FormWrapper = styled(Box)(({ theme }) => ({
 const Login = () => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState('');
-
+  const [focusedField, setFocusedField] = useState('');
   const [loginData, setLoginData] = useState({
     email: '',
     password: '',
@@ -64,48 +64,62 @@ const Login = () => {
       console.error('Login failed:', error.response.data.message);
     }
   };
+  const handleTextFieldFocus = (fieldName) => {
+    setFocusedField(fieldName);
+  };
 
+  const handleTextFieldBlur = () => {
+    setFocusedField('');
+  };
   return (
     <Box
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      height="100vh"
-      backgroundColor={theme.palette.primary.main}
-    >
-      <FormWrapper>
-        <Typography variant="h4" gutterBottom>
+    display="flex"
+    alignItems="center"
+    justifyContent="center"
+    height="100vh"
+    backgroundColor={theme.palette.primary.main}
+  >
+    <FormWrapper>
+      <Typography variant="h4" gutterBottom>
+        Login
+      </Typography>
+      {focusedField && (
+  <Typography variant="body2" style={{ marginTop: '0.5rem', textAlign: 'center' }}>
+    Enter {focusedField.toLowerCase()}
+  </Typography>
+)}
+      <form className="login-form">
+        <TextField
+          label="Email"
+          type="email"
+          name="email"
+          onChange={handleInputChange}
+          onFocus={() => handleTextFieldFocus('Email')}
+          onBlur={handleTextFieldBlur}
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          label="Password"
+          type="password"
+          name="password"
+          onChange={handleInputChange}
+          onFocus={() => handleTextFieldFocus('Password')}
+          onBlur={handleTextFieldBlur}
+          fullWidth
+          margin="normal"
+        />
+        <Button variant="contained" color="primary" onClick={handleLogin} style={{ marginLeft: '50%', transform: 'translateX(-50%)', marginTop: '1rem' }}>
           Login
-        </Typography>
-        <form className="login-form">
-          <TextField
-            label="Email"
-            type="email"
-            name="email"
-            className="login-input"
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-
-          <TextField
-            label="Password"
-            type="password"
-            name="password"
-            className="login-input"
-            onChange={handleInputChange}
-            fullWidth
-            margin="normal"
-          />
-
-          {/* Center the button using marginLeft */}
-          <Button variant="contained" color="primary" onClick={handleLogin} style={{ marginLeft: '50%', transform: 'translateX(-50%)', marginTop: '1rem' }}>
-            Login
-          </Button>
-          {errorMessage && <Typography variant="body2" color="error">{errorMessage}</Typography>}
-        </form>
-      </FormWrapper>
-    </Box>
+        </Button>
+       
+      
+        {errorMessage && <Typography variant="body2" color="error">{errorMessage}</Typography>}
+      </form>
+    </FormWrapper>
+    
+  </Box>
+  
   );
 };
 

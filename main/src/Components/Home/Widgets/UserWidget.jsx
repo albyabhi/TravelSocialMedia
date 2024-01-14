@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import { Box, Divider, Typography } from '@mui/material';
 import FlexBetween from '../Props/FlexBetween';
 import WidgetWrapper from '../Props/WidgetWrapper';
-
+import { CenteredContainer } from '../Props/CenteredContainer';
+import ProfileEdWidget from './ProfileEdWidget';
 
 const UserWidget = () => {
   const [user, setUser] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
-  const navigate = useNavigate();
+  const [isProfileEdWidgetVisible, setProfileEdWidgetVisible] = useState(false);
+
+  
 
   const getUser = async () => {
     try {
@@ -38,7 +40,6 @@ const UserWidget = () => {
       setUser(userProfile);
     } catch (error) {
       console.error('Error fetching user data:', error.response?.data?.message);
-      
     }
   };
 
@@ -51,26 +52,33 @@ const UserWidget = () => {
   }
 
   const { username, bio } = user;
-  
+
+  const OpenWidget = () => {
+    setProfileEdWidgetVisible((prevVisibility) => !prevVisibility);
+  };
+  const closeWidget = () => {
+    setProfileEdWidgetVisible(false);
+  };
+
   return (
     <WidgetWrapper>
       {/* UPPER ROW (Centered) */}
       <FlexBetween
-  gap="0.5rem"
-  pb="0.5rem"
-  justifyContent="center"
-  alignItems="center"
-  style={{ flexDirection: 'column', textAlign: 'center' }}
->
-  {/* Display profile picture */}
-  {profilePicture && profilePicture.data && (
-    <img
-      src={`data:${profilePicture.contentType};base64,${profilePicture.data.toString('base64')}`}
-      alt={username}
-      style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover' }}
-    />
-  )}
-</FlexBetween>
+        gap="0.5rem"
+        pb="0.5rem"
+        justifyContent="center"
+        alignItems="center"
+        style={{ flexDirection: 'column', textAlign: 'center' }}
+      >
+        {/* Display profile picture */}
+        {profilePicture && profilePicture.data && (
+          <img
+            src={`data:${profilePicture.contentType};base64,${profilePicture.data.toString('base64')}`}
+            alt={username}
+            style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover' }}
+          />
+        )}
+      </FlexBetween>
 
       {/* FIRST ROW (Centered) */}
       <FlexBetween
@@ -79,7 +87,7 @@ const UserWidget = () => {
         justifyContent="center"
         alignItems="center"
         style={{ cursor: 'pointer' }}
-        onClick={() => navigate('/profile')}
+        onClick={OpenWidget}
       >
         <Typography variant="h4" fontWeight="500" style={{ textAlign: 'center' }}>
           {username}
@@ -94,7 +102,12 @@ const UserWidget = () => {
         </Box>
       </FlexBetween>
 
-      
+      {/* Render ProfileEdWidget inside CenteredContainer */}
+      {isProfileEdWidgetVisible && (
+        <CenteredContainer>
+          <ProfileEdWidget onClose={closeWidget} />
+        </CenteredContainer>
+      )}
     </WidgetWrapper>
   );
 };

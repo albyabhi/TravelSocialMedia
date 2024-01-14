@@ -67,7 +67,7 @@ const Signup = () => {
     email: "",
     password: "",
   });
-
+  const [focusedField, setFocusedField] = useState('');
   const handleInputChange = (e) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
   };
@@ -85,6 +85,14 @@ const Signup = () => {
     } catch (error) {
       console.error("Signup failed:", error.response ? error.response.data.message : error.message);
     }
+  };
+
+  const handleTextFieldFocus = (fieldName) => {
+    setFocusedField(fieldName);
+  };
+
+  const handleTextFieldBlur = () => {
+    setFocusedField('');
   };
 
   return (
@@ -106,6 +114,20 @@ const Signup = () => {
               <Typography variant="h5" gutterBottom>
                 Sign Up
               </Typography>
+              {focusedField && (
+         <Typography
+         variant="body2"
+         style={{
+           marginTop: '0.5rem',
+           textAlign: 'center',
+           opacity: focusedField ? 1 : 0,
+           visibility: focusedField ? 'visible' : 'hidden',
+           transition: 'opacity 0.5s ease-in-out, visibility 0.5s ease-in-out', // Add transition property
+         }}
+       >
+         Enter {focusedField.toLowerCase()}
+       </Typography>
+        )}
               <FormContainer>
                 <Input
                   placeholder="Username"
@@ -113,6 +135,8 @@ const Signup = () => {
                   name="username"
                   className="sign-up-input"
                   onChange={handleInputChange}
+                  onFocus={() => handleTextFieldFocus('Username')}
+                  onBlur={handleTextFieldBlur}
                 />
                 <Input
                   placeholder="Email"
@@ -120,6 +144,8 @@ const Signup = () => {
                   name="email"
                   className="sign-up-input"
                   onChange={handleInputChange}
+                  onFocus={() => handleTextFieldFocus('Email')}
+          onBlur={handleTextFieldBlur}
                 />
                 <Input
                   placeholder="Password"
@@ -127,6 +153,8 @@ const Signup = () => {
                   name="password"
                   className="sign-up-input"
                   onChange={handleInputChange}
+                  onFocus={() => handleTextFieldFocus('Password')}
+                  onBlur={handleTextFieldBlur}
                 />
                 <Button
                   variant="contained"
@@ -136,6 +164,8 @@ const Signup = () => {
                 >
                   Sign Up
                 </Button>
+
+               
               </FormContainer>
             </Wrapper>
           </Box>
