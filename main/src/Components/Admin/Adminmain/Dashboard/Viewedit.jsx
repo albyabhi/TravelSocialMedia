@@ -3,10 +3,9 @@ import { Box, Button, TextField, InputLabel } from '@mui/material';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import axios from 'axios';
-import DeleteIcon from '@mui/icons-material/Delete';
 import Sidenav from '../Dashboard/Sidenav';
 import Navbar from '../Dashboard/Navbar';
-import { Delete } from '@mui/icons-material';
+
 
 const Viewedit = () => {
   const [nation, setNation] = useState('');
@@ -40,7 +39,15 @@ const Viewedit = () => {
       }
     }
   };
-
+  const handleDeleteNation = async (nationId) => {
+    try {
+      await axios.delete(`http://localhost:5000/map/nations/${nationId}`);
+      setNations(nations.filter((nation) => nation._id !== nationId));
+      console.log('Country deleted successfully:', nationId);
+    } catch (error) {
+      console.error('Error deleting country:', error.response ? error.response.data.message : error.message);
+    }
+  };
   
   return (
     <>
@@ -88,13 +95,23 @@ const Viewedit = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Country Name</TableCell>
+                  <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {nations.map((nation) => (
                   <TableRow key={nation._id}>
                     <TableCell>{nation.name}</TableCell>
-                    
+                    <TableCell>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<DeleteForeverIcon />}
+                        onClick={() => handleDeleteNation(nation._id)}
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

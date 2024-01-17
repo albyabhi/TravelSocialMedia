@@ -8,7 +8,7 @@ const nationSchema = new mongoose.Schema({
     required: true,
     trim: true,  
     unique: true,
-    lowercase: true,
+    
   },
 });
 
@@ -20,7 +20,7 @@ const stateSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    lowercase: true,
+    
   },
   nation: {
     type: mongoose.Schema.Types.ObjectId,
@@ -37,7 +37,7 @@ const locationSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    lowercase: true,
+    
   },
   state: {
     type: mongoose.Schema.Types.ObjectId,

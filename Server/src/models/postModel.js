@@ -17,7 +17,7 @@ const postSchema = new mongoose.Schema({
   },
   description: String,
  
-  location: String,
+  
     
   
 });

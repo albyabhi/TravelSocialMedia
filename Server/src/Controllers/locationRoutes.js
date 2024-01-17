@@ -68,7 +68,60 @@ router.post('/locations', async (req, res) => {
     console.error('Error creating location:', error);
     res.status(500).json({ message: 'Internal server error.' });
   }
+});  
+
+//delete location
+router.delete('/locations/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Find the location by ID and remove it
+    const deletedLocation = await Location.findByIdAndDelete(id);
+
+    if (!deletedLocation) {
+      return res.status(404).json({ message: 'Location not found.' });
+    }
+
+    res.status(200).json({ message: 'Location deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting location:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
 });
+
+// DELETE a nation 
+router.delete('/nations/:id', async (req, res) => {
+  const nationId = req.params.id;
+
+  try {
+    // Check if the nation exists
+    const existingNation = await Nation.findById(nationId);
+    if (!existingNation) {
+      return res.status(404).json({ message: 'Nation not found' });
+    }
+
+    // Remove the nation
+    await Nation.deleteOne({ _id: nationId });
+    res.status(200).json({ message: 'Nation deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting nation:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+// Fetch all locations
+router.get('/allfetchlocations', async (req, res) => {
+  try {
+    const locations = await Location.find().populate('state nation');
+
+    // locations will now have the details of state and nation along with their IDs
+    res.status(200).json(locations);
+  } catch (error) {
+    console.error('Error fetching all locations:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
 
 
    // fetch data (Nation and State)
@@ -101,35 +154,28 @@ router.post('/locations', async (req, res) => {
     }
   });
 
-  // Add this route in routes/locations.js
-  router.get('/locations/suggestions', async (req, res) => {
-    try {
-        const { input } = req.query;
+// Delete a state by ID
+router.delete('/states/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
 
-        // Use a regex to perform a case-insensitive search for location names
-        const locations = await Location.find({ name: { $regex: new RegExp(input, 'i') } })
-            .populate({
-                path: 'state',
-                select: 'name', // Only select the 'name' property
-            })
-            .populate({
-                path: 'nation',
-                select: 'name', // Only select the 'name' property
-            })
-            .limit(10); // Limit the number of suggestions returned
+    // Check if the state exists
+    const state = await State.findById(id);
 
-        const suggestions = locations.map((location) => ({
-            label: location.name,
-            state: location.state ? location.state.name : '', // Check if state is populated
-            nation: location.nation ? location.nation.name : '', // Check if nation is populated
-        }));
-
-        res.status(200).json(suggestions);
-    } catch (error) {
-        console.error('Error fetching location suggestions:', error);
-        res.status(500).json({ message: 'Internal server error.' });
+    if (!state) {
+      return res.status(404).json({ message: 'State not found.' });
     }
+
+    // Delete the state
+    await State.deleteOne({ _id: id });
+
+    res.status(200).json({ message: 'State deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting state by ID:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
 });
+
  
 // Fetch state details by ID
 router.get('/state/:id', async (req, res) => {

@@ -19,19 +19,12 @@ router.post('/newposts', authenticateToken, upload.single('postImage'), async (r
       return res.status(404).json({ message: 'User not found.' });
     }
 
-    // Fetch the location details from the request
-    const { location } = req.body;
-
-    console.log('Location name:', location); // Add this line for logging
-
     // Create a new post
     const newPost = new Post({
       userId,
       postId: generatePostId(),
       description: req.body.description,
       postImage: {},
-      location,
-      
     });
 
     // Handle post image upload logic
