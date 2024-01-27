@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Select from "react-select";
+
 import {
   Grid,
   Typography,
@@ -24,6 +26,9 @@ const ProfileEdWidget = ({ onClose }) => {
   const [profilePicture, setProfilePicture] = useState(null);
   const [savedImage, setSavedImage] = useState(null);
   const [username, setUserName] = useState("");
+  const [selectedLocations, setSelectedLocations] = useState([]);
+  const [locations, setLocations] = useState([]);
+  const [savedLocations, setSavedLocations] = useState([]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -42,14 +47,18 @@ const ProfileEdWidget = ({ onClose }) => {
           return;
         }
 
-        const [response, profileResponse] = await Promise.all([
-          axios.get("http://localhost:5000/api/profile", {
-            headers: { Authorization: token },
-          }),
-          axios.get("http://localhost:5000/api/profiledata", {
-            headers: { Authorization: token },
-          }),
-        ]);
+        const [response, profileResponse, savedLocationsResponse] =
+          await Promise.all([
+            axios.get("http://localhost:5000/api/profile", {
+              headers: { Authorization: token },
+            }),
+            axios.get("http://localhost:5000/api/profiledata", {
+              headers: { Authorization: token },
+            }),
+            axios.get("http://localhost:5000/api/profiledata/savedlocations", {
+              headers: { Authorization: token },
+            }),
+          ]);
 
         if (isMounted) {
           setUserData(response.data);
@@ -63,20 +72,38 @@ const ProfileEdWidget = ({ onClose }) => {
           setProfilePicture(profileResponse.profilePicture || null);
           setLoading(false);
           if (profileResponse.data && profileResponse.data.profilePicture) {
-            const imageDataUri = `data:${profileResponse.data.profilePicture.contentType};base64,${profileResponse.data.profilePicture.data.toString(
+            const imageDataUri = `data:${
+              profileResponse.data.profilePicture.contentType
+            };base64,${profileResponse.data.profilePicture.data.toString(
               "base64"
             )}`;
             setSavedImage(imageDataUri);
           } else {
             console.log("No Profile Picture Found in the Response");
           }
+
+          if (
+            savedLocationsResponse.data &&
+            savedLocationsResponse.data.length > 0
+          ) {
+            const savedLocationsData = savedLocationsResponse.data.map(
+              (location) => ({
+                value: location,
+                label: location,
+              })
+            );
+            setSavedLocations(savedLocationsData);
+          } else {
+            console.log("No Saved Locations Found in the Response");
+          }
+
+          setLoading(false);
         }
       } catch (error) {
         console.error(
           "Failed to fetch user data:",
           error.response?.data?.message
         );
-        navigate("/login");
       }
     };
 
@@ -93,52 +120,66 @@ const ProfileEdWidget = ({ onClose }) => {
     navigate("/login");
   };
 
-  const handleAddPlace = () => {
-    // Handle adding a highlighted place
-    const newPlace = prompt("Enter a place:");
-    if (newPlace) {
-      setHighlightedPlaces([...highlightedPlaces, newPlace]);
-    }
+  const handleLocationSelect = (selectedOption) => {
+    setSelectedLocations(selectedOption);
   };
+
+  useEffect(() => {
+    // Fetch locations when the component mounts
+    const fetchLocations = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/map/allfetchlocations"
+        );
+        const locationsData = response.data;
+        const locationsOptions = locationsData.map((location) => ({
+          value: location._id,
+          label: location.name,
+        }));
+        // Corrected: Use setLocations to update state
+        setLocations(locationsOptions);
+      } catch (error) {
+        console.error(
+          "Error fetching locations:",
+          error.response?.data?.message
+        );
+      }
+    };
+
+    fetchLocations();
+  }, [navigate]);
 
   const handleSubmitChanges = async () => {
     try {
       const token = localStorage.getItem("token");
-
       const formData = new FormData();
-      formData.append("username", username);
-
 
       formData.append("bio", bio);
-      formData.append(
-        "highlightedPlaces",
-        JSON.stringify(highlightedPlaces)
-      );
       formData.append("firstName", firstName);
       formData.append("lastName", lastName);
       formData.append("phoneNumber", phoneNumber);
+
+      // Append highlightedPlaces individually
+      selectedLocations.forEach((location, index) => {
+        formData.append(`highlightedPlaces[${index}][value]`, location.value);
+        formData.append(`highlightedPlaces[${index}][label]`, location.label);
+      });
+
       if (profilePicture) {
         formData.append("profilePicture", profilePicture);
       }
 
       // Send a POST request to update the profile
-      await axios.post(
-        "http://localhost:5000/api/profile/update",
-        formData,
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await axios.post("http://localhost:5000/api/profile/update", formData, {
+        headers: {
+          Authorization: token,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       onClose();
     } catch (error) {
-      console.error(
-        "Error updating profile:",
-        error.response.data.message
-      );
+      console.error("Error updating profile:", error.response?.data?.message);
     }
   };
 
@@ -147,135 +188,142 @@ const ProfileEdWidget = ({ onClose }) => {
   }
 
   return (
-    <WidgetWrapper style={{ maxWidth: '60vw', marginTop: '60px'}}>
-     
-        <Grid container spacing={2}>
-          
-
-          <Grid item xs={12} container direction="column" alignItems="center">
-  {savedImage && (
-    <img
-      src={savedImage}
-      alt="Saved Profile"
+    <WidgetWrapper
       style={{
-        maxWidth: "100%",
-        maxHeight: "100px",
-        borderRadius: "8px",
-        marginBottom: "8px",
-      }}
-    />
-  )}
-  <label htmlFor="profile-picture-upload">
-    <Input
-      type="file"
-      id="profile-picture-upload"
-      accept="image/*"
-      onChange={handleFileChange}
-      style={{ display: "none" }}
-    />
-    <Button
-      component="span"
-      variant="contained"
-      color="primary"
-      style={{
-        borderRadius: "50%",
-        width: "100px",
-        height: "100px",
+        maxWidth: "60vw",
+        marginTop: "60px",
+        position: "relative",
+        zIndex: 1000, // Keep the zIndex value as needed
+        transform: "translateZ(0)",
       }}
     >
-      <Typography variant="subtitle2">Upload</Typography>
-    </Button>
-  </label>
-</Grid>
-
-<Grid item xs={12}>
-  <TextField
-    label="Username"
-    type="text"
-    value={username}
-    onChange={(e) => setUserName(e.target.value)}
-    fullWidth
-  />
-</Grid>
-          <Grid item xs={12}>
-            <TextField
-              label="First Name"
-              type="text"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              fullWidth
+      <Grid container spacing={2}>
+        <Grid item xs={12} container direction="column" alignItems="center">
+          {savedImage && (
+            <img
+              src={savedImage}
+              alt="Saved Profile"
+              style={{
+                maxWidth: "100%",
+                maxHeight: "100px",
+                borderRadius: "8px",
+                marginBottom: "8px",
+              }}
             />
-          </Grid>
-
-          <Grid item xs={12}>
-            <TextField
-              label="Last Name"
-              type="text"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              fullWidth
+          )}
+          <label htmlFor="profile-picture-upload">
+            <Input
+              type="file"
+              id="profile-picture-upload"
+              accept="image/*"
+              onChange={handleFileChange}
+              style={{ display: "none" }}
             />
-          </Grid>
-
-          <Grid item xs={12}>
-            <TextField
-              label="Phone Number"
-              type="text"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              fullWidth
-            />
-          </Grid>
-
-          <Grid item xs={12}>
-            <Typography variant="subtitle2">Add new bio :</Typography>
-            <TextField
-              label="Bio"
-              multiline
-              rows={4}
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              fullWidth
-            />
-          </Grid>
-
-          <Grid item xs={12}>
-            <Typography variant="subtitle2">Highlighted Places:</Typography>
-            <ul>
-              {highlightedPlaces.map((place, index) => (
-                <li key={index}>{place}</li>
-              ))}
-            </ul>
             <Button
+              component="span"
               variant="contained"
               color="primary"
-              onClick={handleAddPlace}
+              style={{
+                borderRadius: "50%",
+                width: "100px",
+                height: "100px",
+              }}
             >
-              Add Place
+              <Typography variant="subtitle2">Upload</Typography>
             </Button>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSubmitChanges}
-            >
-              Save Changes
-            </Button>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleLogout}
-            >
-              Logout
-            </Button>
-          </Grid>
+          </label>
         </Grid>
-     
+
+        <Grid item xs={12}>
+          <TextField
+            label="Username"
+            type="text"
+            value={username}
+            onChange={(e) => setUserName(e.target.value)}
+            fullWidth
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            label="First Name"
+            type="text"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            fullWidth
+          />
+        </Grid>
+
+        <Grid item xs={12}>
+          <TextField
+            label="Last Name"
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            fullWidth
+          />
+        </Grid>
+
+        <Grid item xs={12}>
+          <TextField
+            label="Phone Number"
+            type="text"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            fullWidth
+          />
+        </Grid>
+
+        <Grid item xs={12}>
+          <Typography variant="subtitle2">Add new bio :</Typography>
+          <TextField
+            label="Bio"
+            multiline
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            fullWidth
+          />
+        </Grid>
+
+        <Grid item xs={12}>
+          {savedLocations.length > 0 && (
+            <div>
+              <Typography variant="h5">Saved Locations:</Typography>
+              <ul>
+                {savedLocations.map((place, index) => (
+                  <li key={index}>{place.label}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <Typography variant="h5">Highlighted Places:</Typography>
+
+          {/* Use react-select for autocomplete input */}
+          <Select
+            isMulti
+            options={locations}
+            value={selectedLocations}
+            onChange={handleLocationSelect}
+            placeholder="Type to search or add locations"
+          />
+        </Grid>
+
+        <Grid item xs={12}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSubmitChanges}
+          >
+            Save Changes
+          </Button>
+        </Grid>
+
+        <Grid item xs={12}>
+          <Button variant="contained" color="primary" onClick={handleLogout}>
+            Logout
+          </Button>
+        </Grid>
+      </Grid>
+
       <IconButton
         style={{ position: "absolute", top: "8px", right: "8px" }}
         onClick={onClose}

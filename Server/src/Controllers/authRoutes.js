@@ -8,6 +8,8 @@ const config = require("../config/config");
 const secretKey = config.secretKey;
 const upload = require("../uploads/upload");
 const fs = require('fs');
+const { Location } = require("../models/locationModels");
+
 
 const router = express.Router();
 
@@ -121,7 +123,7 @@ router.post("/profile/update",authenticateToken,upload.single("profilePicture"),
   async (req, res) => {
     try {
       const userId = req.user.userId;
-      
+      console.log('Received Request Body:', req.body);
       // Fetch the existing user data
       const existingUser = await User.findById(userId);
 
@@ -153,6 +155,8 @@ router.post("/profile/update",authenticateToken,upload.single("profilePicture"),
         };
        
       }
+      const highlightedPlaces = req.body.highlightedPlaces || [];
+      const highlightedPlaceIds = highlightedPlaces.map((location) => location.value);
 
       // Save the updated user data to the database
       existingUser.profileupdate = 'Done';
@@ -170,11 +174,14 @@ router.post("/profile/update",authenticateToken,upload.single("profilePicture"),
               req.body.username !== undefined
                 ? req.body.username
                 : existingUser.username, 
-          highlightedPlaces:
-            req.body.highlightedPlaces !== undefined &&
-            req.body.highlightedPlaces.length > 0
-              ? req.body.highlightedPlaces
-              : existingUser.highlightedPlaces,
+                highlightedPlaces:
+                req.body.highlightedPlaces !== undefined &&
+                req.body.highlightedPlaces.length > 0
+                  ? req.body.highlightedPlaces.map((location) => ({
+                      value: location.value,
+                      label: location.label,
+                    }))
+                  : existingUser.highlightedPlaces,
           profilePicture: existingUser.profilePicture,
           firstName:
             req.body.firstName !== undefined
@@ -210,6 +217,30 @@ router.post("/profile/update",authenticateToken,upload.single("profilePicture"),
 );
 
 
+// Fetch details of saved locations based on IDs
+router.get('/profiledata/savedlocations', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    // Fetch the ProfileData for the user
+    const profileData = await ProfileData.findOne({ userId });
+
+    // Check if the profileData exists and has highlightedPlaces
+    if (!profileData || !profileData.highlightedPlaces || profileData.highlightedPlaces.length === 0) {
+      console.log("No highlighted places found for user:", userId);
+      return res.status(200).json([]); // Return an empty array if no highlighted places are found
+    }
+
+    // Extract the labels from highlightedPlaces
+    const savedLocationLabels = profileData.highlightedPlaces.map(location => location.label);
+
+    console.log("Saved location labels for user:", userId, savedLocationLabels);
+    res.status(200).json(savedLocationLabels);
+  } catch (error) {
+    console.error('Error fetching saved location labels:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
 
 //fetctprofiledata
 router.get('/profiledata', authenticateToken, async (req, res) => {

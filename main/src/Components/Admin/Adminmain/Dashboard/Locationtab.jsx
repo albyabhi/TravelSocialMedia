@@ -89,8 +89,8 @@ const Locationtab = () => {
     try {
       console.log("Sending request to add location");
       const response = await axios.post("http://localhost:5000/map/locations", {
-        nationName: selectedNation, // Make sure the correct property names are used
-        stateName: selectedState,
+        nationid: selectedNation, // Make sure the correct property names are used
+        stateid: selectedState,
         locationName: location,
       });
 

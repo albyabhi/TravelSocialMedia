@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, IconButton, Avatar, Paper } from "@mui/material";
+import { Box, Typography,Paper } from "@mui/material";
 import { styled } from "@mui/system";
-import { ThumbUpOutlined } from "@mui/icons-material";
 import axios from 'axios';
 
 const WidgetWrapper = styled(Paper)(({ theme }) => ({
@@ -29,10 +28,7 @@ const PostImage = styled(Box)({
   },
 });
 
-const InteractionIcons = styled(Box)({
-  display: "flex",
-  justifyContent: "space-between",
-});
+
 
 const PostWidget = ({ post }) => {
   const { userId, postId, postImage, description } = post;
@@ -61,10 +57,10 @@ const PostWidget = ({ post }) => {
   }, [userId]);
 
   return (
-    <WidgetWrapper elevation={3} >
+    <WidgetWrapper elevation={3} style={{ zIndex: 1 }}  >
       {userData && profileData && (
         <UserInfoContainer>
-          <Avatar
+          <img
             src={`data:${profileData.profilePicture.contentType};base64,${profileData.profilePicture.data.toString('base64')}`}
             alt={userData.username}
             style={{ borderRadius: "50%", marginRight: "0.5rem", width: '40px', height: '40px' }}
@@ -88,13 +84,7 @@ const PostWidget = ({ post }) => {
         </PostImage>
       )}
 
-      <InteractionIcons>
-        <IconButton>
-          <ThumbUpOutlined />
-          {/* Likes count or other information */}
-        </IconButton>
-        {/* Other icons... */}
-      </InteractionIcons>
+      
     </WidgetWrapper>
   );
 };

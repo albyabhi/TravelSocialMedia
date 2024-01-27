@@ -40,27 +40,26 @@ router.post('/nations', async (req, res) => {
   });
 
 // Create a new location
-router.post('/locations', async (req, res) => {
-  const { nationName, stateName, locationName } = req.body;
-  console.log('Received data:', { nationName, stateName, locationName });
 
+router.post('/locations', async (req, res) => {
+  const { nationid, stateid, locationName } = req.body;
+  
   try {
     // Check if the nation exists or create a new one
-    let nation = await Nation.findOne({ name: nationName });
+    let nation = await Nation.findById(nationid);
     if (!nation) {
-      nation = new Nation({ name: nationName });
-      await nation.save();
+      return res.status(404).json({ message: 'Nation not found.' });
     }
 
-    // Check if the state exists or create a new one
-    let state = await State.findOne({ name: stateName, nation: nation._id });
+    // Check if the state exists
+    let state = await State.findById(stateid);
+
     if (!state) {
-      state = new State({ name: stateName, nation: nation._id });
-      await state.save();
+      return res.status(404).json({ message: 'State not found.' });
     }
 
     // Create a new location
-    const location = new Location({ name: locationName, state: state._id, nation: nation._id });
+    const location = new Location({ name: locationName, state: stateid, nation: nationid });
     await location.save();
 
     res.status(201).json({ message: 'Location created successfully.' });
@@ -68,7 +67,7 @@ router.post('/locations', async (req, res) => {
     console.error('Error creating location:', error);
     res.status(500).json({ message: 'Internal server error.' });
   }
-});  
+});
 
 //delete location
 router.delete('/locations/:id', async (req, res) => {

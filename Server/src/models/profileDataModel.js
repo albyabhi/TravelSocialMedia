@@ -7,7 +7,12 @@ const profileDataSchema = new mongoose.Schema({
     required: true,
   },
   bio: String,
-  highlightedPlaces: [String],
+  highlightedPlaces: [
+    {
+      value: String,
+      label: String,
+    }
+  ],
   profilePicture: {
     data: String,
     contentType: String, // MIME type
