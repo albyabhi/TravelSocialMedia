@@ -11,6 +11,7 @@ import Signup from "./Components/Signup/Signup";
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { theme } from './Components/Home/theme';
 import State from "./Components/Admin/Adminmain/Dashboard/State";
+import Search from "./Components/Home/Search";
 
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
             <Route path="/viewedit" element={<Viewedit />} />
             <Route path="/home" element={<Home />} />
             <Route path="/state" element={<State />} />
+            <Route path="/search" element={<Search />} />
           </Routes>
         </Router>
       </div>

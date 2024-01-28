@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const { authenticateToken } = require('../middleware/authMiddleware');
 const User = require("../models/userModel");
 const ProfileData = require("../models/profileDataModel");
@@ -54,7 +55,8 @@ router.post('/newposts', authenticateToken, upload.single('postImage'), async (r
 
 
 function generatePostId() {
-    return 'POST_' + Date.now();
+  const timestamp = (new Date()).getTime();
+  return mongoose.Types.ObjectId.createFromTime(timestamp).toString();
 }
 
 // Fetch posts based on userId and postId
@@ -107,5 +109,82 @@ router.get('/all', async (req, res) => {
     }
   });
   
+
+  
+
+// Like a post
+router.post('/like/:Id', authenticateToken, async (req, res) => {
+  try {
+    const { Id } = req.params;
+    const { userId } = req.user;
+
+    // Validate if Id is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(Id)) {
+      return res.status(400).json({ message: 'Invalid post ID format.' });
+    }
+
+    const post = await Post.findById(Id);
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found.' });
+    }
+
+    const alreadyLiked = post.likes.some(like => like.userId.equals(userId));
+
+    if (alreadyLiked) {
+      return res.status(400).json({ message: 'You have already liked this post.' });
+    }
+
+    post.likes.push({ userId });
+    await post.save();
+
+    res.status(200).json({ message: 'Post liked successfully.' });
+  } catch (error) {
+    console.error('Error liking post:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
+// Comment on a post
+router.post('/comment/:postId', authenticateToken, async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { userId } = req.user;
+    const { text } = req.body;
+
+    const post = await Post.findById(postId); // Use Post model instead of PostModel
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found.' });
+    }
+
+    post.comments.push({ userId, text });
+    await post.save();
+
+    res.status(200).json({ message: 'Comment added successfully.' });
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
+router.get('/like/count/:postId', async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found.' });
+    }
+
+    const likeCount = post.likes.length;
+
+    res.status(200).json({ count: likeCount });
+  } catch (error) {
+    console.error('Error fetching like count:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
 
 module.exports = router;

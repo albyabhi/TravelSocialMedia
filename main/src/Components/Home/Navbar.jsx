@@ -7,6 +7,8 @@ import AddPost from './Widgets/Addpost';
 import { CenteredContainer } from './Props/CenteredContainer';
 import ProfileEdWidget from './Widgets/ProfileEdWidget'; // Adjust the import path as needed
 import { useMediaQuery } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import Search from './Search';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: 'flex',
@@ -39,7 +41,7 @@ const Navbar = () => {
   const [isProfileWidgetVisible, setProfileWidgetVisibility] = useState(false);
 
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down('sm'));
-
+  const navigate = useNavigate();
   const toggleAddPost = () => {
     setAddPostVisibility((prevVisibility) => !prevVisibility);
   };
@@ -52,6 +54,11 @@ const Navbar = () => {
     setAddPostVisibility(false);
   };
 
+  const handleSearchClick = () => {
+    // Navigate to the Search page when the search icon is clicked
+    navigate('/search');
+  };
+
   return (
     <>
       <AppBar position="sticky">
@@ -60,7 +67,7 @@ const Navbar = () => {
             NomadGram
           </Typography>
           <SearchContainer>
-            <InputBase placeholder="Search" />
+            <InputBase placeholder="Search"  onClick={handleSearchClick} />
           </SearchContainer>
           <Icons>
             {isMobile && (
