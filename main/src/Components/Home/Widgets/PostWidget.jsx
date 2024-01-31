@@ -72,12 +72,10 @@ const PostWidget = ({ post }) => {
       marginBottom="1.5rem"
       backgroundColor="secondary.main"
       padding="1.5rem"
-      zIndex={1}
-      position="relative"
     >
       {userData && profileData && (
         <Box display="flex" alignItems="center" marginBottom="1rem">
-          <Avatar
+          <img
             src={`data:${profileData.profilePicture.contentType};base64,${profileData.profilePicture.data.toString('base64')}`}
             alt={userData.username}
             style={{ borderRadius: "50%", marginRight: "0.5rem", width: '40px', height: '40px' }}

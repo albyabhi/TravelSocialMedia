@@ -315,6 +315,32 @@ router.get("/user/:userId", async (req, res) => {
   }
 });
 
+//search user by username
+router.get("/users/search", async (req, res) => {
+  try {
+    const { username } = req.query;
+
+    // Find the user by username
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Create a simplified user object with relevant details
+    const foundUser = {
+      userId: user._id,
+      username: user.username,
+      profilePicture: user.profilePicture,
+    };
+
+    res.json(foundUser);
+  } catch (error) {
+    console.error("Error searching for user:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 // user fetch for admin
 router.get("/users", async (req, res) => {
   try {

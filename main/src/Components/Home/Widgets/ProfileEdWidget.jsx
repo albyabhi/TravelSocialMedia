@@ -192,8 +192,7 @@ const ProfileEdWidget = ({ onClose }) => {
       style={{
         maxWidth: "60vw",
         marginTop: "60px",
-        position: "relative",
-        zIndex: 1000, // Keep the zIndex value as needed
+        position: "relative", // Keep the zIndex value as needed
         transform: "translateZ(0)",
       }}
     >
