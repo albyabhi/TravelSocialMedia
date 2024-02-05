@@ -11,6 +11,16 @@ const postSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  location: [{
+    value: {
+      type: String,
+      required: false,
+    },
+    label: {
+      type: String,
+      required: false,
+    },
+  }],
   postImage: {
     data: String,
     contentType: String,

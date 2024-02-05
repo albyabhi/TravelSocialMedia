@@ -320,26 +320,37 @@ router.get("/users/search", async (req, res) => {
   try {
     const { username } = req.query;
 
-    // Find the user by username
-    const user = await User.findOne({ username });
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
+    // Ensure that the username parameter is not empty
+    if (!username || username.trim() === "") {
+      return res.status(400).json({ message: "Invalid username parameter." });
     }
 
-    // Create a simplified user object with relevant details
-    const foundUser = {
-      userId: user._id,
-      username: user.username,
-      profilePicture: user.profilePicture,
-    };
+    // Use a case-insensitive regular expression for partial match
+    const users = await User.find({ username: new RegExp(username, 'i') });
 
-    res.json(foundUser);
+    if (users.length === 0) {
+      return res.status(404).json({ message: "No users found." });
+    }
+
+    // Create an array of simplified user objects with relevant details
+    const foundUsers = await Promise.all(users.map(async (user) => {
+      // Fetch profile data from the ProfileData collection using userId
+      const profileData = await ProfileData.findOne({ userId: user._id });
+
+      return {
+        userId: user._id,
+        username: user.username,
+        profilePicture: profileData?.profilePicture || user.profilePicture,
+      };
+    }));
+
+    res.json(foundUsers);
   } catch (error) {
-    console.error("Error searching for user:", error);
+    console.error("Error searching for users:", error);
     res.status(500).json({ message: "Internal server error." });
   }
 });
+
 
 // user fetch for admin
 router.get("/users", async (req, res) => {

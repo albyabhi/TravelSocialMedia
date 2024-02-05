@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
+  Avatar ,
   Box,
   Typography,
   Container,
@@ -36,6 +37,34 @@ const SearchAppBar = ({ onSearch }) => {
   );
 };
 
+const SearchResultItem = ({ username, profilePicture }) => (
+ <Box
+    display="flex"
+    alignItems="center"
+    justifyContent="space-between"
+    bg="grey.200"
+    borderRadius="8px"
+    p={2}
+    my={2}
+  >
+    <Box display="flex" alignItems="center">
+      {profilePicture && (
+        <Avatar
+          alt="Profile"
+          src={`data:${profilePicture.contentType};base64,${profilePicture.data}`}
+          sx={{
+            width: '50px',
+            height: '50px',
+          }}
+        />
+      )}
+      <Box ml={2}>
+        <Typography>{username}</Typography>
+      </Box>
+    </Box>
+  </Box>
+);
+
 const Search = () => {
   const [selectedCategory, setSelectedCategory] = useState('Users');
   const [searchResults, setSearchResults] = useState([]);
@@ -64,45 +93,40 @@ const Search = () => {
 
   return (
     <div>
-      <SearchAppBar onSearch={(query) => setSearchQuery(query)} />
+    <SearchAppBar onSearch={(query) => setSearchQuery(query)} />
 
-      <Container maxWidth="sm">
-        <Box mt={2}>
-          <Paper>
-            <Tabs
-              value={selectedCategory}
-              onChange={handleCategoryChange}
-              centered
-              sx={{
-                '& .MuiTabs-indicator': {
-                  backgroundColor: theme.palette.secondary.main,
-                },
-                '& .Mui-selected': {
-                  color: theme.palette.secondary.main,
-                },
-              }}
-            >
-              <Tab label="Users" value="Users" />
-              <Tab label="Travel Guides" value="Travel Guides" />
-              <Tab label="Locations" value="Locations" />
-            </Tabs>
-          </Paper>
+    <Container maxWidth="sm">
+      <Box mt={2}>
+        <Paper>
+          <Tabs
+            value={selectedCategory}
+            onChange={handleCategoryChange}
+            centered
+            sx={{
+              '& .MuiTabs-indicator': {
+                backgroundColor: theme.palette.secondary.main,
+              },
+              '& .Mui-selected': {
+                color: 'black',
+              },
+            }}
+          >
+            <Tab label="Users" value="Users" />
+            <Tab label="Travel Guides" value="Travel Guides" />
+            <Tab label="Locations" value="Locations" />
+          </Tabs>
+        </Paper>
 
-          {searchResults.map((item) => (
-            <div key={item.userId}>
-              <Typography>{` ${item.username}`}</Typography>
-              {item.profilePicture && (
-                <img
-                  src={`data:${item.profilePicture.contentType};base64,${item.profilePicture.data}`}
-                  alt="Profile"
-                  style={{ maxWidth: '100px', maxHeight: '100px' }}
-                />
-              )}
-            </div>
-          ))}
-        </Box>
-      </Container>
-    </div>
+        {searchResults.map((item) => (
+          <SearchResultItem
+            key={item.userId}
+            username={item.username}
+            profilePicture={item.profilePicture}
+          />
+        ))}
+      </Box>
+    </Container>
+  </div>
   );
 };
 

@@ -7,6 +7,8 @@ const ProfileData = require("../models/profileDataModel");
 const  Post = require('../models/postModel');
 const upload = require('../uploads/upload');
 const fs = require('fs');
+const Location = require('../models/locationModels'); // Adjust the import path as needed
+
 router.post('/newposts', authenticateToken, upload.single('postImage'), async (req, res) => {
   try {
     // Get userId from authenticated user
@@ -20,16 +22,23 @@ router.post('/newposts', authenticateToken, upload.single('postImage'), async (r
       return res.status(404).json({ message: 'User not found.' });
     }
 
+    console.log('Received Request Body:', req.body);
+  console.log('Received File:', req.file);
+
+
     // Create a new post
     const newPost = new Post({
       userId,
       postId: generatePostId(),
       description: req.body.description,
       postImage: {},
+      location: req.body.location,  // Use locationDetails instead of locationId
     });
 
     // Handle post image upload logic
     if (req.file) {
+      console.log('File Size:', req.file.size);
+      console.log('File Path:', req.file.path);
       // Read the file as binary data
       const fileData = fs.readFileSync(req.file.path);
 

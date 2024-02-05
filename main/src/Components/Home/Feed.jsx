@@ -65,12 +65,12 @@ const Feed = () => {
 
   return (
     <Box flex={4} padding={2}>
-      {posts.map((post, index) => (
-  <React.Fragment key={post._id}>
-    <PostWidget post={post} />
-    {index === posts.length - 1 && <div key="sentinel" ref={sentinelRef} style={{ height: '1px' }} />}
-  </React.Fragment>
-))}
+      {posts.slice().reverse().map((post, index) => (
+        <React.Fragment key={post._id}>
+          <PostWidget post={post} />
+          {index === posts.length - 1 && <div key="sentinel" ref={sentinelRef} style={{ height: '1px' }} />}
+        </React.Fragment>
+      ))}
     </Box>
   );
 };

@@ -1,11 +1,13 @@
 // Import the necessary components and styles
 import React, { useState, useEffect } from "react";
-import { Avatar, Button, Input, Typography, Select, MenuItem } from "@mui/material";
+import { Avatar, Button, TextField ,Input, Typography, Autocomplete , Select, MenuItem } from "@mui/material";
 import { PostAdd, Cancel } from "@mui/icons-material";
 import { styled } from "@mui/system";
 import WidgetWrapper from "../Props/WidgetWrapper"; // Adjust the import path as needed
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+
+
 const StyledFileInput = styled(Input)(({ theme }) => ({
   display: "none", // Hide the default file input
 }));
@@ -14,11 +16,35 @@ const Addpost = ({onClose}) => {
   const [formData, setFormData] = useState({
     description: '',
     file: null,
-    location: '',
+    location: null,
   });
+
   const [postMessage, setPostMessage] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
+  const [locationOptions, setLocationOptions] = useState([]);
   const navigate = useNavigate();
+  
+  
+  useEffect(() => {
+    // Fetch location options and update the state
+    const fetchLocations = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/map/allfetchlocations');
+        console.log('Location Data:', response.data);
+        const locations = response.data.map(location => ({
+          value: location._id,
+          label: location.name,
+        }));
+        setLocationOptions(locations);
+      } catch (error) {
+        console.error('Error fetching locations:', error.response?.data?.message);
+      }
+    };
+
+    fetchLocations();
+  }, []);
+  
+  
   useEffect(() => {
     const getUser = async () => {
       try {
@@ -67,12 +93,35 @@ const Addpost = ({onClose}) => {
 
   const handleInputChange = (e) => {
     // Handle input changes for description, location, etc.
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    if (e && e.target) {
+      // Handle changes for regular input fields
+      const { name, value } = e.target;
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
   };
+
+  const handleAutocompleteChange = (event, newValue) => {
+    if (newValue) {
+      // Set the location directly from newValue
+      setFormData((prevData) => ({
+        ...prevData,
+        location: newValue,
+      }));
+      // Log the selected location's ID and label to the console
+      console.log('Selected Location ID:', newValue.value);
+      console.log('Selected Location label:', newValue.label);
+    } else {
+      // Handle clearing the Autocomplete value
+      setFormData((prevData) => ({
+        ...prevData,
+        location: null,
+      }));
+    }
+  };
+  
 
   const handlePost = async () => {
     try {
@@ -84,7 +133,8 @@ const Addpost = ({onClose}) => {
       const postData = new FormData();
       postData.append('postImage', formData.file);  // Update the field name to 'postImage'
       postData.append('description', formData.description);
-      postData.append('location', formData.location);
+      postData.append('location[value]', formData.location.value); // Assuming formData.location is an object
+      postData.append('location[label]', formData.location.label); // Assuming formData.location is an object
   
       // Send post data to the server
       const token = localStorage.getItem('token');
@@ -177,30 +227,37 @@ const Addpost = ({onClose}) => {
 
       {/* Description Input */}
       <Input
-        placeholder="Type your description here"
-        value={formData.description}
-        onChange={handleInputChange}
-        name="description"
-        multiline
-        rows={3}
-        fullWidth
-        style={{ marginBottom: "1rem" }}
-      />
+  placeholder="Type your description here"
+  value={formData.description}
+  onChange={(e) => handleInputChange(e)}
+  name="description"
+  multiline
+  rows={3}
+  fullWidth
+  style={{ marginBottom: "1rem" }}
+/>
 
       {/* Location Select */}
-      <Select
-        value={formData.location}
-        onChange={handleInputChange}
-        name="location"
-        fullWidth
-        style={{ marginBottom: "1rem" }}
-      >
-        <MenuItem value="">Select Location</MenuItem>
-        {/* Add your location options dynamically here */}
-        <MenuItem value="location1">Location 1</MenuItem>
-        <MenuItem value="location2">Location 2</MenuItem>
-        {/* Add more locations as needed */}
-      </Select>
+      <Autocomplete
+  value={formData.location}
+  onChange={handleAutocompleteChange}
+  options={locationOptions}
+  getOptionLabel={(option) => option.label || ''}
+  isClearable={false}
+  freeSolo={false}
+  autoHighlight
+  getOptionSelected={(option, value) => option.value === value.value}
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      name="location"
+      label="Select or Type Location"
+      margin="normal"
+    />
+  )}
+  style={{ marginBottom: "1rem" }}
+/>
+
 
       {/* Post and Cancel Buttons */}
       <div style={{ display: "flex", justifyContent: "space-between" }}>

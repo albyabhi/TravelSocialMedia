@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Button, Input, Avatar } from "@mui/material";
+import { Box, Typography, Button, Input, Avatar , Grid} from "@mui/material";
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import CommentIcon from '@mui/icons-material/Comment';
 import axios from 'axios';
@@ -66,7 +66,8 @@ const PostWidget = ({ post }) => {
   };
 
   return (
-    <Box
+     <Grid
+      container
       boxShadow="0 0 10px rgba(0, 0, 0, 0.1)"
       borderRadius="0.75rem"
       marginBottom="1.5rem"
@@ -74,19 +75,21 @@ const PostWidget = ({ post }) => {
       padding="1.5rem"
     >
       {userData && profileData && (
-        <Box display="flex" alignItems="center" marginBottom="1rem">
-          <img
-            src={`data:${profileData.profilePicture.contentType};base64,${profileData.profilePicture.data.toString('base64')}`}
-            alt={userData.username}
-            style={{ borderRadius: "50%", marginRight: "0.5rem", width: '40px', height: '40px' }}
-          />
-          <Box>
+        <Grid container alignItems="center" marginBottom="1rem">
+          <Grid item>
+            <img
+              src={`data:${profileData.profilePicture.contentType};base64,${profileData.profilePicture.data.toString('base64')}`}
+              alt={userData.username}
+              style={{ borderRadius: "50%", marginRight: "0.5rem", width: '40px', height: '40px' }}
+            />
+          </Grid>
+          <Grid item>
             <Typography variant="subtitle1" fontWeight="500">
               {userData.username}
             </Typography>
             {/* Other user information */}
-          </Box>
-        </Box>
+          </Grid>
+        </Grid>
       )}
 
       <Typography variant="body1" marginBottom="1rem">
@@ -94,23 +97,38 @@ const PostWidget = ({ post }) => {
       </Typography>
 
       {postImage && (
-        <Box marginBottom="1rem" overflow="hidden" borderRadius="0.5rem">
+        <Grid item xs={12} marginBottom="1rem" overflow="hidden" borderRadius="0.5rem">
           <img src={`data:${postImage.contentType};base64,${postImage.data}`} alt="Post" style={{ width: "100%", height: "auto", display: "block" }} />
-        </Box>
+        </Grid>
       )}
 
       {/* Like and Comment Section */}
-      <Box display="flex" alignItems="center" marginBottom="1rem">
-        <Button startIcon={<FavoriteIcon />} onClick={handleLike}>
-          {likeCount} Like
-        </Button>
-        <Button startIcon={<CommentIcon />} color="primary">
-          Comment
-        </Button>
-      </Box>
+      <Grid container justifyContent="space-between" alignItems="center" marginBottom="1rem">
+        <Grid item>
+          <Button startIcon={<FavoriteIcon />} onClick={handleLike}>
+            {likeCount} Like
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button startIcon={<CommentIcon />} color="primary">
+            Comment
+          </Button>
+        </Grid>
+      </Grid>
 
-    
-    </Box>
+      {/* Location Section */}
+      {post.location && post.location.length > 0 && (
+        <Grid
+          item
+          xs={12}
+          textAlign="right"
+        >
+          <Typography variant="body2" color="textSecondary">
+            Locations: {post.location.map(loc => loc.label).join(', ')}
+          </Typography>
+        </Grid>
+      )}
+    </Grid>
   );
 };
 
