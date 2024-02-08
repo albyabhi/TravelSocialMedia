@@ -12,6 +12,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { theme } from './Components/Home/theme';
 import State from "./Components/Admin/Adminmain/Dashboard/State";
 import Search from "./Components/Home/Search";
+import ProfileView from "./Components/Home/ProfileView";
 
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
             <Route path="/profile" element={<ProfileEd />} />
+            <Route path="/profileview/:userId" element={<ProfileView />} />
             <Route path="/Adminsignup" element={<AdminSignup />} />
             <Route path="/Adminlogin" element={<AdminLogin />} />
             <Route path="/" element={<Users />} />

@@ -89,7 +89,7 @@ router.get('/posts/:userId/:postId', async (req, res) => {
 
 
 // Fetch posts for a specific user
-router.get('/posts/user/:userId', async (req, res) => {
+router.get('/user/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
 

@@ -300,9 +300,9 @@ router.get("/user/:userId", async (req, res) => {
       userId: user._id,
       username: user.username,
       email: user.email,
-      profilePicture: user.profilePicture,
+      profilePicture: profileData.profilePicture,
       bio: profileData?.bio || "", // Use profileData for bio
-      highlightedPlaces: user.highlightedPlaces,
+      highlightedPlaces: profileData.highlightedPlaces,
       firstName: profileData?.firstName || "",
       lastName: profileData?.lastName || "",
       phoneNumber: profileData?.phoneNumber || "",

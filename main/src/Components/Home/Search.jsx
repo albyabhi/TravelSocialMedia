@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import {
   Avatar ,
   Box,
@@ -37,39 +39,44 @@ const SearchAppBar = ({ onSearch }) => {
   );
 };
 
-const SearchResultItem = ({ username, profilePicture }) => (
- <Box
-    display="flex"
-    alignItems="center"
-    justifyContent="space-between"
-    bg="grey.200"
-    borderRadius="8px"
-    p={2}
-    my={2}
-  >
-    <Box display="flex" alignItems="center">
-      {profilePicture && (
-        <Avatar
-          alt="Profile"
-          src={`data:${profilePicture.contentType};base64,${profilePicture.data}`}
-          sx={{
-            width: '50px',
-            height: '50px',
-          }}
-        />
-      )}
-      <Box ml={2}>
-        <Typography>{username}</Typography>
+const SearchResultItem = ({ userId, username, profilePicture, onClick }) => {
+  console.log('userId:', userId); // Log the userId
+  
+  return (
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="space-between"
+      bg="grey.200"
+      borderRadius="8px"
+      p={2}
+      my={2}
+      onClick={() => onClick(userId)} // Call onClick function with userId as argument
+      style={{ cursor: 'pointer' }}
+    >
+      <Box display="flex" alignItems="center">
+        {profilePicture && (
+          <Avatar
+            alt="Profile"
+            src={`data:${profilePicture.contentType};base64,${profilePicture.data}`}
+            sx={{
+              width: '50px',
+              height: '50px',
+            }}
+          />
+        )}
+        <Box ml={2}>
+          <Typography>{username}</Typography>
+        </Box>
       </Box>
     </Box>
-  </Box>
-);
-
+  );
+};
 const Search = () => {
   const [selectedCategory, setSelectedCategory] = useState('Users');
   const [searchResults, setSearchResults] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-
+  const navigate = useNavigate();
   useEffect(() => {
     // Fetch usernames based on the search query when the component mounts or searchQuery changes
     const fetchData = async () => {
@@ -91,6 +98,12 @@ const Search = () => {
     setSelectedCategory(newValue);
   };
 
+  const handleUserClick = (userId) => {
+    // Navigate to the user's profile view
+    navigate(`/profileview/${userId}`);
+    
+  };
+
   return (
     <div>
     <SearchAppBar onSearch={(query) => setSearchQuery(query)} />
@@ -107,7 +120,7 @@ const Search = () => {
                 backgroundColor: theme.palette.secondary.main,
               },
               '& .Mui-selected': {
-                color: 'black',
+                backgroundColor: theme.palette.secondary.main,
               },
             }}
           >
@@ -117,13 +130,17 @@ const Search = () => {
           </Tabs>
         </Paper>
 
-        {searchResults.map((item) => (
-          <SearchResultItem
-            key={item.userId}
-            username={item.username}
-            profilePicture={item.profilePicture}
-          />
-        ))}
+        {selectedCategory === 'Users' && (
+  searchResults.map((item) => (
+    <SearchResultItem
+  key={item.userId}
+  userId={item.userId}
+  username={item.username}
+  profilePicture={item.profilePicture}
+  onClick={handleUserClick}
+/>
+    ))
+  )}
       </Box>
     </Container>
   </div>

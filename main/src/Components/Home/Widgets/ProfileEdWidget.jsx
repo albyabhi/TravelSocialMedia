@@ -286,7 +286,7 @@ const ProfileEdWidget = ({ onClose }) => {
         <Grid item xs={12}>
           {savedLocations.length > 0 && (
             <div>
-              <Typography variant="h5">Saved Locations:</Typography>
+              <Typography variant="h5">Saved Highlighted Places:</Typography>
               <ul>
                 {savedLocations.map((place, index) => (
                   <li key={index}>{place.label}</li>
@@ -294,7 +294,7 @@ const ProfileEdWidget = ({ onClose }) => {
               </ul>
             </div>
           )}
-          <Typography variant="h5">Highlighted Places:</Typography>
+          <Typography variant="h5">Add Highlighted Places:</Typography>
 
           {/* Use react-select for autocomplete input */}
           <Select
