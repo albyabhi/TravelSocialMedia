@@ -3,6 +3,7 @@ import { Box, Typography, Button, Input, Avatar , Grid} from "@mui/material";
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import CommentIcon from '@mui/icons-material/Comment';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 
 const PostWidget = ({ post }) => {
   const { userId, postId, postImage, description } = post;
@@ -10,6 +11,7 @@ const PostWidget = ({ post }) => {
   const [profileData, setProfileData] = useState(null);
   const [commentText, setCommentText] = useState("");
   const [likeCount, setLikeCount] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -65,6 +67,10 @@ const PostWidget = ({ post }) => {
     }
   };
 
+  const navigateToProfile = () => {
+    navigate(`/profileview/${userData.userId}`); // Navigate to profile view
+  };
+
   return (
      <Grid
       container
@@ -75,21 +81,28 @@ const PostWidget = ({ post }) => {
       padding="1.5rem"
     >
       {userData && profileData && (
-        <Grid container alignItems="center" marginBottom="1rem">
-          <Grid item>
-            <img
-              src={`data:${profileData.profilePicture.contentType};base64,${profileData.profilePicture.data.toString('base64')}`}
-              alt={userData.username}
-              style={{ borderRadius: "50%", marginRight: "0.5rem", width: '40px', height: '40px' }}
-            />
-          </Grid>
-          <Grid item>
-            <Typography variant="subtitle1" fontWeight="500">
-              {userData.username}
-            </Typography>
-            {/* Other user information */}
-          </Grid>
-        </Grid>
+         <Grid container alignItems="center" marginBottom="1rem">
+         <Grid item>
+           {/* Clickable profile picture */}
+           <Avatar 
+             alt={userData.username} 
+             src={`data:${profileData.profilePicture.contentType};base64,${profileData.profilePicture.data.toString('base64')}`} 
+             onClick={navigateToProfile} // Navigate on click
+             style={{ cursor: 'pointer' }} // Change cursor to pointer
+           />
+         </Grid>
+         <Grid item>
+           {/* Clickable username */}
+           <Typography 
+             variant="subtitle1" 
+             fontWeight="500" 
+             onClick={navigateToProfile} // Navigate on click
+             style={{ cursor: 'pointer', marginLeft: '0.5rem' }} // Change cursor to pointer
+           >
+             {userData.username}
+           </Typography>
+         </Grid>
+       </Grid>
       )}
 
       <Typography variant="body1" marginBottom="1rem">

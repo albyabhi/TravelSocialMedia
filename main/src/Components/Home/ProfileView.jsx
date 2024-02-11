@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
-import { Grid, Paper, Avatar, Typography, Box, Tab, Tabs } from '@mui/material';
+import { useParams , useNavigate } from 'react-router-dom';
+import {IconButton, Grid, Paper, Avatar, Typography, Box, Tab, Tabs } from '@mui/material';
 import styled from '@emotion/styled';
+import { ArrowBack } from '@mui/icons-material';
 import { theme } from './theme'; // Import the theme object
 
 const StyledPaper = styled(Paper)`
@@ -28,7 +29,7 @@ const ProfileView = () => {
   const [tabValue, setTabValue] = useState(0);
   const [posts, setPosts] = useState([]);
   const [hoveredPost, setHoveredPost] = useState(null);
-
+  const navigate = useNavigate();
   const { userId } = useParams();
   
   useEffect(() => {
@@ -59,15 +60,22 @@ const ProfileView = () => {
     setTabValue(newValue);
   };
 
+  const handleGoBack = () => {
+    navigate(-1); // Go back to the previous page
+  };
+
   if (!userId) {
     return <p>No user ID provided.</p>;
   }
 
   return (
     <Box m={{ xs: 2, md: 0 }}> {/* Add margin for extra small and medium breakpoints */}
-      
+        <IconButton onClick={handleGoBack} style={{ position: 'absolute', top: 0, left: 0 }}>
+        <ArrowBack />
+      </IconButton>
       {profileData ? (
         <Grid container justifyContent="center" spacing={4}>
+          
           <Grid item xs={12} md={8}>
             <StyledPaper>
               <Grid container spacing={4} alignItems="center">

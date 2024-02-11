@@ -131,7 +131,8 @@ router.post("/profile/update",authenticateToken,upload.single("profilePicture"),
       if (!existingUser) {
         return res.status(404).json({ message: "User not found." });
       }
-
+     
+      console.log('Received username in request body:', req.body.username);
       if (req.body.username !== undefined && req.body.username.trim() !== "") {
         existingUser.username = req.body.username.trim();
       }

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
+import { theme } from "../theme";
 
 import {
   Grid,
@@ -10,9 +11,11 @@ import {
   TextField,
   Button,
   IconButton,
+  Container,
+  Box,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
-import WidgetWrapper from "../Props/WidgetWrapper"; // Adjust the import path as needed
+
 
 const ProfileEdWidget = ({ onClose }) => {
   const navigate = useNavigate();
@@ -153,7 +156,8 @@ const ProfileEdWidget = ({ onClose }) => {
     try {
       const token = localStorage.getItem("token");
       const formData = new FormData();
-
+      console.log("Username sent in request body:", username);
+      console.log(formData.username);
       formData.append("bio", bio);
       formData.append("firstName", firstName);
       formData.append("lastName", lastName);
@@ -164,6 +168,7 @@ const ProfileEdWidget = ({ onClose }) => {
         formData.append(`highlightedPlaces[${index}][value]`, location.value);
         formData.append(`highlightedPlaces[${index}][label]`, location.label);
       });
+      formData.append("username", username);
 
       if (profilePicture) {
         formData.append("profilePicture", profilePicture);
@@ -183,153 +188,195 @@ const ProfileEdWidget = ({ onClose }) => {
     }
   };
 
+  const Closing =()=>{
+    onClose();
+  }
+  
   if (loading) {
     return <div>Loading...</div>;
   }
 
+
   return (
-    <WidgetWrapper
+    <Box
       style={{
-        maxWidth: "60vw",
-        marginTop: "60px",
-        position: "relative", // Keep the zIndex value as needed
-        transform: "translateZ(0)",
+        marginTop: "9rem", // Adjust the top margin as needed
+        marginBottom: "2rem", // Adjust the margin as needed
+        display: "flex",
+        justifyContent: "center",
+        paddingLeft: "1rem", // Add left padding for spacing
+        paddingRight: "1rem", // Add right padding for spacing
       }}
     >
-      <Grid container spacing={2}>
-        <Grid item xs={12} container direction="column" alignItems="center">
-          {savedImage && (
-            <img
-              src={savedImage}
-              alt="Saved Profile"
-              style={{
-                maxWidth: "100%",
-                maxHeight: "100px",
-                borderRadius: "8px",
-                marginBottom: "8px",
-              }}
+<Container
+    maxWidth="md"
+    style={{
+      padding: "1.5rem",
+      backgroundColor: theme.palette.secondary.main ,
+      borderRadius: "0.75rem",
+    }}
+  >
+    <Grid container spacing={2}>
+      {/* Left Column */}
+      <Grid item xs={12} sm={6}>
+        {/* Profile Picture and Upload Button */}
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={12} container justifyContent="center">
+            {savedImage && (
+              <img
+                src={savedImage}
+                alt="Saved Profile"
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: "100px",
+                  borderRadius: "8px",
+                  marginBottom: "8px",
+                }}
+              />
+            )}
+          </Grid>
+          <Grid item xs={12} container justifyContent="center">
+            <label htmlFor="profile-picture-upload">
+              <Input
+                type="file"
+                id="profile-picture-upload"
+                accept="image/*"
+                onChange={handleFileChange}
+                style={{ display: "none" }}
+              />
+              <Button
+                component="span"
+                variant="contained"
+                color="primary"
+                style={{
+                  borderRadius: "50%",
+                  width: "100px",
+                  height: "100px",
+                }}
+              >
+                <Typography variant="subtitle2">Upload</Typography>
+              </Button>
+            </label>
+          </Grid>
+        </Grid>
+
+        {/* Personal Information Fields */}
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <TextField
+              label="Username"
+              type="text"
+              value={username}
+              onChange={(e) => setUserName(e.target.value)}
+              fullWidth
             />
-          )}
-          <label htmlFor="profile-picture-upload">
-            <Input
-              type="file"
-              id="profile-picture-upload"
-              accept="image/*"
-              onChange={handleFileChange}
-              style={{ display: "none" }}
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              label="First Name"
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              fullWidth
             />
-            <Button
-              component="span"
-              variant="contained"
-              color="primary"
-              style={{
-                borderRadius: "50%",
-                width: "100px",
-                height: "100px",
-              }}
-            >
-              <Typography variant="subtitle2">Upload</Typography>
-            </Button>
-          </label>
-        </Grid>
-
-        <Grid item xs={12}>
-          <TextField
-            label="Username"
-            type="text"
-            value={username}
-            onChange={(e) => setUserName(e.target.value)}
-            fullWidth
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            label="First Name"
-            type="text"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            fullWidth
-          />
-        </Grid>
-
-        <Grid item xs={12}>
-          <TextField
-            label="Last Name"
-            type="text"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            fullWidth
-          />
-        </Grid>
-
-        <Grid item xs={12}>
-          <TextField
-            label="Phone Number"
-            type="text"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            fullWidth
-          />
-        </Grid>
-
-        <Grid item xs={12}>
-          <Typography variant="subtitle2">Add new bio :</Typography>
-          <TextField
-            label="Bio"
-            multiline
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            fullWidth
-          />
-        </Grid>
-
-        <Grid item xs={12}>
-          {savedLocations.length > 0 && (
-            <div>
-              <Typography variant="h5">Saved Highlighted Places:</Typography>
-              <ul>
-                {savedLocations.map((place, index) => (
-                  <li key={index}>{place.label}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          <Typography variant="h5">Add Highlighted Places:</Typography>
-
-          {/* Use react-select for autocomplete input */}
-          <Select
-            isMulti
-            options={locations}
-            value={selectedLocations}
-            onChange={handleLocationSelect}
-            placeholder="Type to search or add locations"
-          />
-        </Grid>
-
-        <Grid item xs={12}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSubmitChanges}
-          >
-            Save Changes
-          </Button>
-        </Grid>
-
-        <Grid item xs={12}>
-          <Button variant="contained" color="primary" onClick={handleLogout}>
-            Logout
-          </Button>
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              label="Last Name"
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              label="Phone Number"
+              type="text"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant="subtitle2">Add new bio:</Typography>
+            <TextField
+              label="Bio"
+              multiline
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              fullWidth
+            />
+          </Grid>
         </Grid>
       </Grid>
 
-      <IconButton
-        style={{ position: "absolute", top: "8px", right: "8px" }}
-        onClick={onClose}
-      >
-        <CloseIcon />
-      </IconButton>
-    </WidgetWrapper>
+      {/* Right Column */}
+      <Grid item xs={12} sm={6}>
+        {/* Saved Highlighted Places */}
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            {savedLocations.length > 0 && (
+              <div>
+                <Typography>Saved Highlighted Places:</Typography>
+                <ul>
+                  {savedLocations.map((place, index) => (
+                    <li key={index}>{place.label}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <Typography variant="h5">Add Highlighted Places:</Typography>
+            {/* Use react-select for autocomplete input */}
+            <Select
+              isMulti
+              options={locations}
+              value={selectedLocations}
+              onChange={handleLocationSelect}
+              placeholder="Type to search or add locations"
+            />
+          </Grid>
+        </Grid>
+      </Grid>
+    </Grid>
+
+    {/* Buttons */}
+    <Grid container spacing={2} justifyContent="center" style={{ marginTop: "1rem" }}>
+  {/* Button Container */}
+  <Grid item>
+    <Button
+      variant="contained"
+      color="primary"
+      onClick={handleSubmitChanges}
+    >
+      Save Changes
+    </Button>
+  </Grid>
+  <Grid item>
+    <Button
+      variant="contained"
+      color="primary"
+      onClick={Closing}
+    >
+     Close
+    </Button>
+  </Grid>
+  <Grid item>
+    <Button variant="contained" color="primary" onClick={handleLogout}>
+      Logout
+    </Button>
+  </Grid>
+</Grid>
+
+    {/* Close Icon */}
+    <IconButton
+      style={{ position: "absolute", top: "8px", right: "8px" }}
+      onClick={onClose}
+    >
+      <CloseIcon />
+    </IconButton>
+  </Container>
+</Box>
   );
 };
 

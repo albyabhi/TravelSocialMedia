@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import {  Link, useNavigate } from "react-router-dom";
 import { Box, Button, Input, Typography, styled, AppBar, Toolbar } from "@mui/material";
 import Logo from "../Assets/main.png";
 import Bgimage from "../Assets/pg.png";
@@ -164,6 +164,10 @@ const Signup = () => {
                 >
                   Sign Up
                 </Button>
+
+                <Typography variant="body2" style={{ textAlign: "center" }}>
+                  Already a user? <Link to="/login">Login</Link>
+                </Typography>
 
                
               </FormContainer>

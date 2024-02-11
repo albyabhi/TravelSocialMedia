@@ -12,9 +12,11 @@ import {
   AppBar,
   Toolbar,
   InputBase,
+  IconButton,
 } from '@mui/material';
 import axios from 'axios';
 import { theme } from "./theme";
+import { ArrowBack } from '@mui/icons-material';
 
 const SearchAppBar = ({ onSearch }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -26,13 +28,29 @@ const SearchAppBar = ({ onSearch }) => {
     onSearch(query);
   };
 
+  const handleGoBack = () => {
+    // Implement navigation to the previous page
+    // You can use window.history.back() or any other navigation method you prefer
+    window.history.back();
+  };
+
   return (
     <AppBar position="sticky">
-      <Toolbar>
+       <Toolbar style={{ display: 'flex', justifyContent: 'center' }}>
+       <IconButton onClick={handleGoBack} edge="start" color="inherit" aria-label="back">
+          <ArrowBack />
+        </IconButton>
         <InputBase
           placeholder="Search"
           value={searchQuery}
           onChange={handleSearchChange}
+          style={{
+            backgroundColor: theme.palette.secondary.main, // Add your desired background color here
+            borderRadius: '4px', // Add border radius
+            padding: '8px', // Add padding
+            width: '30%',
+            
+          }}
         />
       </Toolbar>
     </AppBar>
@@ -103,6 +121,8 @@ const Search = () => {
     navigate(`/profileview/${userId}`);
     
   };
+
+  
 
   return (
     <div>
