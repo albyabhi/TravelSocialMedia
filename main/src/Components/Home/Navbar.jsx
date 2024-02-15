@@ -2,12 +2,13 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { AppBar, Badge, Box, InputBase, Toolbar, Typography } from '@mui/material';
-import { PostAdd, Mail, Notifications, AccountCircle , Search as SearchIcon } from '@mui/icons-material';
+import { PostAdd, AccountCircle , Search as SearchIcon } from '@mui/icons-material';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AddPost from './Widgets/Addpost';
 import { CenteredContainer } from './Props/CenteredContainer';
 import ProfileEdWidget from './Widgets/ProfileEdWidget'; // Adjust the import path as needed
 import { useMediaQuery } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate , Link } from 'react-router-dom';
 import { IconButton } from '@mui/material';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
@@ -65,14 +66,22 @@ const Navbar = () => {
   };
 
   
+  const handleLocationClick = () => {
+    // Navigate to the TravelGuideAdd page when the location icon is clicked
+    navigate('/TravelGuideAdd');
+  };
+
+  
 
   return (
     <>
       <AppBar position="sticky">
         <StyledToolbar>
-          <Typography variant="h6" fontWeight="bold" sx={{ display: { xs: 'none', sm: 'block' } }}>
-            NomadGram
-          </Typography>
+        <Link to="/home" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Typography variant="h6" fontWeight="bold" sx={{ display: { xs: 'none', sm: 'block' } }}>
+              NomadGram
+            </Typography>
+          </Link>
           <SearchContainer>
             <InputBase
               placeholder="Search"
@@ -88,13 +97,12 @@ const Navbar = () => {
             {isMobile && (
               <AccountCircle fontSize="large" color="black" onClick={toggleProfileWidget} />
             )}
-            <PostAdd fontSize="large" color="black" onClick={toggleAddPost} />
-            <Badge badgeContent={4} color="error">
-              <Mail />
-            </Badge>
-            <Badge badgeContent={4} color="error">
-              <Notifications />
-            </Badge>
+             <IconButton onClick={toggleAddPost}>
+              <PostAdd fontSize="large" color="black" />
+            </IconButton>
+            <IconButton aria-label="Location" onClick={handleLocationClick}>
+              <LocationOnIcon fontSize="large" color="black" />
+            </IconButton>
           </Icons>
         </StyledToolbar>
       </AppBar>

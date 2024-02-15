@@ -196,4 +196,24 @@ router.get('/like/count/:postId', async (req, res) => {
   }
 });
 
+
+// Fetch posts by location ID
+router.get('/location/:locationId', async (req, res) => {
+  try {
+    const { locationId } = req.params;
+
+    // Fetch posts from the database based on location ID
+    const posts = await Post.find({ 'location.value': locationId });
+
+    if (!posts || posts.length === 0) {
+      return res.status(404).json({ message: 'No posts found for the provided location ID.' });
+    }
+
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error('Error fetching posts by location:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
 module.exports = router;

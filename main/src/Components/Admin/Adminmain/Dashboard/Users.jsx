@@ -24,7 +24,7 @@ const Users = () => {
 
   const handleDeleteUser = async (userId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/users/${userId}`);
+      await axios.delete(`http://localhost:5000/api/usersdel/${userId}`);
       console.log(`Delete user with ID: ${userId}`);
       fetchUserData();
     } catch (error) {

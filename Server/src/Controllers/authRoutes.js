@@ -8,6 +8,7 @@ const config = require("../config/config");
 const secretKey = config.secretKey;
 const upload = require("../uploads/upload");
 const fs = require('fs');
+const  Post = require('../models/postModel');
 const { Location } = require("../models/locationModels");
 
 
@@ -76,6 +77,30 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ message: "Internal server error." });
   }
 });
+
+//checking token
+router.post("/verifyToken", async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    // Verify the token
+    jwt.verify(token, secretKey, (err, decoded) => {
+      if (err) {
+        // Token is invalid or expired
+        return res.status(401).json({ success: false, message: "Invalid token." });
+      } else {
+        // Token is valid
+        // You can perform additional checks here if needed, like checking if the user exists
+        res.status(200).json({ success: true, message: "Token is valid." });
+      }
+    });
+  } catch (error) {
+    console.error("Token verification failed:", error);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+});
+
+
 
 // Protected route for testing authentication
 router.get("/protected", authenticateToken, (req, res) => {
@@ -366,7 +391,7 @@ router.get("/users", async (req, res) => {
 
 //delete user by id database
 
-router.delete("/users/:userId", async (req, res) => {
+router.delete("/usersdel/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -377,7 +402,13 @@ router.delete("/users/:userId", async (req, res) => {
       return res.status(404).json({ message: "User not found." });
     }
 
-    res.json({ message: "User deleted successfully." });
+    // Delete associated profile data
+    await ProfileData.deleteOne({ userId });
+
+    // Delete associated posts
+    await Post.deleteMany({ userId });
+
+    res.json({ message: "User, associated profile data, and posts deleted successfully." });
   } catch (error) {
     console.error("Error deleting user:", error);
     res.status(500).json({ message: "Internal server error." });

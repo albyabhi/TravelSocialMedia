@@ -5,6 +5,7 @@ import {IconButton, Grid, Paper, Avatar, Typography, Box, Tab, Tabs } from '@mui
 import styled from '@emotion/styled';
 import { ArrowBack } from '@mui/icons-material';
 import { theme } from './theme'; // Import the theme object
+import Navbar from './Navbar';
 
 const StyledPaper = styled(Paper)`
   padding: ${theme.spacing(3)};
@@ -31,6 +32,15 @@ const ProfileView = () => {
   const [hoveredPost, setHoveredPost] = useState(null);
   const navigate = useNavigate();
   const { userId } = useParams();
+  
+  const token = localStorage.getItem('token');
+
+  useEffect(() => {
+    
+    if (!token) {
+      navigate('/login');
+    }
+  }, [navigate, token]);
   
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -69,6 +79,10 @@ const ProfileView = () => {
   }
 
   return (
+
+    
+   <div>
+    <Navbar />
     <Box m={{ xs: 2, md: 0 }}> {/* Add margin for extra small and medium breakpoints */}
         <IconButton onClick={handleGoBack} style={{ position: 'absolute', top: 0, left: 0 }}>
         <ArrowBack />
@@ -195,6 +209,7 @@ const ProfileView = () => {
         <p>Loading profile data...</p>
       )}
     </Box>
+    </div>
   );
 };
 

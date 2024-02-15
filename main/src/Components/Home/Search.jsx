@@ -90,18 +90,51 @@ const SearchResultItem = ({ userId, username, profilePicture, onClick }) => {
     </Box>
   );
 };
+
+const LocationSearchResultItem = ({  locationId , locationName, onClick }) => {
+  
+  return (
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="space-between"
+      bg="grey.200"
+      borderRadius="8px"
+      p={2}
+      my={2}
+      onClick={() => onClick(locationId)}
+      style={{ cursor: 'pointer' }}
+    >
+      <Typography>{locationName}</Typography>
+    </Box>
+  );
+};
+
 const Search = () => {
   const [selectedCategory, setSelectedCategory] = useState('Users');
   const [searchResults, setSearchResults] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  const token = localStorage.getItem('token');
+
+  useEffect(() => {
+    
+    if (!token) {
+      navigate('/login');
+    }
+  }, [navigate, token]);
+
   useEffect(() => {
     // Fetch usernames based on the search query when the component mounts or searchQuery changes
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/users/search?username=${searchQuery}`);
+        let response;
+        if (selectedCategory === 'Users') {
+          response = await axios.get(`http://localhost:5000/api/users/search?username=${searchQuery}`);
+        } else if (selectedCategory === 'Locations') {
+          response = await axios.get(`http://localhost:5000/map/locations/search?locationName=${searchQuery}`);
+        }
         const searchResultsArray = Array.isArray(response.data) ? response.data : [response.data];
-    
         setSearchResults(searchResultsArray);
       } catch (error) {
         console.error('Error fetching search results:', error);
@@ -110,7 +143,7 @@ const Search = () => {
     };
 
     fetchData();
-  }, [searchQuery]);
+  }, [searchQuery, selectedCategory]);
 
   const handleCategoryChange = (event, newValue) => {
     setSelectedCategory(newValue);
@@ -121,6 +154,12 @@ const Search = () => {
     navigate(`/profileview/${userId}`);
     
   };
+
+  const handleLocationClick = (locationId) => {
+    // Navigate to LocationView with locationId as parameter
+    navigate(`/LocationView/${locationId}`);
+  };
+  
 
   
 
@@ -161,6 +200,18 @@ const Search = () => {
 />
     ))
   )}
+ 
+ {searchQuery && selectedCategory === 'Locations' && (
+          searchResults.map((item) => (
+            <LocationSearchResultItem
+  key={item._id}
+  locationId={item._id} // Pass the location _id
+  locationName={item.name}
+  onClick={handleLocationClick} // Pass the onClick handler
+/>
+          ))
+        )}
+
       </Box>
     </Container>
   </div>

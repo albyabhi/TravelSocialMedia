@@ -121,7 +121,29 @@ router.get('/allfetchlocations', async (req, res) => {
   }
 });
 
+// search page 
+router.get("/locations/search", async (req, res) => {
+  try {
+    const { locationName } = req.query;
 
+    // Ensure that the locationName parameter is not empty
+    if (!locationName || locationName.trim() === "") {
+      return res.status(400).json({ message: "Invalid locationName parameter." });
+    }
+
+    // Use a case-insensitive regular expression for partial match
+    const locations = await Location.find({ name: new RegExp(locationName, 'i') });
+
+    if (locations.length === 0) {
+      return res.status(404).json({ message: "No locations found." });
+    }
+
+    res.json(locations);
+  } catch (error) {
+    console.error("Error searching for locations:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
 
    // fetch data (Nation and State)
   router.get('/fetchnations', async (req, res) => {

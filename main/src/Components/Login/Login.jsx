@@ -21,7 +21,7 @@ const FormWrapper = styled(Box)(({ theme }) => ({
   margin: "auto", // Center the Wrapper
 }));
 
-const Login = () => {
+const Login = ({ setAuth }) => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
   const [focusedField, setFocusedField] = useState("");
@@ -49,6 +49,7 @@ const Login = () => {
         return;
       }
       localStorage.setItem("token", response.data.token);
+      setAuth(true);
       if (profileupdate === "Done") {
         navigate("/home");
       } else {
