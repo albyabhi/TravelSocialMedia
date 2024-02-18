@@ -61,6 +61,7 @@ const DayContainer = ({
           day={day}
           destinationNumber={destinations.length + 1}
           onSubmit={(destinationData) => addDestination(day, destinationData)}
+          
         />
       )}
       <Button
@@ -84,25 +85,151 @@ const DayContainer = ({
 };
 
 const DestinationForm = ({ day, destinationNumber, onSubmit }) => {
-  const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
+  const [showAddLocation, setShowAddLocation] = useState(false);
   const [image, setImage] = useState("");
   const [transport, setTransport] = useState("");
   const [visitingTime, setVisitingTime] = useState("");
   const [duration, setDuration] = useState("");
+  const [location, setLocation] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
+  const [nations, setNations] = useState([]);
+  const [states, setStates] = useState([]);
+  const [selectedNation, setSelectedNation] = useState("defaultNation");
+  const [selectedState, setSelectedState] = useState("defaultState");
+  const [typomsg, setTypoMsg] = useState(
+    "Didn't find the location you are looking for? Add it"
+  );
+  const [formData, setFormData] = useState({
+    location: null,
+  });
+  const [locationOptions, setLocationOptions] = useState([]);
 
-  const handleSubmit = () => {
-    // Prepare the destination data
-    const destinationData = {
-      location,
-      description,
-      image,
-      transport,
-      visitingTime,
-      duration,
+  const handleAutocompleteChange = (event, newValue) => {
+    if (newValue) {
+      setFormData((prevData) => ({
+        ...prevData,
+        location: newValue,
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        location: null,
+      }));
+      console.log("Location reset");
+    }
+  };
+
+  useEffect(() => {
+    const fetchNations = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/map/fetchnations"
+        );
+        setNations(response.data);
+        console.log("Fetched Nations:", response.data);
+      } catch (error) {
+        console.error(
+          "Error fetching nations:",
+          error.response ? error.response.data.message : error.message
+        );
+      }
     };
-    // Pass the destination data to the parent component for submission
-    onSubmit(destinationData, day);
+
+    fetchNations();
+    fetchLocations(); // Fetch locations when the component mounts
+  }, []);
+
+  const fetchStates = async (nationId) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/map/fetchstates?nation=${nationId}`
+      );
+      setStates(response.data);
+      console.log("Fetched States:", response.data);
+    } catch (error) {
+      console.error(
+        "Error fetching states:",
+        error.response ? error.response.data.message : error.message
+      );
+    }
+  };
+
+  const fetchLocations = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5000/map/allfetchlocations"
+      );
+      const locations = response.data.map((location) => ({
+        value: location._id,
+        label: location.name,
+      }));
+      setLocationOptions(locations);
+    } catch (error) {
+      console.error("Error fetching locations:", error.response?.data?.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchLocations();
+  }, []);
+
+  const handleNationChange = async (nationId) => {
+    setSelectedNation(nationId);
+    await fetchStates(nationId);
+    await fetchLocations();
+  };
+
+  const handleAddLocationClick = () => {
+    setShowAddLocation(true);
+  };
+
+  const handleAddLocationCancel = () => {
+    setShowAddLocation(false);
+  };
+
+  const handleAddLocation = async () => {
+    if (!selectedNation || selectedNation === "defaultNation") {
+      setAlertMessage("Please select a nation before choosing a state.");
+      return;
+    }
+
+    if (!selectedState || selectedState === "defaultState") {
+      setAlertMessage("Please select a state before adding a location.");
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:5000/map/locations", {
+        nationid: selectedNation,
+        stateid: selectedState,
+        locationName: location,
+      });
+
+      setAlertMessage("Location added successfully.");
+      setSelectedNation("defaultNation");
+      setSelectedState("defaultState");
+      setLocation("");
+      setTypoMsg("New location added");
+      setShowAddLocation(false);
+      await fetchLocations();
+    } catch (error) {
+      console.error("Error adding location:", error.response?.data?.message);
+      setAlertMessage("Error adding location. Please try again.");
+    }
+  };
+
+  const handleSubmit = async () => {
+    const destinationData = new FormData();
+    destinationData.append("Destination[value]", formData.location.value);
+    destinationData.append("Destination[label]", formData.location.label);
+    destinationData.append("description", description);
+    destinationData.append("image", image);
+    destinationData.append("transport", transport);
+    destinationData.append("visitingTime", visitingTime);
+    destinationData.append("duration", duration);
+    onSubmit(destinationData, day); // Call the callback function provided by the parent component
+    console.log("destination")
   };
 
   return (
@@ -114,16 +241,110 @@ const DestinationForm = ({ day, destinationNumber, onSubmit }) => {
         Day {day} - Destination {destinationNumber}
       </Typography>
       <FormControl fullWidth sx={{ my: 2 }}>
-        <InputLabel id={`location-label-${day}-${destinationNumber}`}>
-          Location
-        </InputLabel>
-        <Select
-          labelId={`location-label-${day}-${destinationNumber}`}
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-        >
-          {/* Add menu items for locations */}
-        </Select>
+        <InputLabel
+          id={`location-label-${day}-${destinationNumber}`}
+        ></InputLabel>
+        <Autocomplete
+          value={formData.location}
+          onChange={handleAutocompleteChange}
+          options={locationOptions}
+          getOptionLabel={(option) => option.label || ""}
+          isClearable={false}
+          freeSolo={false}
+          autoHighlight
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              name="location"
+              label="Select or Type Location"
+              margin="normal"
+            />
+          )}
+          style={{ marginBottom: "1rem" }}
+        />
+        {/* Add menu items for locations */}
+
+        {!showAddLocation && (
+          <Typography
+            onClick={handleAddLocationClick}
+            style={{
+              cursor: "pointer",
+              color: "blue",
+              marginBottom: "1rem",
+            }}
+          >
+            {typomsg}
+          </Typography>
+        )}
+
+        {showAddLocation && (
+          <>
+            <div style={{ maxHeight: "200px", overflowY: "auto" }}>
+              <Select
+                value={selectedNation}
+                onChange={(e) => handleNationChange(e.target.value)}
+                fullWidth
+                margin="normal"
+                style={{ marginBottom: "1rem" }}
+              >
+                <MenuItem value="defaultNation">Select a Country</MenuItem>
+                {nations.map((nation) => (
+                  <MenuItem key={nation._id} value={nation._id}>
+                    {nation.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </div>
+
+            {selectedNation && (
+              <>
+                <InputLabel>State</InputLabel>
+                <div style={{ maxHeight: "200px", overflowY: "auto" }}>
+                  <Select
+                    value={selectedState}
+                    onChange={(e) => setSelectedState(e.target.value)}
+                    fullWidth
+                    margin="normal"
+                    style={{ marginBottom: "1rem" }}
+                  >
+                    <MenuItem value="defaultState">Select a state</MenuItem>
+                    {states.map((state) => (
+                      <MenuItem key={state._id} value={state._id}>
+                        {state.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </div>
+
+                <TextField
+                  fullWidth
+                  label="Location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  sx={{ marginBottom: "1rem" }}
+                />
+
+                <Button
+                  sx={{ marginBottom: "1rem" }}
+                  variant="contained"
+                  color="primary"
+                  onClick={handleAddLocation}
+                >
+                  Add Location
+                </Button>
+                <Button
+                  sx={{ marginBottom: "1rem" }}
+                  variant="outlined"
+                  color="primary"
+                  onClick={handleAddLocationCancel}
+                  style={{ marginLeft: "1rem" }}
+                >
+                  Cancel
+                </Button>
+              </>
+            )}
+          </>
+        )}
       </FormControl>
       <TextField
         fullWidth
@@ -291,16 +512,15 @@ const TravelGuideAdd = () => {
         ...prevData,
         location: newValue,
       }));
-      console.log('Selected Location ID:', newValue.value);
-      console.log('Selected Location label:', newValue.label);
     } else {
       setFormData((prevData) => ({
         ...prevData,
         location: null,
+        mainDestination: { value: null, label: null },
       }));
+      console.log("MainDestination reset");
     }
   };
-
 
   useEffect(() => {
     fetchLocations();
@@ -333,20 +553,27 @@ const TravelGuideAdd = () => {
     setCurrentDay(currentDay + 1); // Increment the current day index
   };
 
-  const handleSubmit = () => {
-    const formData = new FormData();
+  const handleSubmit = async () => {
+    const mainDestinationData = new FormData();
+    mainDestinationData.append("mainDescription", mainDescription);
+    mainDestinationData.append("mainImage", selectedMainImg);
+    mainDestinationData.append("MainDestination[value]", formData.location.value);
+    mainDestinationData.append("MainDestination[label]", formData.location.label);
+    console.log("main");
+    // Submit main destination data
+    // Code for submitting main destination data...
   
-    // Append mainDestination with label and value
-    formData.append('mainDestination[value]', formData.location.value);
-    formData.append('mainDestination[label]', formData.location.label);
-    // Append mainDescription and mainImage
-    formData.append("mainDescription", mainDescription);
-    formData.append("mainImage", selectedMainImg);
-  
-    // Logging the data in formData
-    formData.forEach((value, key) => {
-      console.log(key, value);
+    // Iterate over each day's destinations and submit destination data
+    days.forEach(async (day) => {
+      for (const destinationData of day.destinations) {
+        await handleDestinationSubmit(destinationData, day.day);
+      }
     });
+  };
+
+  const handleDestinationSubmit = async (destinationData, day) => {
+    // Handle destination data submission
+    console.log("Submitting destination data:", destinationData, "for day:", day);
   };
 
   useEffect(() => {
@@ -402,9 +629,7 @@ const TravelGuideAdd = () => {
 
               {showAddLocation && (
                 <>
-                  
                   <div style={{ maxHeight: "200px", overflowY: "auto" }}>
-                    
                     <Select
                       value={selectedNation}
                       onChange={(e) => handleNationChange(e.target.value)}
@@ -412,7 +637,9 @@ const TravelGuideAdd = () => {
                       margin="normal"
                       style={{ marginBottom: "1rem" }}
                     >
-                      <MenuItem value="defaultNation">Select a Country</MenuItem>
+                      <MenuItem value="defaultNation">
+                        Select a Country
+                      </MenuItem>
                       {nations.map((nation) => (
                         <MenuItem key={nation._id} value={nation._id}>
                           {nation.name}
@@ -508,7 +735,6 @@ const TravelGuideAdd = () => {
                 </Typography>
               )}
             </label>
-            
           </Container>
         </div>
         <Container>
@@ -522,19 +748,17 @@ const TravelGuideAdd = () => {
               addNewDay={handleAddNewDay}
             />
           ))}
-          
         </Container>
-      
       </Container>
       <Button
-  variant="contained"
-  color="primary"
-  fullWidth
-  onClick={handleSubmit}
-  sx={{ mt: 2, padding: '12px 24px' }} // Adjust the padding as needed
->
-  Upload Travel guide
-</Button>
+        variant="contained"
+        color="primary"
+        fullWidth
+        onClick={handleSubmit}
+        sx={{ mt: 2, padding: "12px 24px" }} // Adjust the padding as needed
+      >
+        Upload Travel guide
+      </Button>
     </div>
   );
 };
