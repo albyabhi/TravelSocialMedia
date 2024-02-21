@@ -1,415 +1,39 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import {
-  Button,
+  Container,
   TextField,
+  Button,
+  Box,
+  Typography,
+  CardContent,
   FormControl,
   InputLabel,
-  MenuItem,
   Select,
-  Typography,
-  Container,
-  Paper,
-  Autocomplete,
+  MenuItem,
 } from "@mui/material";
-import { styled } from "@mui/material";
-import Navbar from "../Navbar";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import SendIcon from "@mui/icons-material/Send";
 import axios from "axios";
+import LocationAutocomplete from "./LocationAutocomplete";
+import Navbar from "../Navbar";
+import Divider from "@mui/material/Divider";
 
-const DayContainer = ({
-  day,
-  destinations = [],
-  addDestination,
-  addNewDay,
-}) => {
-  const navigate = useNavigate();
-  const [showDestinationForm, setShowDestinationForm] = useState(
-    destinations.length === 0
-  );
 
-  const handleAddDestination = () => {
-    addDestination(day); // Pass the current day to addDestination
-    setShowDestinationForm(true); // Show the destination form after adding a destination
-  };
-
-  return (
-    <Container
-      maxWidth="xl"
-      sx={{
-        p: 3,
-        mb: 3,
-        bgcolor: "#0002",
-        textAlign: "center",
-        width: "100%",
-        borderRadius: 8, // Adding border radius
-      }}
-    >
-      {" "}
-      <Typography variant="h4" gutterBottom>
-        Day {day}
-      </Typography>
-      {destinations.map((destination, index) => (
-        <DestinationForm
-          key={index}
-          day={day} // Pass the day prop
-          destinationNumber={index + 1}
-          onSubmit={(destinationData) => addDestination(day, destinationData)} // Pass day along with destinationData
-        />
-      ))}
-      {showDestinationForm && (
-        <DestinationForm
-          day={day}
-          destinationNumber={destinations.length + 1}
-          onSubmit={(destinationData) => addDestination(day, destinationData)}
-          
-        />
-      )}
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleAddDestination}
-        sx={{ mt: 2 }}
-      >
-        Add Destination
-      </Button>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={addNewDay}
-        sx={{ mt: 2, ml: 2 }}
-      >
-        Next Day
-      </Button>
-    </Container>
-  );
-};
-
-const DestinationForm = ({ day, destinationNumber, onSubmit }) => {
-  const [description, setDescription] = useState("");
-  const [showAddLocation, setShowAddLocation] = useState(false);
-  const [image, setImage] = useState("");
-  const [transport, setTransport] = useState("");
-  const [visitingTime, setVisitingTime] = useState("");
-  const [duration, setDuration] = useState("");
-  const [location, setLocation] = useState("");
-  const [alertMessage, setAlertMessage] = useState("");
-  const [nations, setNations] = useState([]);
-  const [states, setStates] = useState([]);
-  const [selectedNation, setSelectedNation] = useState("defaultNation");
-  const [selectedState, setSelectedState] = useState("defaultState");
-  const [typomsg, setTypoMsg] = useState(
-    "Didn't find the location you are looking for? Add it"
-  );
-  const [formData, setFormData] = useState({
-    location: null,
-  });
-  const [locationOptions, setLocationOptions] = useState([]);
-
-  const handleAutocompleteChange = (event, newValue) => {
-    if (newValue) {
-      setFormData((prevData) => ({
-        ...prevData,
-        location: newValue,
-      }));
-    } else {
-      setFormData((prevData) => ({
-        ...prevData,
-        location: null,
-      }));
-      console.log("Location reset");
-    }
-  };
-
-  useEffect(() => {
-    const fetchNations = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:5000/map/fetchnations"
-        );
-        setNations(response.data);
-        console.log("Fetched Nations:", response.data);
-      } catch (error) {
-        console.error(
-          "Error fetching nations:",
-          error.response ? error.response.data.message : error.message
-        );
-      }
-    };
-
-    fetchNations();
-    fetchLocations(); // Fetch locations when the component mounts
-  }, []);
-
-  const fetchStates = async (nationId) => {
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/map/fetchstates?nation=${nationId}`
-      );
-      setStates(response.data);
-      console.log("Fetched States:", response.data);
-    } catch (error) {
-      console.error(
-        "Error fetching states:",
-        error.response ? error.response.data.message : error.message
-      );
-    }
-  };
-
-  const fetchLocations = async () => {
-    try {
-      const response = await axios.get(
-        "http://localhost:5000/map/allfetchlocations"
-      );
-      const locations = response.data.map((location) => ({
-        value: location._id,
-        label: location.name,
-      }));
-      setLocationOptions(locations);
-    } catch (error) {
-      console.error("Error fetching locations:", error.response?.data?.message);
-    }
-  };
-
-  useEffect(() => {
-    fetchLocations();
-  }, []);
-
-  const handleNationChange = async (nationId) => {
-    setSelectedNation(nationId);
-    await fetchStates(nationId);
-    await fetchLocations();
-  };
-
-  const handleAddLocationClick = () => {
-    setShowAddLocation(true);
-  };
-
-  const handleAddLocationCancel = () => {
-    setShowAddLocation(false);
-  };
-
-  const handleAddLocation = async () => {
-    if (!selectedNation || selectedNation === "defaultNation") {
-      setAlertMessage("Please select a nation before choosing a state.");
-      return;
-    }
-
-    if (!selectedState || selectedState === "defaultState") {
-      setAlertMessage("Please select a state before adding a location.");
-      return;
-    }
-
-    try {
-      const response = await axios.post("http://localhost:5000/map/locations", {
-        nationid: selectedNation,
-        stateid: selectedState,
-        locationName: location,
-      });
-
-      setAlertMessage("Location added successfully.");
-      setSelectedNation("defaultNation");
-      setSelectedState("defaultState");
-      setLocation("");
-      setTypoMsg("New location added");
-      setShowAddLocation(false);
-      await fetchLocations();
-    } catch (error) {
-      console.error("Error adding location:", error.response?.data?.message);
-      setAlertMessage("Error adding location. Please try again.");
-    }
-  };
-
-  const handleSubmit = async () => {
-    const destinationData = new FormData();
-    destinationData.append("Destination[value]", formData.location.value);
-    destinationData.append("Destination[label]", formData.location.label);
-    destinationData.append("description", description);
-    destinationData.append("image", image);
-    destinationData.append("transport", transport);
-    destinationData.append("visitingTime", visitingTime);
-    destinationData.append("duration", duration);
-    onSubmit(destinationData, day); // Call the callback function provided by the parent component
-    console.log("destination")
-  };
-
-  return (
-    <Container
-      maxWidth="sm"
-      sx={{ mt: 4, bgcolor: "secondary.main", borderRadius: 8, p: 3 }}
-    >
-      <Typography variant="h6" gutterBottom>
-        Day {day} - Destination {destinationNumber}
-      </Typography>
-      <FormControl fullWidth sx={{ my: 2 }}>
-        <InputLabel
-          id={`location-label-${day}-${destinationNumber}`}
-        ></InputLabel>
-        <Autocomplete
-          value={formData.location}
-          onChange={handleAutocompleteChange}
-          options={locationOptions}
-          getOptionLabel={(option) => option.label || ""}
-          isClearable={false}
-          freeSolo={false}
-          autoHighlight
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              name="location"
-              label="Select or Type Location"
-              margin="normal"
-            />
-          )}
-          style={{ marginBottom: "1rem" }}
-        />
-        {/* Add menu items for locations */}
-
-        {!showAddLocation && (
-          <Typography
-            onClick={handleAddLocationClick}
-            style={{
-              cursor: "pointer",
-              color: "blue",
-              marginBottom: "1rem",
-            }}
-          >
-            {typomsg}
-          </Typography>
-        )}
-
-        {showAddLocation && (
-          <>
-            <div style={{ maxHeight: "200px", overflowY: "auto" }}>
-              <Select
-                value={selectedNation}
-                onChange={(e) => handleNationChange(e.target.value)}
-                fullWidth
-                margin="normal"
-                style={{ marginBottom: "1rem" }}
-              >
-                <MenuItem value="defaultNation">Select a Country</MenuItem>
-                {nations.map((nation) => (
-                  <MenuItem key={nation._id} value={nation._id}>
-                    {nation.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </div>
-
-            {selectedNation && (
-              <>
-                <InputLabel>State</InputLabel>
-                <div style={{ maxHeight: "200px", overflowY: "auto" }}>
-                  <Select
-                    value={selectedState}
-                    onChange={(e) => setSelectedState(e.target.value)}
-                    fullWidth
-                    margin="normal"
-                    style={{ marginBottom: "1rem" }}
-                  >
-                    <MenuItem value="defaultState">Select a state</MenuItem>
-                    {states.map((state) => (
-                      <MenuItem key={state._id} value={state._id}>
-                        {state.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </div>
-
-                <TextField
-                  fullWidth
-                  label="Location"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  sx={{ marginBottom: "1rem" }}
-                />
-
-                <Button
-                  sx={{ marginBottom: "1rem" }}
-                  variant="contained"
-                  color="primary"
-                  onClick={handleAddLocation}
-                >
-                  Add Location
-                </Button>
-                <Button
-                  sx={{ marginBottom: "1rem" }}
-                  variant="outlined"
-                  color="primary"
-                  onClick={handleAddLocationCancel}
-                  style={{ marginLeft: "1rem" }}
-                >
-                  Cancel
-                </Button>
-              </>
-            )}
-          </>
-        )}
-      </FormControl>
-      <TextField
-        fullWidth
-        multiline
-        rows={4}
-        label="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        sx={{ my: 2 }}
-      />
-      <TextField
-        fullWidth
-        label="Image"
-        value={image}
-        onChange={(e) => setImage(e.target.value)}
-        sx={{ my: 2 }}
-      />
-      <TextField
-        fullWidth
-        label="Mode of Transport"
-        value={transport}
-        onChange={(e) => setTransport(e.target.value)}
-        sx={{ my: 2 }}
-      />
-      <TextField
-        fullWidth
-        label="Visiting Time"
-        value={visitingTime}
-        onChange={(e) => setVisitingTime(e.target.value)}
-        sx={{ my: 2 }}
-      />
-      <TextField
-        fullWidth
-        label="Duration"
-        value={duration}
-        onChange={(e) => setDuration(e.target.value)}
-        sx={{ my: 2 }}
-      />
-    </Container>
-  );
-};
 
 const TravelGuideAdd = () => {
-  const token = localStorage.getItem("token");
-  const [days, setDays] = useState([{ destinations: [] }]);
-  const navigate = useNavigate();
-  const [mainDestination, setMainDestination] = useState("");
-  const [selectedMainImg, setSelectedMainImg] = useState(null);
-  const [mainDescription, setMainDescription] = useState("");
-  const [previewImage, setPreviewImage] = useState(null);
-  const [currentDay, setCurrentDay] = useState(1); // Maintain the current day index
+  const [itinerary, setItinerary] = useState([{ day: 1, destinations: [] }]);
   const [locationOptions, setLocationOptions] = useState([]);
-  const [showAddLocation, setShowAddLocation] = useState(false);
-  const [selectedNation, setSelectedNation] = useState("defaultNation");
-  const [selectedState, setSelectedState] = useState("defaultState");
-  const [typomsg, setTypoMsg] = useState(
-    "Didn't find the location you are looking for? Add it"
-  );
-  const [location, setLocation] = useState("");
-  const [nations, setNations] = useState([]);
-  const [states, setStates] = useState([]);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [formData, setFormData] = useState({
-    location: null,
+  const [featureDestination, setFeatureDestination] = useState({
+    location_id: "",
+    name: "",
+    description: "",
+    image: null,
   });
+  const [isAddDestinationClicked, setIsAddDestinationClicked] = useState(false);
+
+  useEffect(() => {
+    fetchLocations();
+  }, []);
 
   const fetchLocations = async () => {
     try {
@@ -426,339 +50,384 @@ const TravelGuideAdd = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchNations = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:5000/map/fetchnations"
-        );
-        setNations(response.data);
-        console.log("Fetched Nations:", response.data);
-      } catch (error) {
-        console.error(
-          "Error fetching nations:",
-          error.response ? error.response.data.message : error.message
-        );
-      }
+  const addDestination = (dayIndex) => {
+    const newItinerary = [...itinerary];
+    const newDestination = {
+      day: dayIndex + 1, // Adding day number
+      destination: newItinerary[dayIndex].destinations.length + 1, // Adding destination number
+      location_id: "",
+      name: "",
+      description: "",
+      image: null,
+      transportation: "car",
+      visitingTime: "morning",
+      visitingDuration: 1,
     };
+    newItinerary[dayIndex].destinations.push(newDestination);
+    setItinerary(newItinerary);
+    setIsAddDestinationClicked(true);
+  };
 
-    fetchNations();
-    fetchLocations(); // Fetch locations when the component mounts
-  }, []);
+  const addDay = () => {
+    const newDay = { day: itinerary.length + 1, destinations: [] };
+    setItinerary([...itinerary, newDay]);
+  };
 
-  const fetchStates = async (nationId) => {
+  const handleAutocompleteChange = (dayIndex, destinationIndex, newValue) => {
+    const newItinerary = [...itinerary];
+    newItinerary[dayIndex].destinations[destinationIndex].location_id =
+      newValue.value;
+    newItinerary[dayIndex].destinations[destinationIndex].name = newValue.label;
+    setItinerary(newItinerary);
+  };
+
+  const handleDestinationChange = (
+    dayIndex,
+    destinationIndex,
+    field,
+    value
+  ) => {
+    const newItinerary = [...itinerary];
+    newItinerary[dayIndex].destinations[destinationIndex][field] = value;
+    setItinerary(newItinerary);
+  };
+
+  const handleImageChange = (dayIndex, destinationIndex, event) => {
+    const newItinerary = [...itinerary];
+    const file = event.target.files[0];
+    const reader = new FileReader();
+  
+    reader.onloadend = () => {
+      const imageData = reader.result;
+      newItinerary[dayIndex].destinations[destinationIndex].image = imageData;
+      setItinerary(newItinerary);
+    };
+  
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  function dataURItoBlob(dataURI) {
+    const byteString = atob(dataURI.split(",")[1]);
+    const mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+  
+    return new Blob([ab], { type: mimeString });
+  }
+
+  
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
     try {
-      const response = await axios.get(
-        `http://localhost:5000/map/fetchstates?nation=${nationId}`
+      // Create the itinerary object from the current itinerary
+      const itineraryObject = {};
+      itinerary.forEach((day, index) => {
+        itineraryObject[`Day ${index + 1}`] = day.destinations;
+      });
+  
+      // Create the feature destination object
+      const featureDestinationObject = {
+        location_id: featureDestination.location_id,
+        name: featureDestination.name,
+        description: featureDestination.description,
+        image: featureDestination.image,
+      };
+  
+      // Log the FormData object
+      const formData = new FormData();
+      formData.append("itinerary", JSON.stringify(itineraryObject));
+      formData.append(
+        "FeatureDestination",
+        JSON.stringify(featureDestinationObject)
       );
-      setStates(response.data);
-      console.log("Fetched States:", response.data);
+  
+      // Append feature destination image
+      formData.append("FeatureDestinationImage", featureDestination.image);
+  
+      // Append destination images
+      itinerary.forEach((day, dayIndex) => {
+        day.destinations.forEach((destination, destinationIndex) => {
+          // Log the index of the destination image being appended
+          console.log(`Day ${dayIndex + 1}, Destination ${destinationIndex + 1}`);
+          formData.append("DestinationImages", dataURItoBlob(destination.image));
+
+        });
+      });
+  
+      console.log("FormData before sending:", formData);
+  
+      const token = localStorage.getItem("token");
+      // Send a POST request with FormData
+      const response = await axios.post(
+        "http://localhost:5000/tg/upload",
+        formData,
+        {
+          headers: {
+            Authorization: token, // Include the user's JWT token for authentication
+            "Content-Type": "multipart/form-data", // Set proper content type
+          },
+        }
+      );
+  
+      console.log("Travel guide uploaded successfully:", response.data);
+  
+      // Optionally, you can handle success scenarios here, such as displaying a success message or redirecting the user
     } catch (error) {
       console.error(
-        "Error fetching states:",
-        error.response ? error.response.data.message : error.message
+        "Error uploading travel guide:",
+        error.response?.data?.message
       );
+      // Optionally, you can handle error scenarios here, such as displaying an error message to the user
     }
+};
+
+  const handleResetDay = (dayIndex) => {
+    const newItinerary = [...itinerary];
+    newItinerary[dayIndex].destinations = [];
+    setItinerary(newItinerary);
+    setIsAddDestinationClicked(false);
   };
-
-  const handleNationChange = async (nationId) => {
-    setSelectedNation(nationId);
-    await fetchStates(nationId);
-    await fetchLocations();
-  };
-
-  const handleAddLocationClick = () => {
-    setShowAddLocation(true);
-  };
-
-  const handleAddLocationCancel = () => {
-    setShowAddLocation(false);
-  };
-
-  const handleAddLocation = async () => {
-    if (!selectedNation || selectedNation === "defaultNation") {
-      setAlertMessage("Please select a nation before choosing a state.");
-      return;
-    }
-
-    if (!selectedState || selectedState === "defaultState") {
-      setAlertMessage("Please select a state before adding a location.");
-      return;
-    }
-
-    try {
-      const response = await axios.post("http://localhost:5000/map/locations", {
-        nationid: selectedNation,
-        stateid: selectedState,
-        locationName: location,
-      });
-
-      setAlertMessage("Location added successfully.");
-      setSelectedNation("defaultNation");
-      setSelectedState("defaultState");
-      setLocation("");
-      setTypoMsg("New location added");
-      setShowAddLocation(false);
-      await fetchLocations();
-    } catch (error) {
-      console.error("Error adding location:", error.response?.data?.message);
-      setAlertMessage("Error adding location. Please try again.");
-    }
-  };
-
-  const handleAutocompleteChange = (event, newValue) => {
-    if (newValue) {
-      setFormData((prevData) => ({
-        ...prevData,
-        location: newValue,
-      }));
-    } else {
-      setFormData((prevData) => ({
-        ...prevData,
-        location: null,
-        mainDestination: { value: null, label: null },
-      }));
-      console.log("MainDestination reset");
-    }
-  };
-
-  useEffect(() => {
-    fetchLocations();
-  }, []);
-
-  const handleChange = (event) => {
-    setMainDestination(event.target.value);
-  };
-
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    setSelectedMainImg(file);
-    // Preview the selected image
-    setPreviewImage(URL.createObjectURL(file)); // Update the previewImage state
-  };
-
-  const handleDescriptionChange = (event) => {
-    setMainDescription(event.target.value);
-  };
-
-  const handleAddDestination = (day, destinationData) => {
-    const updatedDays = [...days];
-    const targetDayIndex = day - 1; // Adjust the day index to 0-based
-    updatedDays[targetDayIndex].destinations.push(destinationData);
-    setDays(updatedDays);
-  };
-
-  const handleAddNewDay = () => {
-    setDays([...days, { destinations: [] }]);
-    setCurrentDay(currentDay + 1); // Increment the current day index
-  };
-
-  const handleSubmit = async () => {
-    const mainDestinationData = new FormData();
-    mainDestinationData.append("mainDescription", mainDescription);
-    mainDestinationData.append("mainImage", selectedMainImg);
-    mainDestinationData.append("MainDestination[value]", formData.location.value);
-    mainDestinationData.append("MainDestination[label]", formData.location.label);
-    console.log("main");
-    // Submit main destination data
-    // Code for submitting main destination data...
-  
-    // Iterate over each day's destinations and submit destination data
-    days.forEach(async (day) => {
-      for (const destinationData of day.destinations) {
-        await handleDestinationSubmit(destinationData, day.day);
-      }
-    });
-  };
-
-  const handleDestinationSubmit = async (destinationData, day) => {
-    // Handle destination data submission
-    console.log("Submitting destination data:", destinationData, "for day:", day);
-  };
-
-  useEffect(() => {
-    if (!token) {
-      navigate("/login");
-    }
-  }, [token, navigate]);
 
   return (
     <div>
-      <Navbar />
-      <Container>
-        <div style={{ marginBottom: "20px" }}>
+      <Navbar sx={{ mb: 2 }} />
+      <Container maxWidth="sm" sx={{ pt: 3 }}>
+        <form onSubmit={handleSubmit}>
           <Container
-            maxWidth="sm"
-            sx={{ mt: 4, bgcolor: "secondary.main", borderRadius: 8, p: 3 }}
+            sx={{
+              backgroundColor: "secondary.main",
+              borderRadius: 4,
+              padding: 2,
+              marginBottom: 4,
+            }}
           >
-            <Typography variant="h4" gutterBottom>
-              Add Travel Guide
+            <Typography variant="h6" sx={{ marginBottom: 2 }}>
+              Add Feature Destination
             </Typography>
-            <FormControl fullWidth sx={{ my: 2 }}>
-              <Autocomplete
-                value={formData.location}
-                onChange={handleAutocompleteChange}
-                options={locationOptions}
-                getOptionLabel={(option) => option.label || ""}
-                isClearable={false}
-                freeSolo={false}
-                autoHighlight
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    name="location"
-                    label="Select or Type Location"
-                    margin="normal"
-                  />
-                )}
-                style={{ marginBottom: "1rem" }}
-              />
-
-              {!showAddLocation && (
-                <Typography
-                  onClick={handleAddLocationClick}
-                  style={{
-                    cursor: "pointer",
-                    color: "blue",
-                    marginBottom: "1rem",
+            <LocationAutocomplete
+              value={
+                featureDestination.name
+                  ? { label: featureDestination.name }
+                  : null
+              }
+              onChange={(event, newValue) => {
+                setFeatureDestination({
+                  ...featureDestination,
+                  location_id: newValue.value,
+                  name: newValue.label,
+                });
+              }}
+              options={locationOptions}
+              sx={{ marginBottom: 2 }}
+            />
+            <TextField
+              label="Description"
+              multiline
+              color="secondary"
+              rows={2}
+              variant="outlined"
+              fullWidth
+              value={featureDestination.description}
+              onChange={(e) =>
+                setFeatureDestination({
+                  ...featureDestination,
+                  description: e.target.value,
+                })
+              }
+              sx={{ marginBottom: 2 }}
+            />
+            <Box sx={{ position: "relative", marginBottom: 3 }}>
+              <Button variant="outlined" component="label">
+                Upload Image
+                <input
+                  accept="image/*"
+                  type="file"
+                  name="FeatureDestinationImage" // Ensure the name attribute matches the field name expected by Multer
+                  onChange={(e) =>
+                    setFeatureDestination({
+                      ...featureDestination,
+                      image: e.target.files[0],
+                    })
+                  }
+                  style={{ display: "none" }}
+                />
+              </Button>
+            </Box>
+          </Container>
+          {itinerary.map((day, dayIndex) => (
+            <Container
+              key={dayIndex}
+              sx={{ mb: 4, backgroundColor: "secondary.main", borderRadius: 4 }}
+            >
+              <CardContent>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mt: 2,
                   }}
                 >
-                  {typomsg}
-                </Typography>
-              )}
-
-              {showAddLocation && (
-                <>
-                  <div style={{ maxHeight: "200px", overflowY: "auto" }}>
-                    <Select
-                      value={selectedNation}
-                      onChange={(e) => handleNationChange(e.target.value)}
-                      fullWidth
-                      margin="normal"
-                      style={{ marginBottom: "1rem" }}
-                    >
-                      <MenuItem value="defaultNation">
-                        Select a Country
-                      </MenuItem>
-                      {nations.map((nation) => (
-                        <MenuItem key={nation._id} value={nation._id}>
-                          {nation.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </div>
-
-                  {selectedNation && (
-                    <>
-                      <InputLabel>State</InputLabel>
-                      <div style={{ maxHeight: "200px", overflowY: "auto" }}>
-                        <Select
-                          value={selectedState}
-                          onChange={(e) => setSelectedState(e.target.value)}
-                          fullWidth
-                          margin="normal"
-                          style={{ marginBottom: "1rem" }}
-                        >
-                          <MenuItem value="defaultState">
-                            Select a state
-                          </MenuItem>
-                          {states.map((state) => (
-                            <MenuItem key={state._id} value={state._id}>
-                              {state.name}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </div>
-
-                      <TextField
-                        fullWidth
-                        label="Location"
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        sx={{ marginBottom: "1rem" }}
-                      />
-
+                  <Typography variant="h5" sx={{ mb: 2 }}>
+                    Day {day.day}
+                  </Typography>
+                  {isAddDestinationClicked && (
+                    <Box>
                       <Button
-                        sx={{ marginBottom: "1rem" }}
-                        variant="contained"
-                        color="primary"
-                        onClick={handleAddLocation}
-                      >
-                        Add Location
-                      </Button>
-                      <Button
-                        sx={{ marginBottom: "1rem" }}
                         variant="outlined"
-                        color="primary"
-                        onClick={handleAddLocationCancel}
-                        style={{ marginLeft: "1rem" }}
+                        color="error"
+                        onClick={() => handleResetDay(dayIndex)}
+                        sx={{ mb: 2 }}
                       >
-                        Cancel
+                        Reset Destinations
                       </Button>
-                    </>
+                    </Box>
                   )}
-                </>
-              )}
-            </FormControl>
-            <TextField
-              fullWidth
-              multiline
-              rows={4}
-              id="main-description"
-              label="Description"
-              value={mainDescription}
-              onChange={handleDescriptionChange}
-              sx={{ my: 2 }}
-            />
-            <label
-              htmlFor="image-upload"
-              style={{ display: "flex", alignItems: "center" }}
-            >
-              <input
-                id="image-upload"
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                style={{ display: "none" }}
-              />
-              <Button
-                variant="outlined"
-                component="span"
-                color="quaternary"
-                sx={{ mr: 1 }}
-              >
-                Choose Image
-              </Button>
-              {previewImage && (
-                <Typography variant="body1" component="span">
-                  {selectedMainImg.name}
-                </Typography>
-              )}
-            </label>
-          </Container>
-        </div>
-        <Container>
-          {/* Day containers */}
-          {days.map((day, index) => (
-            <DayContainer
-              key={index}
-              day={index + 1}
-              destinations={day.destinations}
-              addDestination={handleAddDestination}
-              addNewDay={handleAddNewDay}
-            />
+                </Box>
+                {day.destinations.map((destination, destinationIndex) => (
+                  <Box key={destinationIndex} sx={{ mb: 2 }}>
+                    <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                      Destination {destinationIndex + 1}
+                    </Typography>
+                    <LocationAutocomplete
+                      value={
+                        destination.name ? { label: destination.name } : null
+                      }
+                      onChange={(event, newValue) =>
+                        handleAutocompleteChange(
+                          dayIndex,
+                          destinationIndex,
+                          newValue
+                        )
+                      }
+                      options={locationOptions}
+                      sx={{ mb: 2 }}
+                    />
+                    <TextField
+                      label="Description"
+                      multiline
+                      color="secondary"
+                      rows={2}
+                      variant="outlined"
+                      fullWidth
+                      value={destination.description}
+                      onChange={(e) =>
+                        handleDestinationChange(
+                          dayIndex,
+                          destinationIndex,
+                          "description",
+                          e.target.value
+                        )
+                      }
+                      sx={{ mb: 2 }}
+                    />
+                    <Box sx={{ position: "relative", mb: 3 }}>
+                      <Button variant="outlined" component="label">
+                        Upload Image
+                        <input
+                          accept="image/*"
+                          id={`image-input-${dayIndex}-${destinationIndex}`}
+                          name="DestinationImages"
+                          type="file"
+                          onChange={(e) =>
+                            handleImageChange(dayIndex, destinationIndex, e)
+                          }
+                          style={{ display: "none" }}
+                        />
+                      </Button>
+                    </Box>
+                    <FormControl fullWidth sx={{ mb: 2 }}>
+                      <InputLabel>Transportation</InputLabel>
+                      <Select
+                        value={destination.transportation}
+                        onChange={(e) =>
+                          handleDestinationChange(
+                            dayIndex,
+                            destinationIndex,
+                            "transportation",
+                            e.target.value
+                          )
+                        }
+                      >
+                        <MenuItem value="car">Car</MenuItem>
+                        <MenuItem value="bus">Bus</MenuItem>
+                        <MenuItem value="train">Train</MenuItem>
+                        <MenuItem value="bike">Bike</MenuItem>
+                        <MenuItem value="plane">Plane</MenuItem>
+                      </Select>
+                    </FormControl>
+                    <FormControl fullWidth sx={{ mb: 3 }}>
+                      <InputLabel>Visiting Time</InputLabel>
+                      <Select
+                        value={destination.visitingTime}
+                        onChange={(e) =>
+                          handleDestinationChange(
+                            dayIndex,
+                            destinationIndex,
+                            "visitingTime",
+                            e.target.value
+                          )
+                        }
+                      >
+                        <MenuItem value="morning">Morning</MenuItem>
+                        <MenuItem value="afternoon">Afternoon</MenuItem>
+                        <MenuItem value="evening">Evening</MenuItem>
+                      </Select>
+                    </FormControl>
+                    <TextField
+                      label="Visiting Duration (hours)"
+                      type="number"
+                      color="secondary"
+                      variant="outlined"
+                      fullWidth
+                      value={destination.visitingDuration}
+                      onChange={(e) =>
+                        handleDestinationChange(
+                          dayIndex,
+                          destinationIndex,
+                          "visitingDuration",
+                          e.target.value
+                        )
+                      }
+                      sx={{ mb: 2 }}
+                    />
+                    <Divider sx={{ my: 2, borderWidth: "2px" }} />
+                  </Box>
+                ))}
+                <Button
+                  color="primary"
+                  startIcon={<AddCircleOutlineIcon />}
+                  onClick={() => addDestination(dayIndex)}
+                  sx={{ my: 2 }}
+                >
+                  Add Destination
+                </Button>
+              </CardContent>
+            </Container>
           ))}
-        </Container>
+          <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+            <Button variant="contained" color="primary" onClick={addDay}>
+              Add Day
+            </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              type="submit"
+              endIcon={<SendIcon />}
+            >
+              Submit Itinerary
+            </Button>
+          </Box>
+        </form>
       </Container>
-      <Button
-        variant="contained"
-        color="primary"
-        fullWidth
-        onClick={handleSubmit}
-        sx={{ mt: 2, padding: "12px 24px" }} // Adjust the padding as needed
-      >
-        Upload Travel guide
-      </Button>
     </div>
   );
 };

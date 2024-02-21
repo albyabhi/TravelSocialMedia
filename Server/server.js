@@ -8,6 +8,7 @@ const authRoutes = require('./src/Controllers/authRoutes');
 const adminRoutes = require('./src/Controllers/adminRoutes');
 const locationRoutes = require('./src/Controllers/locationRoutes');
 const postRoutes = require('./src/Controllers/postRoutes');
+const travelGuideRoutes = require('./src/Controllers/travelGuideRoutes');
 
 require('dotenv').config();
 
@@ -41,6 +42,8 @@ const startServer = async () => {
     
     // Use Auth Routes
     app.use('/api', authRoutes);
+
+    app.use('/tg', travelGuideRoutes);
 
 
     app.use('/admin', adminRoutes);

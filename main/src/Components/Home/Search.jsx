@@ -110,6 +110,99 @@ const LocationSearchResultItem = ({  locationId , locationName, onClick }) => {
   );
 };
 
+const TravelGuideSearchResultItem = ({ guideId, userId, title, description, image, onClick }) => {
+  const navigate = useNavigate();
+  const [userName, setUserName] = useState('');
+  const [profilePicture, setProfilePicture] = useState('');
+  
+
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // Fetch user data using userId
+        const response = await axios.get(`http://localhost:5000/api/user/${userId}`);
+        const userData = response.data;
+        // Update state with user name and profile picture
+        setUserName(userData.username);
+        setProfilePicture(userData.profilePicture);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, [userId]);
+
+  const handlenavigate = () => {
+    navigate(`/travelguideView/${guideId}/${userId}`);
+  };
+   
+  return (
+
+<Container 
+    style={{ 
+      backgroundColor: theme.palette.secondary.main, 
+       
+      marginTop: '20px',
+      borderRadius: '18px', // Added border radius
+      padding: '16px', // Added padding for spacing
+    }}
+  >
+    <div>
+      {/* Display the profile picture and user name */}
+      <Box
+        display="flex"
+        alignItems="center"
+        bg="grey.200"
+        borderRadius="8px"
+        p={2}
+        mb={2} // Added margin bottom for spacing
+      >
+        {profilePicture && (
+          <Avatar
+            alt="Profile"
+            src={`data:${profilePicture.contentType};base64,${profilePicture.data}`}
+            sx={{
+              width: '50px',
+              height: '50px',
+              marginRight: '16px',
+              borderRadius: '50%', // Adjusted border radius
+            }}
+          />
+        )}
+        {userName && <Typography variant="subtitle1">{userName}</Typography>}
+      </Box>
+
+      {/* Display the travel guide information */}
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        bg="grey.200"
+        borderRadius="8px"
+        
+        p={2}
+        mb={2} // Added margin bottom for spacing
+        onClick={handlenavigate}
+        style={{ 
+          cursor: 'pointer', 
+          backgroundImage: image ? `url(data:${image.contentType};base64,${image.data})` : 'none', 
+          backgroundSize: 'cover',
+          height: '150px', // Increased height
+        }}
+      >
+        <div>
+          <Typography variant="h6">{title}</Typography>
+          {/* Display the description */}
+          <Typography variant="body1">{description}</Typography>
+        </div>
+      </Box>
+    </div>
+  </Container>
+  );
+};
+
 const Search = () => {
   const [selectedCategory, setSelectedCategory] = useState('Users');
   const [searchResults, setSearchResults] = useState([]);
@@ -125,7 +218,6 @@ const Search = () => {
   }, [navigate, token]);
 
   useEffect(() => {
-    // Fetch usernames based on the search query when the component mounts or searchQuery changes
     const fetchData = async () => {
       try {
         let response;
@@ -133,6 +225,11 @@ const Search = () => {
           response = await axios.get(`http://localhost:5000/api/users/search?username=${searchQuery}`);
         } else if (selectedCategory === 'Locations') {
           response = await axios.get(`http://localhost:5000/map/locations/search?locationName=${searchQuery}`);
+        } else if (selectedCategory === 'Travel Guides') {
+          
+          // Implement the request for searching travel guides here
+          response = await axios.get(`http://localhost:5000/tg/search?destinationName=${searchQuery}`);
+          console.log('Travel Guides Data:', response.data);
         }
         const searchResultsArray = Array.isArray(response.data) ? response.data : [response.data];
         setSearchResults(searchResultsArray);
@@ -141,8 +238,12 @@ const Search = () => {
         setSearchResults([]);
       }
     };
-
-    fetchData();
+  
+    if (searchQuery) {
+      fetchData();
+    } else {
+      setSearchResults([]); // Clear results if search query is cleared
+    }
   }, [searchQuery, selectedCategory]);
 
   const handleCategoryChange = (event, newValue) => {
@@ -160,7 +261,8 @@ const Search = () => {
     navigate(`/LocationView/${locationId}`);
   };
   
-
+  
+ 
   
 
   return (
@@ -211,6 +313,22 @@ const Search = () => {
 />
           ))
         )}
+
+{selectedCategory === 'Travel Guides' && (
+  searchResults.map((guide) => (
+    <TravelGuideSearchResultItem
+      key={guide._id}
+      userId={guide.userId}
+      guideId={guide._id}
+      title={guide.featureDestination ? guide.featureDestination.name : ' '}
+      description={guide.featureDestination ? guide.featureDestination.description : ''}
+      image={guide.featureDestination ? guide.featureDestination.image : null}
+      
+    />
+  ))
+)}
+
+
 
       </Box>
     </Container>
