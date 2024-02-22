@@ -96,7 +96,7 @@ function App() {
             {/* user authentication required routes */}
 
             {/* Admin routes */}
-
+            <Route path="/admindashboard" element={<Users />} />
             <Route path="/travelguideView/:guideId/:userId" element={<TravelGuideView />} />            <Route path="/" element={<Users />} />
             <Route path="/location" element={<Locationtab />} />
             <Route path="/viewedit" element={<Viewedit />} />

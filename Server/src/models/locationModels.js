@@ -49,6 +49,10 @@ const locationSchema = new mongoose.Schema({
     ref: 'Nation',
     required: true,
   },
+  image: {
+    data: String, // Store binary image data
+    contentType: String, // Store the MIME type of the image
+  },
 });
 
 const Location = mongoose.model('Location', locationSchema);

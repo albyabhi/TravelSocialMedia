@@ -3,6 +3,8 @@ const express = require('express');
 const router = express.Router();
 const { Nation, State, Location } = require('../models/locationModels');
 const mongoose = require('mongoose');
+const upload = require('../uploads/upload');
+const fs = require('fs');
 
 
 
@@ -243,6 +245,90 @@ router.get('/getIdByName/:name', async (req, res) => {
   } catch (error) {
     console.error('Error fetching location ID:', error);
     res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+router.post('/locations/:id/upload-image', upload.single('locationImage'), async (req, res) => {
+  try {
+    // Get location ID from request parameters
+    const locationId = req.params.id;
+
+    // Fetch the existing location data
+    const existingLocation = await Location.findById(locationId);
+
+    // Verify that the location exists
+    if (!existingLocation) {
+      return res.status(404).json({ message: 'Location not found.' });
+    }
+
+    console.log('Received Request Body:', req.body);
+    console.log('Received File:', req.file);
+
+    // Handle location image upload logic
+    if (req.file) {
+      console.log('File Size:', req.file.size);
+      console.log('File Path:', req.file.path);
+      // Read the file as binary data
+      const fileData = fs.readFileSync(req.file.path);
+
+      // Encode the binary data to Base64
+      const base64Data = fileData.toString('base64');
+
+      // Update location image in the format you specified
+      existingLocation.image = {
+        data: base64Data,
+        contentType: req.file.mimetype,
+      };
+
+      // Save the updated location to the database
+      await existingLocation.save();
+
+      res.status(200).json({ message: 'Location image uploaded successfully.' });
+    } else {
+      res.status(400).json({ message: 'No image file uploaded.' });
+    }
+  } catch (error) {
+    console.error('Error uploading location image:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
+// Route to fetch location image by location ID
+router.get('/location/image/:locationId', async (req, res) => {
+  try {
+    const location = await Location.findById(req.params.locationId);
+    if (!location || !location.image || !location.image.data || !location.image.contentType) {
+      return res.status(404).json({ message: 'Location image not found' });
+    }
+    
+    console.log('Location image data:', location.image);
+
+    // Decode Base64-encoded image data back to binary
+    const imageData = Buffer.from(location.image.data, 'base64');
+
+    // Set the appropriate content type
+    res.set('Content-Type', location.image.contentType);
+
+    // Send the binary image data to the client
+    res.send(imageData);
+  } catch (error) {
+    console.error('Error fetching location image:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+// Route to check if location image exists by location ID
+router.get('/location/image/exists/:locationId', async (req, res) => {
+  try {
+    const location = await Location.findById(req.params.locationId);
+    if (!location || !location.image) {
+      return res.json({ exists: false });
+    }
+    return res.json({ exists: true });
+  } catch (error) {
+    console.error('Error checking location image:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 

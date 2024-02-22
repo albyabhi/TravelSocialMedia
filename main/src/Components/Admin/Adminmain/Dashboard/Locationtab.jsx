@@ -146,6 +146,33 @@ const Locationtab = () => {
     }
   };
 
+  const handleImageUpload = async (locationId, file) => {
+    try {
+      const formData = new FormData();
+      formData.append("locationImage", file);
+  
+      const response = await axios.post(
+        `http://localhost:5000/map/locations/${locationId}/upload-image`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+  
+      console.log("Location image uploaded successfully:", response.data);
+      setAlertMessage("Location image uploaded successfully.");
+      await fetchLocations(); // Fetch updated locations after uploading an image
+    } catch (error) {
+      console.error(
+        "Error uploading location image:",
+        error.response ? error.response.data.message : error.message
+      );
+      setAlertMessage("Error uploading location image. Please try again.");
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -206,6 +233,8 @@ const Locationtab = () => {
                 <TableHead>
                   <TableRow>
                     <TableCell>Location</TableCell>
+                    <TableCell>Image</TableCell>
+                    <TableCell>Image Status</TableCell>
                     <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
@@ -214,6 +243,27 @@ const Locationtab = () => {
                     locations.map((location) => (
                       <TableRow key={location._id}>
                         <TableCell>{location.name}</TableCell>
+                        <TableCell>
+                          {location.image ? (
+                            <img
+                              src={`data:${location.image.contentType};base64,${location.image.data}`}
+                              alt={location.name}
+                              style={{ width: "100px", height: "auto" }}
+                            />
+                          ) : (
+                            "No Image"
+                          )}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) =>
+                              handleImageUpload(location._id, e.target.files[0])
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>
+                          {location.image ? "Updated" : "Not Updated"}
+                        </TableCell>
                         <TableCell>
                           <Button
                             variant="contained"
@@ -227,7 +277,7 @@ const Locationtab = () => {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={2}>No locations found</TableCell>
+                      <TableCell colSpan={4}>No locations found</TableCell>
                     </TableRow>
                   )}
                 </TableBody>
@@ -240,4 +290,4 @@ const Locationtab = () => {
   );
 };
 
-export default Locationtab;
+export default Locationtab;

@@ -58,7 +58,6 @@ const TravelGuideAdd = () => {
       location_id: "",
       name: "",
       description: "",
-      image: null,
       transportation: "car",
       visitingTime: "morning",
       visitingDuration: 1,
@@ -92,35 +91,8 @@ const TravelGuideAdd = () => {
     setItinerary(newItinerary);
   };
 
-  const handleImageChange = (dayIndex, destinationIndex, event) => {
-    const newItinerary = [...itinerary];
-    const file = event.target.files[0];
-    const reader = new FileReader();
   
-    reader.onloadend = () => {
-      const imageData = reader.result;
-      newItinerary[dayIndex].destinations[destinationIndex].image = imageData;
-      setItinerary(newItinerary);
-    };
   
-    if (file) {
-      reader.readAsDataURL(file);
-    }
-  };
-  
-  function dataURItoBlob(dataURI) {
-    const byteString = atob(dataURI.split(",")[1]);
-    const mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-    }
-  
-    return new Blob([ab], { type: mimeString });
-  }
-
   
 
   const handleSubmit = async (e) => {
@@ -152,15 +124,6 @@ const TravelGuideAdd = () => {
       // Append feature destination image
       formData.append("FeatureDestinationImage", featureDestination.image);
   
-      // Append destination images
-      itinerary.forEach((day, dayIndex) => {
-        day.destinations.forEach((destination, destinationIndex) => {
-          // Log the index of the destination image being appended
-          console.log(`Day ${dayIndex + 1}, Destination ${destinationIndex + 1}`);
-          formData.append("DestinationImages", dataURItoBlob(destination.image));
-
-        });
-      });
   
       console.log("FormData before sending:", formData);
   
@@ -329,21 +292,7 @@ const TravelGuideAdd = () => {
                       }
                       sx={{ mb: 2 }}
                     />
-                    <Box sx={{ position: "relative", mb: 3 }}>
-                      <Button variant="outlined" component="label">
-                        Upload Image
-                        <input
-                          accept="image/*"
-                          id={`image-input-${dayIndex}-${destinationIndex}`}
-                          name="DestinationImages"
-                          type="file"
-                          onChange={(e) =>
-                            handleImageChange(dayIndex, destinationIndex, e)
-                          }
-                          style={{ display: "none" }}
-                        />
-                      </Button>
-                    </Box>
+                    
                     <FormControl fullWidth sx={{ mb: 2 }}>
                       <InputLabel>Transportation</InputLabel>
                       <Select

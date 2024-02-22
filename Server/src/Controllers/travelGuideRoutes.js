@@ -7,7 +7,7 @@ const upload = require('../uploads/upload');
 const TravelGuide = require('../models/TravelGuideModel');
 
 // Route to upload travel guide data
-router.post('/upload', authenticateToken, upload.fields([{ name: 'FeatureDestinationImage', maxCount: 1 }, { name: 'DestinationImages', maxCount: 10 }]), async (req, res) => {
+router.post('/upload', authenticateToken, upload.fields([{ name: 'FeatureDestinationImage', maxCount: 1 }]), async (req, res) => {
     try {
         // Extract userId from the token
         const userId = req.user.userId;
@@ -33,31 +33,7 @@ router.post('/upload', authenticateToken, upload.fields([{ name: 'FeatureDestina
             };
         }
 
-       // Handle destination images
-let destinationImagesData = [];
-if (req.files && req.files['DestinationImages']) {
-    Object.keys(itinerary).forEach(dayKey => {
-        const day = parseInt(dayKey.replace('Day ', '')); // Define day outside forEach loop
-        const dayDestinations = itinerary[dayKey];
-        dayDestinations.forEach((destination, destinationIndex) => {
-            const imageIndex = (day - 1) * 10 + destinationIndex;
-            if (imageIndex < req.files['DestinationImages'].length) {
-                const imageData = req.files['DestinationImages'][imageIndex];
-                console.log(`Receiving Destination Image for Day ${day}, Destination ${destinationIndex + 1}`);
-                const imageObject = {
-                    data: fs.readFileSync(imageData.path).toString('base64'),
-                    contentType: imageData.mimetype
-                };
-                destinationImagesData.push(imageObject);
-            } else {
-                console.error(`Error: Insufficient images for Day ${day}, Destination ${destinationIndex + 1}`);
-            }
-        });
-    });
-}
-
         console.log('Received Feature Destination Image Data:', featureDestinationImageData);
-        console.log('Received Destination Images Data:', destinationImagesData);
 
         // Ensure Day 1 field is present in the itinerary
         if (!itinerary['Day 1']) {
@@ -71,8 +47,7 @@ if (req.files && req.files['DestinationImages']) {
             featureDestination: {
                 ...FeatureDestination,
                 image: featureDestinationImageData
-            },
-            destinationImages: destinationImagesData
+            }
         });
 
         // Save the travel guide to the database

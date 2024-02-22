@@ -8,36 +8,43 @@ const secretKey = config.secretKey;
 
 const router = express.Router();
 
+
+
 // Admin Signup Endpoint
 router.post('/signup', async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { adminEmail, adminId, adminPassword } = req.body;
 
-    // Check if user with the same email already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'User with this email already exists.' });
+    // Check if admin with the same adminId already exists
+    const existingAdmin = await AdminDetails.findOne({ adminId });
+    if (existingAdmin) {
+      return res.status(400).json({ message: 'Admin with this ID already exists.' });
     }
 
-    // Hash the user password
+    // Hash the admin password
     const salt = await bcrypt.genSalt();
-    const passwordHash = await bcrypt.hash(password, salt);
+    const passwordHash = await bcrypt.hash(adminPassword, salt);
 
-    // Create a new user with additional fields
-    const newUser = new User({
-      username,
-      email,
-      password: passwordHash,
-      status: 'Active',        // Set status to 'Active'
-      profileupdate: 'Undone', // Set profileupdate to 'Undone'
+    // Create a new admin with additional fields
+    const newAdmin = new AdminDetails({
+      adminEmail,
+      adminId,
+      adminPassword: passwordHash, // Save the hashed password
     });
 
-    // Save the user to the database (password will be automatically hashed)
-    await newUser.save();
+    // Save the admin to the database
+    await newAdmin.save();
 
-    res.status(201).json({ message: 'User registered successfully.' });
+    res.status(201).json({ message: 'Admin registered successfully.' });
   } catch (error) {
-    console.error('Signup failed:', error);
+    console.error('Admin signup failed:', error);
+
+    if (error.name === 'ValidationError') {
+      // Handle Mongoose validation errors
+      const validationErrors = Object.values(error.errors).map((err) => err.message);
+      return res.status(400).json({ message: 'Validation failed', errors: validationErrors });
+    }
+
     res.status(500).json({ message: 'Internal server error.' });
   }
 });
@@ -70,4 +77,3 @@ router.get('/protected', authenticateAdminToken, (req, res) => {
 });
 
 module.exports = router;
-

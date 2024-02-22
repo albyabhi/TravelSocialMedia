@@ -106,7 +106,7 @@ export default function Sidenav() {
                  <PersonIcon/>
                 </ListItemIcon>
                 <ListItemText primary='User Details' sx={{ opacity: open ? 1 : 0 }} 
-                  style={{ color : 'blue'}}
+                  // style={{ color : 'blue'}}
                 />
               </ListItemButton>
             </ListItem>

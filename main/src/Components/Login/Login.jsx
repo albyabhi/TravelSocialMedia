@@ -85,7 +85,7 @@ const Login = ({ setAuth }) => {
     >
       <FormWrapper>
         <Typography variant="h4" gutterBottom>
-          Login
+          NomadGram
         </Typography>
         {focusedField && (
           <Typography
