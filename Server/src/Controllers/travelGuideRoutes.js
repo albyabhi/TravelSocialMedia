@@ -97,6 +97,18 @@ router.get('/fetchById/:travelGuideId', async (req, res) => {
     }
 });
 
+// Route to fetch travel guides by userId
+router.get('/fetchByUserId/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const travelGuides = await TravelGuide.find({ userId: userId });
+        res.status(200).json({ travelGuides });
+    } catch (error) {
+        console.error('Error fetching travel guides by userId:', error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+});
+
 router.get('/search', async (req, res) => {
     try {
         // Retrieve the search query from request query parameters

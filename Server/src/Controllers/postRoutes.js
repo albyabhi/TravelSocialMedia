@@ -119,6 +119,40 @@ router.get('/all', async (req, res) => {
   });
   
 
+  // Delete a post by postId
+  router.delete('/deleteposts/:postId', authenticateToken, async (req, res) => {
+    try {
+      const { postId } = req.params;
+      const { userId } = req.user;
+  
+      // Validate if postId is a valid ObjectId
+      if (!mongoose.Types.ObjectId.isValid(postId)) {
+        return res.status(400).json({ message: 'Invalid post ID format.' });
+      }
+  
+      // Find the post by postId
+      const post = await Post.findById(postId);
+  
+      // Check if the post exists
+      if (!post) {
+        return res.status(404).json({ message: 'Post not found.' });
+      }
+  
+      // Check if the authenticated user is the owner of the post
+      if (!post.userId.equals(userId)) {
+        return res.status(403).json({ message: 'Unauthorized: You are not the owner of this post.' });
+      }
+  
+      // Delete the post
+      await Post.deleteOne({ _id: postId });
+  
+      res.status(200).json({ message: 'Post deleted successfully.' });
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      res.status(500).json({ message: 'Internal server error.' });
+    }
+  });
+
   
 
 // Like a post
@@ -138,18 +172,21 @@ router.post('/like/:Id', authenticateToken, async (req, res) => {
       return res.status(404).json({ message: 'Post not found.' });
     }
 
-    const alreadyLiked = post.likes.some(like => like.userId.equals(userId));
+    const existingLikeIndex = post.likes.findIndex(like => like.userId.equals(userId));
 
-    if (alreadyLiked) {
-      return res.status(400).json({ message: 'You have already liked this post.' });
+    if (existingLikeIndex !== -1) {
+      // User already liked the post, remove the like
+      post.likes.splice(existingLikeIndex, 1);
+      await post.save();
+      return res.status(200).json({ message: 'Post unliked successfully.' });
+    } else {
+      // User hasn't liked the post, add the like
+      post.likes.push({ userId });
+      await post.save();
+      return res.status(200).json({ message: 'Post liked successfully.' });
     }
-
-    post.likes.push({ userId });
-    await post.save();
-
-    res.status(200).json({ message: 'Post liked successfully.' });
   } catch (error) {
-    console.error('Error liking post:', error);
+    console.error('Error toggling like:', error);
     res.status(500).json({ message: 'Internal server error.' });
   }
 });
@@ -169,6 +206,7 @@ router.post('/comment/:postId', authenticateToken, async (req, res) => {
 
     post.comments.push({ userId, text });
     await post.save();
+    console.log('Comment added:', text);
 
     res.status(200).json({ message: 'Comment added successfully.' });
   } catch (error) {
@@ -177,9 +215,52 @@ router.post('/comment/:postId', authenticateToken, async (req, res) => {
   }
 });
 
-router.get('/like/count/:postId', async (req, res) => {
+
+//fetch comments
+router.get('/fetchcomments/:postId', async (req, res) => {
   try {
     const { postId } = req.params;
+
+    // Find the post by ID
+    const post = await Post.findById(postId).populate({
+      path: 'comments',
+      populate: {
+        path: 'userId',
+        model: 'User', // Reference the User model
+        select: 'username profilePicture', // Select only the username and profilePicture fields
+      },
+    });
+
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found.' });
+    }
+
+    // Extract relevant comment information along with username and profile picture
+    const comments = post.comments.map(comment => ({
+      text: comment.text,
+      userId: comment.userId._id, // Add userId
+      username: comment.userId.username,
+      profilePicture: comment.userId.profilePicture,
+    }));
+
+    res.status(200).json({ comments });
+  } catch (error) {
+    console.error('Error fetching comments:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
+
+
+router.get('/like/count/:postId', authenticateToken, async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { userId } = req.user;
+
+    // Validate if postId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+      return res.status(400).json({ message: 'Invalid post ID format.' });
+    }
 
     const post = await Post.findById(postId);
 
@@ -189,7 +270,11 @@ router.get('/like/count/:postId', async (req, res) => {
 
     const likeCount = post.likes.length;
 
-    res.status(200).json({ count: likeCount });
+    // Check if the user has already liked the post
+    const alreadyLiked = post.likes.some(like => like.userId.equals(userId));
+    const likeStatus = alreadyLiked ? 'liked' : 'like';
+
+    res.status(200).json({ count: likeCount, likeStatus });
   } catch (error) {
     console.error('Error fetching like count:', error);
     res.status(500).json({ message: 'Internal server error.' });

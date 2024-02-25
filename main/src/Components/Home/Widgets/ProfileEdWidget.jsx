@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import { theme } from "../theme";
 
+
+
 import {
   Grid,
   Typography,
@@ -20,6 +22,7 @@ import { Close as CloseIcon } from "@mui/icons-material";
 const ProfileEdWidget = ({ onClose }) => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [bio, setBio] = useState("");
   const [highlightedPlaces, setHighlightedPlaces] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -62,6 +65,7 @@ const ProfileEdWidget = ({ onClose }) => {
               headers: { Authorization: token },
             }),
           ]);
+          
 
         if (isMounted) {
           setUserData(response.data);
@@ -102,6 +106,8 @@ const ProfileEdWidget = ({ onClose }) => {
 
           setLoading(false);
         }
+     
+
       } catch (error) {
         console.error(
           "Failed to fetch user data:",
@@ -111,11 +117,25 @@ const ProfileEdWidget = ({ onClose }) => {
     };
 
     fetchData();
+    
 
     return () => {
       isMounted = false;
     };
   }, [navigate]);
+
+  useEffect(() => {
+    if (userData) {
+      console.log("Logged-in user ID:", userData.userId);
+      setUserId(userData.userId);
+    }
+  }, [userData]);
+
+  const viewProfileHandle = () => {
+    // Navigate to the user's profile view
+    navigate(`/mainview/${userId}`);
+    
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -214,51 +234,68 @@ const ProfileEdWidget = ({ onClose }) => {
       padding: "1.5rem",
       backgroundColor: theme.palette.secondary.main ,
       borderRadius: "0.75rem",
+      overflowY: "auto",
+      maxHeight: "80vh",
+      scrollbarWidth: "none",
+      WebkitOverflowScrolling: "touch",
+      msOverflowStyle: "none", // Hide scrollbar for IE/Edge
+          "&::-webkit-scrollbar": {
+            display: "none", // Hide scrollbar for WebKit browsers
+          },
     }}
   >
     <Grid container spacing={2}>
       {/* Left Column */}
       <Grid item xs={12} sm={6}>
         {/* Profile Picture and Upload Button */}
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} container justifyContent="center">
-            {savedImage && (
-              <img
-                src={savedImage}
-                alt="Saved Profile"
-                style={{
-                  maxWidth: "100%",
-                  maxHeight: "100px",
-                  borderRadius: "8px",
-                  marginBottom: "8px",
-                }}
-              />
-            )}
-          </Grid>
-          <Grid item xs={12} container justifyContent="center">
-            <label htmlFor="profile-picture-upload">
-              <Input
-                type="file"
-                id="profile-picture-upload"
-                accept="image/*"
-                onChange={handleFileChange}
-                style={{ display: "none" }}
-              />
-              <Button
-                component="span"
-                variant="contained"
-                color="primary"
-                style={{
-                  borderRadius: "50%",
-                  width: "100px",
-                  height: "100px",
-                }}
-              >
-                <Typography variant="subtitle2">Upload</Typography>
-              </Button>
-            </label>
-          </Grid>
-        </Grid>
+
+
+
+
+        <Grid item xs={12} container justifyContent="center">
+  {/* Saved Profile Picture Button */}
+  <Button
+    component="label"
+    htmlFor="profile-picture-upload"
+    variant="contained"
+    color="primary"
+    style={{
+      borderRadius: "50%", // Set border radius to 50% for a round button
+      width: "100px",
+      height: "100px",
+      marginBottom: "25px",
+      backgroundImage: `url(${savedImage})`, // Set background image
+      backgroundSize: "100% 100%", // Fill the button completely
+      backgroundPosition: "center",
+      position: "relative",
+    }}
+  >
+    {/* Overlaying Typography */}
+    <Typography
+      variant="subtitle2"
+      align="center"
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        color: "white", // Adjust text color as needed
+      }}
+    >
+      Change Profile Picture
+    </Typography>
+    {/* File Input Field */}
+    <input
+      type="file"
+      id="profile-picture-upload"
+      accept="image/*"
+      onChange={handleFileChange}
+      style={{ display: "none" }}
+    />
+  </Button>
+</Grid>
+
+
 
         {/* Personal Information Fields */}
         <Grid container spacing={2}>
@@ -350,6 +387,16 @@ const ProfileEdWidget = ({ onClose }) => {
       onClick={handleSubmitChanges}
     >
       Save Changes
+    </Button>
+  </Grid>
+  <Grid item>
+    <Button
+      variant="contained"
+      color="primary"
+      onClick={viewProfileHandle}
+      
+    >
+      View your profile
     </Button>
   </Grid>
   <Grid item>

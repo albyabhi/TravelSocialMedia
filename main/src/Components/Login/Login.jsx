@@ -7,6 +7,8 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import { styled } from "@mui/system";
 import { theme } from "../Home/theme";
+import logo from "../Assets/nomadgram white.png"
+import Bgimage from "../Assets/login.png"
 
 // Apply the styles using styled(Box)
 const FormWrapper = styled(Box)(({ theme }) => ({
@@ -14,7 +16,7 @@ const FormWrapper = styled(Box)(({ theme }) => ({
   flexDirection: "column",
   alignItems: "center",
   padding: "1.5rem 1.5rem 0.75rem 1.5rem",
-  backgroundColor: theme.palette.secondary.main,
+  backgroundColor: `rgba(255, 255, 255, 0.5)`,
   borderRadius: "0.75rem",
   boxShadow: "none", // Remove the shadow
   maxWidth: "300px", // Adjust the max width as needed
@@ -82,11 +84,15 @@ const Login = ({ setAuth }) => {
       justifyContent="center"
       height="100vh"
       backgroundColor={theme.palette.primary.main}
+      style={{
+        backgroundImage: `url(${Bgimage})`,
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat",
+      }}
     >
       <FormWrapper>
-        <Typography variant="h4" gutterBottom>
-          NomadGram
-        </Typography>
+      <img src={logo} alt="NomadGram Logo" style={{ width: "200px", marginBottom: "1rem" }} />
+
         {focusedField && (
           <Typography
             variant="body2"

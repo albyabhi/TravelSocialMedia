@@ -23,6 +23,7 @@ import LocationView from "./Components/Home/LocationView";
 import axios from "axios";
 import TravelGuideAdd from "./Components/Home/TG/TravelGuideAdd";
 import TravelGuideView from "./Components/Home/TG/TravelGuideView";
+import MainProfile from "./Components/Home/MainProfile";
 
 function App() {
   const [auth, setAuth] = useState(false);
@@ -94,7 +95,11 @@ function App() {
               element={auth ? <TravelGuideAdd /> : <Navigate to="/login" />}
             />
             {/* user authentication required routes */}
-
+           
+            <Route
+              path="/mainview/:userId"
+              element={auth ? <MainProfile /> : <Navigate to="/login" />}
+            />
             {/* Admin routes */}
             <Route path="/admindashboard" element={<Users />} />
             <Route path="/travelguideView/:guideId/:userId" element={<TravelGuideView />} />            <Route path="/" element={<Users />} />
