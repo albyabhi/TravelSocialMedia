@@ -153,13 +153,7 @@ const Navbar = () => {
             />
           </SearchContainer>
           <Icons>
-            {isMobile && (
-              <AccountCircle
-                fontSize="large"
-                color="black"
-                onClick={toggleProfileWidget}
-              />
-            )}
+            
             <IconButton onClick={toggleAddPost}>
               <img
                 src={addpostIcon}

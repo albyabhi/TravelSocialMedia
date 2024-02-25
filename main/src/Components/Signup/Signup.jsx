@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
-import {  Link, useNavigate } from "react-router-dom";
-import { Box, Button, Input, Typography, styled, AppBar, Toolbar } from "@mui/material";
+import { Link, useNavigate } from "react-router-dom";
+import { Box, Button, Typography, styled, AppBar, Toolbar, TextField } from "@mui/material";
 import Logo from "../Assets/main.png";
 import Bgimage from "../Assets/pg.png";
 
@@ -18,24 +18,16 @@ const StyledBgImage = styled(Box)(({ theme }) => ({
 }));
 
 const Wrapper = styled(Box)(({ theme }) => ({
-  position: "relative",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
   padding: "1.5rem 1.5rem 0.75rem 1.5rem",
-  width: "100%",
-  maxWidth: "600px", // Adjust the max width as needed
+  backgroundColor: `rgba(255, 255, 255, 0.3)`, // Adjust the opacity as needed
+  borderRadius: "0.75rem",
+  backdropFilter: "blur(4px)", // Apply blur effect
+  boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.1)", // Add shadow for depth
+  maxWidth: "300px", // Match the maxWidth of the login form
   margin: "auto", // Center the Wrapper
-  transform: "scale(1.3)", // Use transform to scale
-  "&::before": {
-    content: '""',
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: theme.palette.primary.main,
-    borderRadius: "0.75rem",
-    opacity: 0.7, // Adjust the opacity value as needed
-    zIndex: -1,
-  },
 }));
 
 const FormContainer = styled(Box)({
@@ -101,7 +93,7 @@ const Signup = () => {
         <Toolbar>
           <Box flexGrow={1} />
           <CenteredLogo>
-          <img src={Logo} alt="My Logo" style={{ height: "40px", marginRight: "20px" }} />
+            <img src={Logo} alt="My Logo" style={{ height: "40px", marginRight: "20px" }} />
           </CenteredLogo>
         </Toolbar>
       </StyledAppBar>
@@ -115,46 +107,52 @@ const Signup = () => {
                 Sign Up
               </Typography>
               {focusedField && (
-         <Typography
-         variant="body2"
-         style={{
-           marginTop: '0.5rem',
-           textAlign: 'center',
-           opacity: focusedField ? 1 : 0,
-           visibility: focusedField ? 'visible' : 'hidden',
-           transition: 'opacity 0.5s ease-in-out, visibility 0.5s ease-in-out', // Add transition property
-         }}
-       >
-         Enter {focusedField.toLowerCase()}
-       </Typography>
-        )}
+                <Typography
+                  variant="body2"
+                  style={{
+                    marginTop: '0.5rem',
+                    textAlign: 'center',
+                    opacity: focusedField ? 1 : 0,
+                    visibility: focusedField ? 'visible' : 'hidden',
+                    transition: 'opacity 0.5s ease-in-out, visibility 0.5s ease-in-out', // Add transition property
+                  }}
+                >
+                  Enter {focusedField.toLowerCase()}
+                </Typography>
+              )}
               <FormContainer>
-                <Input
-                  placeholder="Username"
+                <TextField
+                  label="Username"
                   type="text"
                   name="username"
                   className="sign-up-input"
                   onChange={handleInputChange}
                   onFocus={() => handleTextFieldFocus('Username')}
                   onBlur={handleTextFieldBlur}
+                  variant="outlined" // Add outlined variant
+                  fullWidth // Take full width
                 />
-                <Input
-                  placeholder="Email"
+                <TextField
+                  label="Email"
                   type="email"
                   name="email"
                   className="sign-up-input"
                   onChange={handleInputChange}
                   onFocus={() => handleTextFieldFocus('Email')}
-          onBlur={handleTextFieldBlur}
+                  onBlur={handleTextFieldBlur}
+                  variant="outlined" // Add outlined variant
+                  fullWidth // Take full width
                 />
-                <Input
-                  placeholder="Password"
+                <TextField
+                  label="Password"
                   type="password"
                   name="password"
                   className="sign-up-input"
                   onChange={handleInputChange}
                   onFocus={() => handleTextFieldFocus('Password')}
                   onBlur={handleTextFieldBlur}
+                  variant="outlined" // Add outlined variant
+                  fullWidth // Take full width
                 />
                 <Button
                   variant="contained"
@@ -168,8 +166,6 @@ const Signup = () => {
                 <Typography variant="body2" style={{ textAlign: "center" }}>
                   Already a user? <Link to="/login">Login</Link>
                 </Typography>
-
-               
               </FormContainer>
             </Wrapper>
           </Box>

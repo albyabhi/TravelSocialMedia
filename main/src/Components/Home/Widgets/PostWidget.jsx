@@ -186,42 +186,44 @@ const PostWidget = ({ post }) => {
 
       {/* Like and Comment Section */}
       <Grid
-        container
-        justifyContent="space-between"
-        alignItems="center"
-        marginBottom="1rem"
-      >
-        <Grid item>
-          <Button onClick={handleLike}>
-            {likeStatus === "like" ? (
-              <img 
-              src={LikeIcon} 
-              alt="Like Icon" 
-              style={{ width: '24px', height: '24px', verticalAlign: 'middle', marginRight: '4px' }} />
-            ) : (
-              <img src={LikedIcon} 
-              alt="Liked Icon" 
-              style={{ width: '24px', height: '24px', verticalAlign: 'middle', marginRight: '4px' }} 
-              />
-            )}
-            {likeCount}
-          </Button>
-        </Grid>
-        <Grid item>
-  <Button
-    onClick={toggleCommentSection}
-    startIcon={ // Use startIcon to include an icon before the button text
-      <img
-        src={CommentIcon}
-        alt="Comment Icon"
-        style={{ width: '24px', height: '24px', verticalAlign: 'middle', marginRight: '4px' }}
-      />
-    }
-  >
-  
-  </Button>
+  container
+  justifyContent="space-between"
+  alignItems="center"
+  marginBottom="1rem"
+>
+  <Grid item>
+    {/* Like Button */}
+    <img
+      src={likeStatus === "like" ? LikeIcon : LikedIcon}
+      alt="Like Icon"
+      style={{
+        width: '24px',
+        height: '24px',
+        verticalAlign: 'middle',
+        marginRight: '4px',
+        cursor: 'pointer' // Set cursor to pointer
+      }}
+      onClick={handleLike} // Add onClick handler
+    />
+    {/* Display like count */}
+    {likeCount}
+  </Grid>
+  <Grid item>
+    {/* Comment Button */}
+    <img
+      src={CommentIcon}
+      alt="Comment Icon"
+      style={{
+        width: '24px',
+        height: '24px',
+        verticalAlign: 'middle',
+        marginRight: '4px',
+        cursor: 'pointer' // Set cursor to pointer
+      }}
+      onClick={toggleCommentSection} // Add onClick handler
+    />
+  </Grid>
 </Grid>
-      </Grid>
 
       {/* Location Section */}
       {post.location && post.location.length > 0 && (

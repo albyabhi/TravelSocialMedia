@@ -7,8 +7,8 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import { styled } from "@mui/system";
 import { theme } from "../Home/theme";
-import logo from "../Assets/nomadgram white.png"
-import Bgimage from "../Assets/login.png"
+import logo from "../Assets/main.png"
+import Bgimage from "../Assets/loginbg.png"
 
 // Apply the styles using styled(Box)
 const FormWrapper = styled(Box)(({ theme }) => ({
@@ -16,9 +16,10 @@ const FormWrapper = styled(Box)(({ theme }) => ({
   flexDirection: "column",
   alignItems: "center",
   padding: "1.5rem 1.5rem 0.75rem 1.5rem",
-  backgroundColor: `rgba(255, 255, 255, 0.5)`,
+  backgroundColor: `rgba(255, 255, 255, 0.3)`, // Adjust the opacity as needed
   borderRadius: "0.75rem",
-  boxShadow: "none", // Remove the shadow
+  backdropFilter: "blur(4px)", // Apply blur effect
+  boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.1)", // Add shadow for depth
   maxWidth: "300px", // Adjust the max width as needed
   margin: "auto", // Center the Wrapper
 }));
@@ -88,6 +89,7 @@ const Login = ({ setAuth }) => {
         backgroundImage: `url(${Bgimage})`,
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
       }}
     >
       <FormWrapper>

@@ -176,8 +176,21 @@ const ProfileEd = () => {
     return <div>Loading...</div>;
   }
   return (
-    <Container>
-       <Grid container spacing={2}>
+    <Container style={{ backgroundColor: '#f0f0f0', padding: '20px', borderRadius: '10px' }}>
+      <Grid container spacing={2}>
+        {/* Displaying username */}
+        <Grid item xs={12} style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '10px' }}>
+  <Typography variant="h6">Welcome to Nomadgram {username}</Typography>
+  <Typography>
+    Feel free to explore and share your travel tales, mesmerizing photographs, and invaluable travel tips with fellow wanderers. Nomadgram is your canvas; paint it with your wanderlust-filled experiences!
+  </Typography>
+  <Typography>
+    As you set up your profile, don't forget to add a captivating bio and a stunning profile picture. Let the world know a little more about the adventurous soul behind the screen!
+  </Typography>
+  <Typography>
+    And remember, in the realm of travel, every journey is a story waiting to be told. We're excited to be part of yours.
+  </Typography>
+</Grid>
         <Grid item xs={12} container direction="column" alignItems="center">
           {savedImage && (
             <img
@@ -214,15 +227,7 @@ const ProfileEd = () => {
           </label>
         </Grid>
 
-        <Grid item xs={12}>
-          <TextField
-            label="Username"
-            type="text"
-            value={username}
-            onChange={(e) => setUserName(e.target.value)}
-            fullWidth
-          />
-        </Grid>
+
         <Grid item xs={12}>
           <TextField
             label="First Name"

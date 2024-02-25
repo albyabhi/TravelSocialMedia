@@ -17,12 +17,14 @@ import axios from "axios";
 import LocationAutocomplete from "./LocationAutocomplete";
 import Navbar from "../Navbar";
 import Divider from "@mui/material/Divider";
-
+import { useNavigate } from "react-router-dom";
 
 
 const TravelGuideAdd = () => {
   const [itinerary, setItinerary] = useState([{ day: 1, destinations: [] }]);
   const [locationOptions, setLocationOptions] = useState([]);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const navigate = useNavigate();
   const [featureDestination, setFeatureDestination] = useState({
     location_id: "",
     name: "",
@@ -139,10 +141,11 @@ const TravelGuideAdd = () => {
           },
         }
       );
-  
+      setUploadSuccess(true);      
       console.log("Travel guide uploaded successfully:", response.data);
-  
-      // Optionally, you can handle success scenarios here, such as displaying a success message or redirecting the user
+      setTimeout(() => {
+        navigate("/home");
+      }, 2000);
     } catch (error) {
       console.error(
         "Error uploading travel guide:",
@@ -362,7 +365,14 @@ const TravelGuideAdd = () => {
               </CardContent>
             </Container>
           ))}
+          
+          {uploadSuccess && (
+        <Typography  sx={{ mb: 2  , textAlign : 'center'}}>
+          Travel guide uploaded successfully. Redirecting to home...
+        </Typography>
+      )}
           <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+          
             <Button variant="contained" color="primary" onClick={addDay}>
               Add Day
             </Button>

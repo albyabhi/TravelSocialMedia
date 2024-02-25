@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
-import { Container, Typography, Box, CircularProgress } from '@mui/material';
+import { Container, Avatar, Typography, Box, CircularProgress } from '@mui/material';
 import Navbar from '../Navbar';
+import { useNavigate } from "react-router-dom";
 
 
 import carIcon from '../Icons/car.png'
@@ -17,22 +18,42 @@ const TravelGuideView = () => {
   const [showImageId, setShowImageId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [userName, setUserName] = useState('');
+  const [profilePicture, setProfilePicture] = useState('');
+  const [userId, setUserId] = useState(null); 
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchTravelGuide = async () => {
+    const fetchTravelGuideAndUserData = async () => {
       try {
+        // Fetch travel guide data
         const response = await axios.get(`http://localhost:5000/tg/fetchById/${guideId}`);
-        setTravelGuide(response.data.travelGuide);
+        const travelGuideData = response.data.travelGuide;
+        setTravelGuide(travelGuideData);
         setLoading(false);
+        
+        // Fetch user data if travel guide data is available
+        if (travelGuideData) {
+          const userResponse = await axios.get(`http://localhost:5000/api/user/${travelGuideData.userId}`);
+          const userData = userResponse.data;
+          
+          setUserId(userData.userId);
+          setUserName(userData.username);
+        setProfilePicture(userData.profilePicture);
+        }
       } catch (error) {
-        console.error('Error fetching travel guide:', error);
+        console.error('Error fetching travel guide or user data:', error);
         setError(error.message);
         setLoading(false);
       }
     };
 
-    fetchTravelGuide();
+    fetchTravelGuideAndUserData();
   }, [guideId]);
+
+ 
+
+  
 
   if (loading) {
     return <CircularProgress />;
@@ -46,16 +67,51 @@ const TravelGuideView = () => {
     return <Typography variant="h6">No travel guide found!</Typography>;
   }
 
-  const { featureDestination, itinerary } = travelGuide;
+  const { featureDestination, itinerary  } = travelGuide;
 
   const handleShowImage = (locationId) => {
     setShowImageId((prevId) => (prevId === locationId ? null : locationId));
   };
 
+  const navigateToProfile = (userId) => {
+    navigate(`/profileview/${userId}`); // Navigate to profile view
+  };
+  
+  
+  
+
   return (
     <div>
       <Navbar />
       <Container>
+        {/* userdata */}
+      <Box my={4} bgcolor="secondary.main" borderRadius={8} p={4} display="flex" alignItems="center" >
+      {profilePicture && (
+          <Avatar
+            alt="Profile"
+            
+            src={`data:${profilePicture.contentType};base64,${profilePicture.data}`}
+            sx={{
+              width: '50px',
+              height: '50px',
+              marginRight: '16px',
+              borderRadius: '50%', // Adjusted border radius
+            }}
+          />
+        )}
+        {userName && 
+        <Typography
+        onClick={() => navigateToProfile(userId)}
+        variant="subtitle1"
+        style={{ cursor: 'pointer' }}
+      >
+        {userName}
+      </Typography>
+         }
+
+      </Box>
+      
+
         {/* Display Feature Destination */}
         <Box my={4} bgcolor="secondary.main" borderRadius={8} p={4} display="flex" alignItems="center" justifyContent="space-between">
           <Box>

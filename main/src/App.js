@@ -102,7 +102,7 @@ function App() {
             />
             {/* Admin routes */}
             <Route path="/admindashboard" element={<Users />} />
-            <Route path="/travelguideView/:guideId/:userId" element={<TravelGuideView />} />            <Route path="/" element={<Users />} />
+            <Route path="/travelguideView/:guideId/:userId" element={<TravelGuideView />} />            
             <Route path="/location" element={<Locationtab />} />
             <Route path="/viewedit" element={<Viewedit />} />
             <Route path="/state" element={<State />} />
