@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Container, Avatar, Typography, Box, CircularProgress } from '@mui/material';
 import Navbar from '../Navbar';
 import { useNavigate } from "react-router-dom";
+import locationAddform from '../LocationAddform'
 
 
 import carIcon from '../Icons/car.png'
@@ -56,7 +57,16 @@ const TravelGuideView = () => {
   
 
   if (loading) {
-    return <CircularProgress />;
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        style={{ height: "100vh" }}
+      >
+        <CircularProgress style={{ color: 'black' }} size={40} />
+      </Box>
+    );
   }
 
   if (error) {

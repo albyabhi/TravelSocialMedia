@@ -10,6 +10,7 @@ import {
   Box,
   Tab,
   Tabs,
+  CircularProgress,
 } from "@mui/material";
 import styled from "@emotion/styled";
 import { ArrowBack } from "@mui/icons-material";
@@ -329,7 +330,14 @@ const ProfileView = () => {
             </Grid>
           </Grid>
         ) : (
-          <p>Loading profile data...</p>
+          <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        style={{ height: "100vh" }}
+      >
+        <CircularProgress style={{ color: 'black' }} size={40} />
+      </Box>
         )}
       </Box>
     </div>

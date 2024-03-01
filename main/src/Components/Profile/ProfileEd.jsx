@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Container, Grid, Typography, Input , TextField, Button,} from "@mui/material";
+import { Container, Grid, Typography, Input , TextField, Button, InputLabel,} from "@mui/material";
 import Select from "react-select";
 const ProfileEd = () => {
   const navigate = useNavigate();
@@ -222,15 +222,15 @@ const ProfileEd = () => {
                 height: "100px",
               }}
             >
-              <Typography variant="subtitle2">Upload</Typography>
+              <Typography variant="subtitle2" style={{ textAlign:"center" }}>Profile Pic</Typography>
             </Button>
           </label>
         </Grid>
 
 
         <Grid item xs={12}>
+          <InputLabel>First Name</InputLabel>
           <TextField
-            label="First Name"
             type="text"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
@@ -239,8 +239,9 @@ const ProfileEd = () => {
         </Grid>
 
         <Grid item xs={12}>
+        <InputLabel>Last Name</InputLabel>
+
           <TextField
-            label="Last Name"
             type="text"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
@@ -249,8 +250,9 @@ const ProfileEd = () => {
         </Grid>
 
         <Grid item xs={12}>
+        <InputLabel>Phone Number</InputLabel>
+
           <TextField
-            label="Phone Number"
             type="text"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
@@ -259,9 +261,9 @@ const ProfileEd = () => {
         </Grid>
 
         <Grid item xs={12}>
-          <Typography variant="subtitle2">Add new bio :</Typography>
+        <InputLabel>Bio</InputLabel>
+
           <TextField
-            label="Bio"
             multiline
             value={bio}
             onChange={(e) => setBio(e.target.value)}
@@ -280,7 +282,7 @@ const ProfileEd = () => {
               </ul>
             </div>
           )}
-          <Typography variant="h5">Highlighted Places:</Typography>
+          <InputLabel>Add your Visited lcations</InputLabel>
 
           {/* Use react-select for autocomplete input */}
           <Select

@@ -66,7 +66,7 @@ function App() {
       <div className="App">
         <Router>
           <Routes>
-            <Route path="/signup" element={<Signup />} />
+            <Route path="/" element={<Signup />} />
             <Route path="/login" element={<Login setAuth={setAuth} />} />
 
             {/* user authentication required routes */}

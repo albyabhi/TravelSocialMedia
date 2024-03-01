@@ -15,6 +15,8 @@ import {
   IconButton,
   Container,
   Box,
+  InputLabel,
+  CircularProgress,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 
@@ -213,7 +215,16 @@ const ProfileEdWidget = ({ onClose }) => {
   }
   
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        style={{ height: "100vh" }}
+      >
+        <CircularProgress  size={40} />
+      </Box>
+    );
   }
 
 
@@ -300,8 +311,9 @@ const ProfileEdWidget = ({ onClose }) => {
         {/* Personal Information Fields */}
         <Grid container spacing={2}>
           <Grid item xs={12}>
+            <InputLabel>username</InputLabel>
             <TextField
-              label="Username"
+              
               type="text"
               value={username}
               onChange={(e) => setUserName(e.target.value)}
@@ -309,8 +321,9 @@ const ProfileEdWidget = ({ onClose }) => {
             />
           </Grid>
           <Grid item xs={12}>
+            <InputLabel>First name</InputLabel>
             <TextField
-              label="First Name"
+              
               type="text"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
@@ -318,8 +331,10 @@ const ProfileEdWidget = ({ onClose }) => {
             />
           </Grid>
           <Grid item xs={12}>
+          <InputLabel>last name</InputLabel>
+
             <TextField
-              label="Last Name"
+              
               type="text"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
@@ -327,8 +342,10 @@ const ProfileEdWidget = ({ onClose }) => {
             />
           </Grid>
           <Grid item xs={12}>
+          <InputLabel>phone number</InputLabel>
+
             <TextField
-              label="Phone Number"
+              
               type="text"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
@@ -336,9 +353,9 @@ const ProfileEdWidget = ({ onClose }) => {
             />
           </Grid>
           <Grid item xs={12}>
-            <Typography variant="subtitle2">Add new bio:</Typography>
+          <InputLabel>Bio</InputLabel>
             <TextField
-              label="Bio"
+              
               multiline
               value={bio}
               onChange={(e) => setBio(e.target.value)}
@@ -355,7 +372,7 @@ const ProfileEdWidget = ({ onClose }) => {
           <Grid item xs={12}>
             {savedLocations.length > 0 && (
               <div>
-                <Typography>Saved Highlighted Places:</Typography>
+            <InputLabel>saved locations</InputLabel>
                 <ul>
                   {savedLocations.map((place, index) => (
                     <li key={index}>{place.label}</li>
@@ -363,7 +380,8 @@ const ProfileEdWidget = ({ onClose }) => {
                 </ul>
               </div>
             )}
-            <Typography variant="h5">Add Highlighted Places:</Typography>
+                        <InputLabel>Edit your locations</InputLabel>
+
             {/* Use react-select for autocomplete input */}
             <Select
               isMulti

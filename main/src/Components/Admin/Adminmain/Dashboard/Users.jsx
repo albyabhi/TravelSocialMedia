@@ -5,10 +5,27 @@ import Navbar from '../Dashboard/Navbar';
 import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import axios from 'axios';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import { useNavigate } from 'react-router-dom';
+
+
 
 const Users = () => {
+  const navigate = useNavigate();
   const [userData, setUserData] = useState([]);
 
+  
+  useEffect(() => {
+    // Fetch token from localStorage when component mounts
+    const adminToken = localStorage.getItem('adminToken');
+
+    if (!adminToken) {
+      // If token doesn't exist, navigate to Adminlogin
+      navigate('/Adminlogin');
+    } 
+  }, [navigate]); // Added navigate to dependency array
+  
+  
+  
   const fetchUserData = async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/users');
@@ -21,6 +38,7 @@ const Users = () => {
   useEffect(() => {
     fetchUserData();
   }, []);
+
 
   const handleDeleteUser = async (userId) => {
     try {

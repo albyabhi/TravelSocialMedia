@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { Box, Button, Typography, styled, AppBar, Toolbar, TextField } from "@mui/material";
+import { Box, Button, Typography, styled, AppBar, Toolbar, TextField, InputLabel } from "@mui/material";
 import Logo from "../Assets/main.png";
 import Bgimage from "../Assets/pg.png";
 
@@ -59,7 +59,7 @@ const Signup = () => {
     email: "",
     password: "",
   });
-  const [focusedField, setFocusedField] = useState('');
+  
   const handleInputChange = (e) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
   };
@@ -79,13 +79,7 @@ const Signup = () => {
     }
   };
 
-  const handleTextFieldFocus = (fieldName) => {
-    setFocusedField(fieldName);
-  };
-
-  const handleTextFieldBlur = () => {
-    setFocusedField('');
-  };
+ 
 
   return (
     <>
@@ -106,51 +100,36 @@ const Signup = () => {
               <Typography variant="h5" gutterBottom>
                 Sign Up
               </Typography>
-              {focusedField && (
-                <Typography
-                  variant="body2"
-                  style={{
-                    marginTop: '0.5rem',
-                    textAlign: 'center',
-                    opacity: focusedField ? 1 : 0,
-                    visibility: focusedField ? 'visible' : 'hidden',
-                    transition: 'opacity 0.5s ease-in-out, visibility 0.5s ease-in-out', // Add transition property
-                  }}
-                >
-                  Enter {focusedField.toLowerCase()}
-                </Typography>
-              )}
+              
               <FormContainer>
+                <InputLabel>username</InputLabel>
                 <TextField
-                  label="Username"
+                  
                   type="text"
                   name="username"
                   className="sign-up-input"
                   onChange={handleInputChange}
-                  onFocus={() => handleTextFieldFocus('Username')}
-                  onBlur={handleTextFieldBlur}
+                  
                   variant="outlined" // Add outlined variant
                   fullWidth // Take full width
                 />
+                <InputLabel>Email</InputLabel>
                 <TextField
-                  label="Email"
+                  
                   type="email"
                   name="email"
                   className="sign-up-input"
                   onChange={handleInputChange}
-                  onFocus={() => handleTextFieldFocus('Email')}
-                  onBlur={handleTextFieldBlur}
                   variant="outlined" // Add outlined variant
                   fullWidth // Take full width
                 />
+                <InputLabel>password</InputLabel>
                 <TextField
-                  label="Password"
+                  
                   type="password"
                   name="password"
                   className="sign-up-input"
                   onChange={handleInputChange}
-                  onFocus={() => handleTextFieldFocus('Password')}
-                  onBlur={handleTextFieldBlur}
                   variant="outlined" // Add outlined variant
                   fullWidth // Take full width
                 />

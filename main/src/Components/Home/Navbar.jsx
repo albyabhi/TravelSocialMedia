@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import axios from "axios";
+import homeIcon from "./Icons/home.png"
 
 import {
   AppBar,
@@ -13,10 +14,10 @@ import {
   Typography,
   Menu,
   MenuItem,
+  Tooltip,
 } from "@mui/material";
 import {
-  PostAdd,
-  AccountCircle,
+  
   Search as SearchIcon,
 } from "@mui/icons-material";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -27,7 +28,7 @@ import { useMediaQuery } from "@mui/material";
 import { useNavigate, Link } from "react-router-dom";
 import { IconButton } from "@mui/material";
 import addpostIcon from "./Icons/addpost.png";
-import locationIcon from "./Icons/location.png"
+import locationIcon from "./Icons/location.png";
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: "flex",
@@ -36,6 +37,9 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
   margin: 0,
   padding: "0 16px",
+  [theme.breakpoints.down("sm")]: {
+    padding: "0 8px", // Adjust padding for smaller screens
+  },
 }));
 
 const SearchContainer = styled("div")(({ theme }) => ({
@@ -61,9 +65,11 @@ const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState(null); // State for account menu anchor element
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const [userProfile, setUserProfile] = useState(null);
+  const [username , setUsername] = useState('');
   const navigate = useNavigate();
   const [profilePicture, setProfilePicture] = useState(null);
-
+  
+  const isXsOrSm = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   useEffect(() => {
     const getUser = async () => {
       try {
@@ -86,6 +92,8 @@ const Navbar = () => {
 
           profilePicture: profileData?.profilePicture || null,
         };
+        setUsername(userProfile.username);
+        
 
         setUserProfile(userProfile);
         setProfilePicture(profileData?.profilePicture || null);
@@ -132,14 +140,22 @@ const Navbar = () => {
     <>
       <AppBar position="sticky">
         <StyledToolbar>
-          <Link to="/home" style={{ textDecoration: "none", color: "inherit" }}>
-            <Typography
-              variant="h6"
-              fontWeight="bold"
-              sx={{ display: { xs: "none", sm: "block" } }}
-            >
+        <Link to="/home" style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center" }}>
+            <Typography variant="h6" fontWeight="bold" sx={{ display: { xs: "none", sm: "block" } }}>
               NomadGram
             </Typography>
+            {isXsOrSm && (
+              <img
+                src={homeIcon}
+                alt="Home"
+                style={{
+                  width: "24px",
+                  height: "24px",
+                  marginLeft: "8px",
+                  display: "inline-block"
+                }}
+              />
+            )}
           </Link>
           <SearchContainer>
             <InputBase
@@ -153,7 +169,8 @@ const Navbar = () => {
             />
           </SearchContainer>
           <Icons>
-            
+           
+          <Tooltip title="Add Post">
             <IconButton onClick={toggleAddPost}>
               <img
                 src={addpostIcon}
@@ -167,8 +184,11 @@ const Navbar = () => {
                 }}
               />
             </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Add Travel Guide">
             <IconButton aria-label="Location" onClick={handleLocationClick}>
-            <img
+              <img
                 src={locationIcon}
                 alt="Add Post"
                 style={{
@@ -180,6 +200,8 @@ const Navbar = () => {
                 }}
               />
             </IconButton>
+            </Tooltip>
+
             <IconButton
               aria-controls="account-menu"
               aria-haspopup="true"
@@ -187,13 +209,17 @@ const Navbar = () => {
             >
               {userProfile ? (
                 <Avatar
-                  alt={userProfile.username}
-                  src={`data:${
-                    profilePicture.contentType
-                  };base64,${profilePicture.data.toString("base64")}`}
+                  
+                  src={
+                    profilePicture?.contentType && profilePicture?.data
+                      ? `data:${
+                          profilePicture.contentType
+                        };base64,${profilePicture.data.toString("base64")}`
+                      : ""
+                  }
                 />
               ) : (
-                <AccountCircle fontSize="large" color="black" />
+                <Avatar alt={username}  />
               )}
             </IconButton>
             {/* Account menu */}

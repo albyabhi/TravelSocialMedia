@@ -18,6 +18,7 @@ import LocationAutocomplete from "./LocationAutocomplete";
 import Navbar from "../Navbar";
 import Divider from "@mui/material/Divider";
 import { useNavigate } from "react-router-dom";
+import { LocationAddform } from "../LocationAddform";
 
 
 const TravelGuideAdd = () => {
@@ -176,8 +177,9 @@ const TravelGuideAdd = () => {
             }}
           >
             <Typography variant="h6" sx={{ marginBottom: 2 }}>
-              Add Feature Destination
+              Featured Destination
             </Typography>
+            <InputLabel>Location</InputLabel>
             <LocationAutocomplete
               value={
                 featureDestination.name
@@ -194,8 +196,13 @@ const TravelGuideAdd = () => {
               options={locationOptions}
               sx={{ marginBottom: 2 }}
             />
+           <Box>
+           <LocationAddform fetchLocations={fetchLocations} />
+           </Box>
+                       
+            <InputLabel>Description</InputLabel>
             <TextField
-              label="Description"
+              
               multiline
               color="secondary"
               rows={2}
@@ -263,6 +270,7 @@ const TravelGuideAdd = () => {
                     <Typography variant="subtitle1" sx={{ mb: 1 }}>
                       Destination {destinationIndex + 1}
                     </Typography>
+                    
                     <LocationAutocomplete
                       value={
                         destination.name ? { label: destination.name } : null
@@ -277,8 +285,11 @@ const TravelGuideAdd = () => {
                       options={locationOptions}
                       sx={{ mb: 2 }}
                     />
+
+<LocationAddform fetchLocations={fetchLocations} />
+                    <InputLabel>Description</InputLabel>
                     <TextField
-                      label="Description"
+                      
                       multiline
                       color="secondary"
                       rows={2}
@@ -296,8 +307,9 @@ const TravelGuideAdd = () => {
                       sx={{ mb: 2 }}
                     />
                     
+                    <InputLabel>Transportation</InputLabel>
                     <FormControl fullWidth sx={{ mb: 2 }}>
-                      <InputLabel>Transportation</InputLabel>
+                      
                       <Select
                         value={destination.transportation}
                         onChange={(e) =>
@@ -316,8 +328,9 @@ const TravelGuideAdd = () => {
                         <MenuItem value="plane">Plane</MenuItem>
                       </Select>
                     </FormControl>
+                    <InputLabel>Visiting Time</InputLabel>
                     <FormControl fullWidth sx={{ mb: 3 }}>
-                      <InputLabel>Visiting Time</InputLabel>
+                      
                       <Select
                         value={destination.visitingTime}
                         onChange={(e) =>
@@ -334,8 +347,9 @@ const TravelGuideAdd = () => {
                         <MenuItem value="evening">Evening</MenuItem>
                       </Select>
                     </FormControl>
+                   <InputLabel>Visiting Duration (hours)</InputLabel>
                     <TextField
-                      label="Visiting Duration (hours)"
+                      
                       type="number"
                       color="secondary"
                       variant="outlined"

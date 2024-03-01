@@ -215,7 +215,8 @@ const Locationtab = () => {
               </MenuItem>
             ))}
           </Select>
-
+         
+          <InputLabel>Enter Location name</InputLabel>
           <TextField
             fullWidth
             label="Location"

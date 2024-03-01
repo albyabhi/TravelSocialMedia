@@ -9,6 +9,7 @@ import { styled } from "@mui/system";
 import { theme } from "../Home/theme";
 import logo from "../Assets/main.png"
 import Bgimage from "../Assets/loginbg.png"
+import { InputLabel } from "@mui/material";
 
 // Apply the styles using styled(Box)
 const FormWrapper = styled(Box)(({ theme }) => ({
@@ -95,32 +96,21 @@ const Login = ({ setAuth }) => {
       <FormWrapper>
       <img src={logo} alt="NomadGram Logo" style={{ width: "200px", marginBottom: "1rem" }} />
 
-        {focusedField && (
-          <Typography
-            variant="body2"
-            style={{ marginTop: "0.5rem", textAlign: "center" }}
-          >
-            Enter {focusedField.toLowerCase()}
-          </Typography>
-        )}
+        
         <form className="login-form">
+          <InputLabel>Email</InputLabel>
           <TextField
-            label="Email"
             type="email"
             name="email"
             onChange={handleInputChange}
-            onFocus={() => handleTextFieldFocus("Email")}
-            onBlur={handleTextFieldBlur}
             fullWidth
             margin="normal"
           />
+          <InputLabel>Password</InputLabel>
           <TextField
-            label="Password"
             type="password"
             name="password"
             onChange={handleInputChange}
-            onFocus={() => handleTextFieldFocus("Password")}
-            onBlur={handleTextFieldBlur}
             fullWidth
             margin="normal"
           />
@@ -138,7 +128,7 @@ const Login = ({ setAuth }) => {
           </Button>
           <Box style={{ textAlign: "center" }}>
             <Typography variant="body2" style={{ marginTop: "1rem" }}>
-              New user? <Link to="/signup">Signup</Link>
+              New user? <Link to="/">Signup</Link>
             </Typography>
           </Box>
           {errorMessage && (

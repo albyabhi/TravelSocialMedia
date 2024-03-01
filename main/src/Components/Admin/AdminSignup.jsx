@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Button, Container, CssBaseline, Grid, Paper, TextField, Typography } from '@mui/material';
+import { Button, Container, CssBaseline, Grid, InputLabel, Paper, TextField, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Center } from '../Admin/Adminmain/Center';
 
@@ -32,20 +32,35 @@ const AdminSignup = () => {
     }
   };
 
+  const handleLoginNavigate = () => {
+    navigate('/adminlogin');
+  };
+
   return (
-    <Center>
-      <Container component="main" maxWidth="xs">
+    
+    <Container
+    component="main"
+    maxWidth="xs"
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "100vh",
+      
+    }}
+  >
         <CssBaseline />
-        <Paper elevation={3} style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Paper elevation={3} style={{ padding: "20px" , backgroundColor: "#ADD2C9" }}>
           <Typography variant="h5" component="div" gutterBottom>
-            Admin Registration
+            NomadGram Admin Registration
           </Typography>
           <form style={{ width: '100%', marginTop: '8px' }} onSubmit={handleFormSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
+               <InputLabel>Email</InputLabel>
                 <TextField
                   fullWidth
-                  label="Admin Email"
+                 
                   type="email"
                   name="adminEmail"
                   onChange={handleInputChange}
@@ -53,9 +68,10 @@ const AdminSignup = () => {
                 />
               </Grid>
               <Grid item xs={12}>
+              <InputLabel>Admin Id</InputLabel>
                 <TextField
                   fullWidth
-                  label="Admin ID"
+                  
                   type="text"
                   name="adminId"
                   onChange={handleInputChange}
@@ -63,9 +79,10 @@ const AdminSignup = () => {
                 />
               </Grid>
               <Grid item xs={12}>
+              <InputLabel>Password</InputLabel>
                 <TextField
                   fullWidth
-                  label="Admin Password"
+                  
                   type="password"
                   name="adminPassword"
                   onChange={handleInputChange}
@@ -81,10 +98,15 @@ const AdminSignup = () => {
             >
               Register Admin
             </Button>
+            <Grid container justifyContent="center">
+              <Typography variant="body2"  onClick={handleLoginNavigate} style={{ cursor: 'pointer', marginTop: '8px' }}>
+                Registered already? Login
+              </Typography>
+            </Grid>
           </form>
         </Paper>
       </Container>
-    </Center>
+    
   );
 };
 
