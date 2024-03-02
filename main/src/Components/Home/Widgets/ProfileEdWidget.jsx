@@ -39,9 +39,18 @@ const ProfileEdWidget = ({ onClose }) => {
   const [savedLocations, setSavedLocations] = useState([]);
 
   const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    setProfilePicture(file);
-  };
+  const file = event.target.files[0];
+  setProfilePicture(file);
+
+  // Update background image of the button
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      setSavedImage(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  }
+};
 
   useEffect(() => {
     let isMounted = true;

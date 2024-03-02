@@ -4,7 +4,7 @@ import PostWidget from './Widgets/PostWidget';
 import axios from 'axios';
 import refreshIcon from './Icons/refresh.png';
 
-const Feed = () => {
+const Feed = ({ onRefreshUser }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [rotation, setRotation] = useState(0);

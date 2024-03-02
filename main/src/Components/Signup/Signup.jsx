@@ -15,6 +15,7 @@ const StyledBgImage = styled(Box)(({ theme }) => ({
   flexDirection: "column",
   justifyContent: "center",
   alignItems: "center",
+  margin: 0,
 }));
 
 const Wrapper = styled(Box)(({ theme }) => ({
@@ -45,6 +46,18 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   boxShadow: "none", // Remove the box shadow
   zIndex: theme.zIndex.drawer + 1,
 }));
+
+const AboutSection = styled(Box)(({ theme }) => ({
+  backgroundColor: theme.palette.primary.main,  // Set the maximum width of the About section
+  margin: "2rem auto", // Center the About Section
+  padding: "1.5rem",
+  margin: 0,
+}));
+
+const AboutContent = styled(Box)({
+  textAlign: "center", // Center align content
+});
+
 
 const CenteredLogo = styled("div")({
   display: "flex",
@@ -146,10 +159,35 @@ const Signup = () => {
                   Already a user? <Link to="/login">Login</Link>
                 </Typography>
               </FormContainer>
+               
+               
+
             </Wrapper>
+            
           </Box>
+            
         </Box>
+        
       </StyledBgImage>
+       {/* About Section */}
+       <AboutSection>
+     <AboutContent>
+      <Typography variant="h6" gutterBottom>
+        About NomadGram
+      </Typography>
+      </AboutContent>
+      <AboutContent>
+        <Typography variant="body1" gutterBottom>
+          NomadGram is a social media platform for travelers, allowing users to share posts with images, location descriptions, and travel guides.
+        </Typography>
+        <Typography variant="body1" gutterBottom>
+        Developed by Final Year BCA students Alby AB, Aswin Suresh, and Amith Prem.
+        </Typography>
+        <Typography variant="body2">
+          © 2024 From NomadGram
+        </Typography>
+      </AboutContent>
+    </AboutSection>
     </>
   );
 };

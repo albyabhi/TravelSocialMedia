@@ -15,7 +15,7 @@ import ListItemText from '@mui/material/ListItemText';
 import PersonIcon from '@mui/icons-material/Person';
 import { AddLocationAlt, FlagCircle } from '@mui/icons-material';
 import PublicIcon from '@mui/icons-material/Public';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppStore } from '../appStore';
 
 const drawerWidth = 240;
@@ -70,7 +70,32 @@ const CustomDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== '
 export default function Sidenav() {
   const theme = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const open = useAppStore((state) => state.dopen);
+
+  const [selectedItem, setSelectedItem] = React.useState(null);
+
+  React.useEffect(() => {
+    // Update selected item when location changes
+    const pathname = location.pathname;
+    switch (pathname) {
+      case '/admindashboard':
+        setSelectedItem('User Details');
+        break;
+      case '/location':
+        setSelectedItem('Add Location');
+        break;
+      case '/viewedit':
+        setSelectedItem('Country');
+        break;
+      case '/state':
+        setSelectedItem('State');
+        break;
+      default:
+        setSelectedItem(null);
+        break;
+    }
+  }, [location.pathname]);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -84,112 +109,98 @@ export default function Sidenav() {
         </DrawerHeader>
         <Divider />
         <List>
+        <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate("/admindashboard")}>
+  <ListItemButton
+    sx={{
+      minHeight: 48,
+      justifyContent: open ? 'initial' : 'center',
+      px: 2.5,
+      backgroundColor: selectedItem === 'User Details' ? '#e0e0e0' : 'transparent',
+    }}
+  >
+    <ListItemIcon
+      sx={{
+        minWidth: 0,
+        mr: open ? 3 : 'auto',
+        justifyContent: 'center',
+      }}
+    >
+      <PersonIcon />
+    </ListItemIcon>
+    <ListItemText primary='User Details' sx={{ opacity: open ? 1 : 0, color: selectedItem === 'User Details' ? 'blue' : 'inherit' }} />
+  </ListItemButton>
+</ListItem>
 
+<ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate("/location")}>
+  <ListItemButton
+    sx={{
+      minHeight: 48,
+      justifyContent: open ? 'initial' : 'center',
+      px: 2.5,
+      backgroundColor: selectedItem === 'Add Location' ? '#e0e0e0' : 'transparent',
+    }}
+  >
+    <ListItemIcon
+      sx={{
+        minWidth: 0,
+        mr: open ? 3 : 'auto',
+        justifyContent: 'center',
+      }}
+    >
+      <AddLocationAlt />
+    </ListItemIcon>
+    <ListItemText primary='Add Location' sx={{ opacity: open ? 1 : 0, color: selectedItem === 'Add Location' ? 'blue' : 'inherit' }} />
+  </ListItemButton>
+</ListItem>
 
+<ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate("/viewedit")}>
+  <ListItemButton
+    sx={{
+      minHeight: 48,
+      justifyContent: open ? 'initial' : 'center',
+      px: 2.5,
+      backgroundColor: selectedItem === 'Country' ? '#e0e0e0' : 'transparent',
+    }}
+  >
+    <ListItemIcon
+      sx={{
+        minWidth: 0,
+        mr: open ? 3 : 'auto',
+        justifyContent: 'center',
+      }}
+    >
+      <PublicIcon />
+    </ListItemIcon>
+    <ListItemText primary='Country' sx={{ opacity: open ? 1 : 0, color: selectedItem === 'Country' ? 'blue' : 'inherit' }} />
+  </ListItemButton>
+</ListItem>
 
+<ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate("/state")}>
+  <ListItemButton
+    sx={{
+      minHeight: 48,
+      justifyContent: open ? 'initial' : 'center',
+      px: 2.5,
+      backgroundColor: selectedItem === 'State' ? '#e0e0e0' : 'transparent',
+    }}
+  >
+    <ListItemIcon
+      sx={{
+        minWidth: 0,
+        mr: open ? 3 : 'auto',
+        justifyContent: 'center',
+      }}
+    >
+      <FlagCircle />
+    </ListItemIcon>
+    <ListItemText primary='State' sx={{ opacity: open ? 1 : 0, color: selectedItem === 'State' ? 'blue' : 'inherit' }} />
+  </ListItemButton>
+</ListItem>
 
-        <ListItem  disablePadding sx={{ display: 'block' }} onClick={()=>(navigate("/admindashboard"))}>
-              <ListItemButton
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? 'initial' : 'center',
-                  px: 2.5,
-                }}
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : 'auto',
-                    justifyContent: 'center',
-                  }}
-                >
-                 <PersonIcon/>
-                </ListItemIcon>
-                <ListItemText primary='User Details' sx={{ opacity: open ? 1 : 0 }} 
-                  // style={{ color : 'blue'}}
-                />
-              </ListItemButton>
-            </ListItem>
-
-
-
-
-
-            <ListItem  disablePadding sx={{ display: 'block' }} onClick={()=>(navigate("/location"))}>
-              <ListItemButton
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? 'initial' : 'center',
-                  px: 2.5,
-                }}
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : 'auto',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <AddLocationAlt/>
-                </ListItemIcon>
-                <ListItemText primary='Add Location' sx={{ opacity: open ? 1 : 0 }} />
-              </ListItemButton>
-            </ListItem>
-
-
-
-
-
-            <ListItem  disablePadding sx={{ display: 'block' }} onClick={()=>(navigate("/viewedit"))}>
-              <ListItemButton
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? 'initial' : 'center',
-                  px: 2.5,
-                }}
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : 'auto',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <PublicIcon/>
-                </ListItemIcon>
-                <ListItemText primary='Country' sx={{ opacity: open ? 1 : 0 }} />
-              </ListItemButton>
-            </ListItem>
-
-
-
-
-            <ListItem  disablePadding sx={{ display: 'block' }} onClick={()=>(navigate("/state"))}>
-              <ListItemButton
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? 'initial' : 'center',
-                  px: 2.5,
-                }}
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : 'auto',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <FlagCircle/>
-                </ListItemIcon>
-                <ListItemText primary='State' sx={{ opacity: open ? 1 : 0 }} />
-              </ListItemButton>
-            </ListItem>
-
+          {/* Other list items follow the same pattern */}
         </List>
         <Divider />
-        
       </CustomDrawer>
-      
     </Box>
   );
 }
