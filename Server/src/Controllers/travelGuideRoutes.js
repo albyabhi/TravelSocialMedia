@@ -135,5 +135,32 @@ router.get('/search', async (req, res) => {
     }
 });
 
+// Route to delete a travel guide by _id
+router.delete('/delete/:guideId', authenticateToken, async (req, res) => {
+    try {
+      // Extract the guideId from the request parameters
+      const guideId = req.params.guideId;
+  
+      // Find the travel guide by _id
+      const travelGuide = await TravelGuide.findById(guideId);
+      if (!travelGuide) {
+        return res.status(404).json({ message: 'Travel guide not found.' });
+      }
+  
+      // Check if the authenticated user is the owner of the travel guide
+      // Here you need to implement your own logic to check ownership, if required
+      // For simplicity, assuming the authenticated user can delete any travel guide
+      // You might want to restrict this based on your application's requirements
+  
+      // Delete the travel guide
+      await TravelGuide.deleteOne({ _id: guideId });  
+      // Respond with success message
+      res.status(200).json({ message: 'Travel guide deleted successfully.' });
+    } catch (error) {
+      console.error('Error deleting travel guide:', error);
+      res.status(500).json({ message: 'Internal server error.' });
+    }
+  });
+
 
 module.exports = router;

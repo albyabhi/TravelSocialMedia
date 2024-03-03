@@ -129,13 +129,13 @@ const TravelGuideView = () => {
             <Typography variant="body1" mb={2}>{featureDestination.description}</Typography>
           </Box>
           {featureDestination.image && featureDestination.image.contentType && featureDestination.image.data && (
-            <img
-              alt={featureDestination.name}
-              src={`data:${featureDestination.image.contentType};base64,${featureDestination.image.data}`}
-              style={{ borderRadius: '10px' }}
-              onError={(e) => { e.target.onerror = null; e.target.src = 'image-not-available.png'; }}
-            />
-          )}
+  <img
+    alt={featureDestination.name}
+    src={`data:${featureDestination.image.contentType};base64,${featureDestination.image.data}`}
+    style={{ borderRadius: '50%', width: '100px', height: '100px' }} // Adjust width and height as needed
+    onError={(e) => { e.target.onerror = null; e.target.src = 'image-not-available.png'; }}
+  />
+)}
         </Box>
 
         {/* Display Itinerary */}
@@ -195,13 +195,15 @@ const TravelGuideView = () => {
                   {showImageId === destination.location_id ? 'Hide Image' : 'Show Image'}
                 </Typography>
                 {showImageId === destination.location_id && (
-                  <img
-                    src={`http://localhost:5000/map/location/image/${destination.location_id}`}
-                    alt={`Destination ${index + 1}`}
-                    onError={(e) => { e.target.onerror = null; e.target.src = 'image-not-available.png'; }}
-                    style={{ borderRadius: '8px', marginTop: '8px', maxWidth: '100%' }}
-                  />
-                )}
+  <div style={{ width: '250px', height: '250px', overflow: 'hidden', position: 'relative', borderRadius: '8px', marginTop: '8px' }}>
+    <img
+      src={`http://localhost:5000/map/location/image/${destination.location_id}`}
+      alt={`Destination ${index + 1}`}
+      onError={(e) => { e.target.onerror = null; e.target.src = 'image-not-available.png'; }}
+      style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'cover' }}
+    />
+  </div>
+)}
                 {!destination.location_id && (
                   <Typography variant="body1">Location image not available</Typography>
                 )}

@@ -16,6 +16,8 @@ import styled from "@emotion/styled";
 import { ArrowBack } from "@mui/icons-material";
 import { theme } from "./theme"; // Import the theme object
 import Navbar from "./Navbar";
+import DeleteIcon from '@mui/icons-material/Delete';
+
 
 const StyledPaper = styled(Paper)`
   padding: ${theme.spacing(3)};
@@ -125,6 +127,39 @@ const MainProfile = () => {
 
   const handleEditClick = () => {
     setShowDeleteButtons((prevState) => !prevState);
+  };
+
+  const handleDeleteGuide = async (guideId) => {
+    try {
+      // Send a DELETE request to the server to delete the travel guide
+      const response = await axios.delete(`http://localhost:5000/tg/delete/${guideId}`, {
+        headers: {
+          Authorization: token // Include the authorization token
+        }
+      });
+  
+      // Check if the deletion was successful
+      if (response.status === 200) {
+        console.log(`Travel guide with ID ${guideId} deleted successfully.`);
+        
+        // Refresh the travel guides data after deletion
+        const refreshedResponse = await axios.get(`http://localhost:5000/tg/fetchByUserId/${userId}`);
+        console.log("Refreshed Travel Guides:", refreshedResponse.data);
+  
+        // Update the travel guides state with the refreshed data
+        if (refreshedResponse.data) {
+          setTravelGuides(refreshedResponse.data);
+        } else {
+          console.error("Error: Refreshed travel guides data is null or undefined");
+        }
+      } else {
+        console.error('Failed to delete travel guide.');
+        // Handle error if deletion was not successful
+      }
+    } catch (error) {
+      console.error('Error deleting travel guide:', error);
+      // Handle error if an exception occurred during the deletion process
+    }
   };
 
   if (!userId) {
@@ -330,72 +365,88 @@ const MainProfile = () => {
 
 
                 {tabValue === 1 && (
-                  <div style={{ marginTop: "20px" }}>
-                    <Typography
-                      variant="h5"
-                      gutterBottom
-                      style={{
-                        color: "#333",
-                        marginBottom: "20px",
-                        borderBottom: "1px solid #ccc",
-                        paddingBottom: "10px",
-                      }}
-                    >
-                      Travel Guides
-                    </Typography>
-                    {travelGuides.travelGuides ? (
-                      travelGuides.travelGuides.map((guide, index) => (
-                        <Link
-                          key={index}
-                          to={`/travelguideView/${guide._id}/${guide.userId}`}
-                          style={{ textDecoration: "none" }}
-                        >
-                          <StyledPaper
-                            style={{
-                              marginBottom: "20px",
-                              backgroundImage: `url('data:${guide.featureDestination.image.contentType};base64,${guide.featureDestination.image.data}')`,
-                              backgroundSize: "cover",
-                              backgroundPosition: "center",
-                              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                              borderRadius: "10px",
-                              padding: "20px",
-                            }}
-                          >
-                            <Grid container spacing={2}>
-                              <Grid item xs={12} sm={8}>
-                                <StyledTypography
-                                  variant="h6"
-                                  gutterBottom
-                                  style={{
-                                    marginBottom: "10px",
-                                    color: "#fff", // Text color
-                                    textShadow: "0 6px 4px rgba(0, 0, 0, 0.5)", // Text shadow
-                                  }}
-                                >
-                                  {guide.featureDestination.name}
-                                </StyledTypography>
-                                <StyledTypography
-                                  variant="body1"
-                                  style={{
-                                    marginBottom: "10px",
-                                    color: "#fff", // Text color
-                                    textShadow: "0 6px 4px rgba(0, 0, 0, 0.5)", // Text shadow
-                                  }}
-                                >
-                                  {guide.featureDestination.description}
-                                </StyledTypography>
-                              </Grid>
-                            </Grid>
-                          </StyledPaper>
-                        </Link>
-                      ))
-                    ) : (
-                      <Typography variant="body1">
-                        Loading travel guides...
-                      </Typography>
-                    )}
-                  </div>
-                )}
+  <div style={{ marginTop: "20px" }}>
+    <Typography
+      variant="h5"
+      gutterBottom
+      style={{
+        color: "#333",
+        marginBottom: "20px",
+        borderBottom: "1px solid #ccc",
+        paddingBottom: "10px",
+      }}
+    >
+      Travel Guides
+    </Typography>
+    {travelGuides.travelGuides ? (
+  travelGuides.travelGuides.map((guide, index) => (
+    <div key={index} style={{ marginBottom: "20px", position: "relative" }}>
+      <Link
+        to={`/travelguideView/${guide._id}/${guide.userId}`}
+        style={{ textDecoration: "none" }}
+      >
+        <StyledPaper
+          style={{
+            backgroundImage: guide.featureDestination.image ? `url('data:${guide.featureDestination.image.contentType};base64,${guide.featureDestination.image.data}')` : "",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+            borderRadius: "10px",
+            padding: "20px",
+          }}
+        >
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={8}>
+              <StyledTypography
+                variant="h6"
+                gutterBottom
+                style={{
+                  marginBottom: "10px",
+                  color: "#fff", // Text color
+                  textShadow: "0 6px 4px rgba(0, 0, 0, 0.5)", // Text shadow
+                }}
+              >
+                {guide.featureDestination.name}
+              </StyledTypography>
+              <StyledTypography
+                variant="body1"
+                style={{
+                  marginBottom: "10px",
+                  color: "#fff", // Text color
+                  textShadow: "0 6px 4px rgba(0, 0, 0, 0.5)", // Text shadow
+                }}
+              >
+                {guide.featureDestination.description}
+              </StyledTypography>
+            </Grid>
+          </Grid>
+        </StyledPaper>
+      </Link>
+      {/* Delete Button */}
+      <IconButton
+        style={{
+          position: "absolute",
+          top: "10px",
+          right: "10px",
+          color: "#fff",
+          background: "rgba(0, 0, 0, 0.5)",
+          borderRadius: "50%",
+        }}
+        onClick={() => handleDeleteGuide(guide._id)} // Assuming handleDeleteGuide is your delete function
+      >
+        <DeleteIcon />
+      </IconButton>
+    </div>
+  ))
+) : (
+  <Typography variant="body1">
+    Loading travel guides...
+  </Typography>
+)}
+  </div>
+)}
+
+
               </StyledPaper>
             </Grid>
           </Grid>

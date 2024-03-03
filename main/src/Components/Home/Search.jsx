@@ -205,9 +205,10 @@ const TravelGuideSearchResultItem = ({ guideId, userId, title, description, imag
           }}
         >
           <div>
-            <Typography variant="h6">{title}</Typography>
-            {/* Display the description */}
-            <Typography variant="body1">{description}</Typography>
+          <Typography variant="h6" style={{ color: 'white', textShadow: '1px 2px 1px black' }}>{title}</Typography>
+{/* Display the description */}
+<Typography variant="body1" style={{ color: 'white', textShadow: '1px 2px 1px black' }}>{description}</Typography>
+
           </div>
         </Box>
       </div>

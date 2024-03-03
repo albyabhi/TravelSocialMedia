@@ -169,20 +169,21 @@ const PostWidget = ({ post }) => {
       </Typography>
 
       {postImage && (
-        <Grid
-          item
-          xs={12}
-          marginBottom="1rem"
-          overflow="hidden"
-          borderRadius="0.5rem"
-        >
-          <img
-            src={`data:${postImage.contentType};base64,${postImage.data}`}
-            alt="Post"
-            style={{ width: "100%", height: "auto", display: "block" }}
-          />
-        </Grid>
-      )}
+  <Grid
+    item
+    xs={12}
+    marginBottom="1rem"
+    overflow="hidden"
+    borderRadius="0.5rem"
+    style={{ aspectRatio: '1 / 1' }}
+  >
+    <img
+      src={`data:${postImage.contentType};base64,${postImage.data}`}
+      alt="Post"
+      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+    />
+  </Grid>
+)}
 
       {/* Like and Comment Section */}
       <Grid

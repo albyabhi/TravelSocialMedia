@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Avatar, Box ,Grid, Button, TextField, Input, Typography, Autocomplete, Select, MenuItem, InputLabel } from "@mui/material";
+import { Avatar, Box, Grid, Button, TextField, Input, Typography, Autocomplete, Select, MenuItem, InputLabel } from "@mui/material";
 import { PostAdd, Cancel } from "@mui/icons-material";
 import { styled } from "@mui/system";
 import WidgetWrapper from "../Props/WidgetWrapper";
@@ -35,13 +35,6 @@ const Addpost = ({ onClose }) => {
       console.error('Error fetching locations:', error.response?.data?.message);
     }
   };
-
-  
-
- 
-
-  
-
 
   useEffect(() => {
     const getUser = async () => {
@@ -153,112 +146,112 @@ const Addpost = ({ onClose }) => {
   };
 
   return (
-    <Box sx={{ paddingLeft: { xs: 3 }, paddingRight: { xs: 3 } }}>
-    <WidgetWrapper>
-    <Grid container spacing={2}>
-      <Grid item xs={12}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-          {profilePicture && profilePicture.data ? (
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <Avatar
-                src={`data:${profilePicture.contentType};base64,${profilePicture.data.toString('base64')}`}
-                alt={formData.username}
-                style={{ borderRadius: "50%", marginRight: "0.5rem", width: '40px', height: '40px' }}
-              />
-              <Typography variant="subtitle1" fontWeight="500">
-                {formData.username}
-              </Typography>
+    <Box sx={{ paddingLeft: { xs: 3 }, paddingRight: { xs: 3 }, maxHeight: '100%', overflow: 'hidden' }}>
+      <WidgetWrapper>
+        <Grid container spacing={2} style={{ overflow: 'auto' }}>
+          <Grid item xs={12}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+              {profilePicture && profilePicture.data ? (
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <Avatar
+                    src={`data:${profilePicture.contentType};base64,${profilePicture.data.toString('base64')}`}
+                    alt={formData.username}
+                    style={{ borderRadius: "50%", marginRight: "0.5rem", width: '40px', height: '40px' }}
+                  />
+                  <Typography variant="subtitle1" fontWeight="500">
+                    {formData.username}
+                  </Typography>
+                </div>
+              ) : (
+                <Avatar alt="Loading" style={{ borderRadius: "50%", marginRight: "0.5rem", width: '40px', height: '40px' }} />
+              )}
             </div>
-          ) : (
-            <Avatar alt="Loading" style={{ borderRadius: "50%", marginRight: "0.5rem", width: '40px', height: '40px' }} />
-          )}
-        </div>
-      </Grid>
+          </Grid>
 
-      <Grid item xs={12}>
-        <label htmlFor="file-input" style={{ marginBottom: "1rem", cursor: "pointer" }}>
-          <StyledFileInput
-            id="file-input"
-            type="file"
-            onChange={handleFileChange}
-          />
-          {postMessage && (
-            <Typography variant="body2" color={postMessage.includes('successfully') ? 'primary' : 'error'} style={{ marginBottom: "1rem" }}>
-              {postMessage}
-            </Typography>
-          )}
-          <Button variant="outlined" component="span" color="primary" startIcon={<PostAdd />} style={{ marginRight: "0.5rem" }}>
-            Post
-          </Button>
-          {formData.file && <Typography variant="body2" color="textSecondary">{formData.file.name}</Typography>}
-        </label>
-      </Grid>
+          <Grid item xs={12}>
+            <label htmlFor="file-input" style={{ marginBottom: "1rem", cursor: "pointer" }}>
+              <StyledFileInput
+                id="file-input"
+                type="file"
+                onChange={handleFileChange}
+              />
+              {postMessage && (
+                <Typography variant="body2" color={postMessage.includes('successfully') ? 'primary' : 'error'} style={{ marginBottom: "1rem" }}>
+                  {postMessage}
+                </Typography>
+              )}
+              <Button variant="outlined" component="span" color="primary" startIcon={<PostAdd />} style={{ marginRight: "0.5rem" }}>
+                Post
+              </Button>
+              {formData.file && <Typography variant="body2" color="textSecondary">{formData.file.name}</Typography>}
+            </label>
+          </Grid>
 
-      <Grid item xs={12}>
-        {formData.file && (
-          <img
-            src={URL.createObjectURL(formData.file)}
-            alt="Preview"
-            style={{ maxWidth: "100%", maxHeight: "200px", marginBottom: "1rem" }}
-          />
-        )}
-      </Grid>
+          <Grid item xs={12}>
+            {formData.file && (
+              <img
+                src={URL.createObjectURL(formData.file)}
+                alt="Preview"
+                style={{ maxWidth: "100%", maxHeight: "200px", marginBottom: "1rem" }}
+              />
+            )}
+          </Grid>
 
-      <Grid item xs={12}>
-        <InputLabel>Add Description</InputLabel>
-        <TextField 
-          value={formData.description}
-          onChange={(e) => handleInputChange(e)}
-          name="description"
-          multiline
-          rows={3}
-          fullWidth
-          style={{ marginBottom: "1rem" }}
-        />
-      </Grid>
-
-      <Grid item xs={12}>
-        <InputLabel>Add Location</InputLabel>
-        <Autocomplete
-          value={formData.location}
-          onChange={handleAutocompleteChange}
-          options={locationOptions}
-          getOptionLabel={(option) => option.label || ''}
-          isClearable={false}
-          freeSolo={false}
-          autoHighlight
-          getOptionSelected={(option, value) => option.value === value.value}
-          renderInput={(params) => (
+          <Grid item xs={12}>
+            <InputLabel>Add Description</InputLabel>
             <TextField
-              {...params}
-              name="location"
-              label="Select or Type Location"
-              margin="normal"
+              value={formData.description}
+              onChange={(e) => handleInputChange(e)}
+              name="description"
+              multiline
+              rows={3}
+              fullWidth
+              style={{ marginBottom: "1rem" }}
             />
-          )}
-          style={{ marginBottom: "1rem" }}
-        />
+          </Grid>
 
-        
-      </Grid>
+          <Grid item xs={12}>
+            <InputLabel>Add Location</InputLabel>
+            <Autocomplete
+              value={formData.location}
+              onChange={handleAutocompleteChange}
+              options={locationOptions}
+              getOptionLabel={(option) => option.label || ''}
+              isClearable={false}
+              freeSolo={false}
+              autoHighlight
+              getOptionSelected={(option, value) => option.value === value.value}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  name="location"
+                  label="Select or Type Location"
+                  margin="normal"
+                />
+              )}
+              style={{ marginBottom: "1rem" }}
+            />
 
-      <Grid item xs={12}>
-      <LocationAddform fetchLocations={fetchLocations} />
-      </Grid>
 
-      <Grid item xs={12}>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <Button variant="contained" color="primary" startIcon={<PostAdd />} onClick={handlePost}>
-            Post
-          </Button>
-          <Button variant="outlined" color="quaternary" startIcon={<Cancel />} onClick={handleCancel}>
-            Cancel
-          </Button>
-        </div>
-      </Grid>
-    </Grid>
-  </WidgetWrapper>
-  </Box>
+          </Grid>
+
+          <Grid item xs={12}>
+            <LocationAddform fetchLocations={fetchLocations} />
+          </Grid>
+
+          <Grid item xs={12}>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <Button variant="contained" color="primary" startIcon={<PostAdd />} onClick={handlePost}>
+                Post
+              </Button>
+              <Button variant="outlined" color="quaternary" startIcon={<Cancel />} onClick={handleCancel}>
+                Cancel
+              </Button>
+            </div>
+          </Grid>
+        </Grid>
+      </WidgetWrapper>
+    </Box>
   );
 };
 
