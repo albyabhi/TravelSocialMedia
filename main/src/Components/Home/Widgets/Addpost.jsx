@@ -146,9 +146,8 @@ const Addpost = ({ onClose }) => {
   };
 
   return (
-    <Box sx={{ paddingLeft: { xs: 3 }, paddingRight: { xs: 3 }, maxHeight: '100%', overflow: 'hidden' }}>
-      <WidgetWrapper>
-        <Grid container spacing={2} style={{ overflow: 'auto' }}>
+<Box sx={{ paddingLeft: { xs: 3 }, paddingRight: { xs: 3 }, maxHeight: '100%', overflow: 'hidden' }}>
+  <WidgetWrapper style={{ display: 'flex', flexDirection: 'column', maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>        <Grid container spacing={2} style={{ overflow: 'auto' }}>
           <Grid item xs={12}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
               {profilePicture && profilePicture.data ? (
