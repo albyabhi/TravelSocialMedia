@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Button, Input, Avatar, Grid } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  Input,
+  Avatar,
+  Grid,
+  CircularProgress,
+} from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 
 import axios from "axios";
@@ -12,6 +20,7 @@ import CommentIcon from "../Icons/comment.png";
 
 const PostWidget = ({ post }) => {
   const { userId, postId, postImage, description } = post;
+  const [loading, setLoading] = useState(true); // State to track loading
   const [userData, setUserData] = useState(null);
   const [profileData, setProfileData] = useState(null);
   const [commentText, setCommentText] = useState("");
@@ -42,6 +51,7 @@ const PostWidget = ({ post }) => {
         setLikeStatus(likeStatus);
         setProfileData(profileData);
         setLikeCount(likeCount);
+        setLoading(false); // Update loading state once data is fetched
       } catch (error) {
         console.error(
           "Error fetching user data:",
@@ -64,6 +74,7 @@ const PostWidget = ({ post }) => {
       console.error("Error fetching comments:", error);
     }
   };
+
   useEffect(() => {
     fetchComments();
   }, [post._id]);
@@ -71,20 +82,20 @@ const PostWidget = ({ post }) => {
   const handleLike = async () => {
     try {
       const token = localStorage.getItem("token");
+  
+      // Toggle likeStatus locally
+      const updatedLikeStatus = likeStatus === 'like' ? 'liked' : 'like';
+      setLikeStatus(updatedLikeStatus);
+  
+      // Adjust likeCount locally based on likeStatus
+      const updatedLikeCount = likeCount + (likeStatus === 'like' ? 1 : -1);
+      setLikeCount(updatedLikeCount);
+  
+      // Send request to the server to update the like status
       await axios.post(`http://localhost:5000/posts/like/${post._id}`, null, {
         headers: { Authorization: token },
       });
-
-      const likeCountResponse = await axios.get(
-        `http://localhost:5000/posts/like/count/${post._id}`,
-        {
-          headers: { Authorization: token }, // Include authorization header
-        }
-      );
-      const updatedlikeStatus = likeCountResponse.data.likeStatus;
-      const updatedLikeCount = likeCountResponse.data.count;
-      setLikeCount(updatedLikeCount);
-      setLikeStatus(updatedlikeStatus);
+  
     } catch (error) {
       console.error("Error liking post:", error.response?.data?.message);
     }
@@ -137,107 +148,141 @@ const PostWidget = ({ post }) => {
       }}
       marginBottom={{ xs: "1rem", md: 0 }} // Add space below each PostWidget for small screens
     >
-      {userData && profileData && (
-        <Grid container alignItems="center" marginBottom="1rem">
-          <Grid item>
-            {/* Clickable profile picture */}
-            <Avatar
-              alt={userData.username}
-              src={`data:${
-                profileData.profilePicture.contentType
-              };base64,${profileData.profilePicture.data.toString("base64")}`}
-              onClick={navigateToProfile} // Navigate on click
-              style={{ cursor: "pointer" }} // Change cursor to pointer
-            />
-          </Grid>
-          <Grid item>
-            {/* Clickable username */}
-            <Typography
-              variant="subtitle1"
-              fontWeight="500"
-              onClick={navigateToProfile} // Navigate on click
-              style={{ cursor: "pointer", marginLeft: "0.5rem" }} // Change cursor to pointer
-            >
-              {userData.username}
-            </Typography>
-          </Grid>
-        </Grid>
-      )}
+      {loading ? ( // Display CircularProgress if loading is true
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "200px",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          {/* Display post details */}
+          {userData && profileData && (
+            <Grid container alignItems="center" marginBottom="1rem">
+              {/* Clickable profile picture */}
+              <Grid item>
+                <Avatar
+                  alt={userData.username}
+                  src={`data:${
+                    profileData.profilePicture.contentType
+                  };base64,${profileData.profilePicture.data.toString(
+                    "base64"
+                  )}`}
+                  onClick={navigateToProfile} // Navigate on click
+                  style={{ cursor: "pointer" }} // Change cursor to pointer
+                />
+              </Grid>
+              {/* Clickable username */}
+              <Grid item>
+                <Typography
+                  variant="subtitle1"
+                  fontWeight="500"
+                  onClick={navigateToProfile} // Navigate on click
+                  style={{ cursor: "pointer", marginLeft: "0.5rem" }} // Change cursor to pointer
+                >
+                  {userData.username}
+                </Typography>
+              </Grid>
+            </Grid>
+          )}
 
-      <Typography variant="body1" marginBottom="1rem">
-        {description}
-      </Typography>
-
-      {postImage && (
-  <Grid
-    item
-    xs={12}
-    marginBottom="1rem"
-    overflow="hidden"
-    borderRadius="0.5rem"
-    style={{ aspectRatio: '1 / 1' }}
-  >
-    <img
-      src={`data:${postImage.contentType};base64,${postImage.data}`}
-      alt="Post"
-      style={{ width: "100%", height: "100%", objectFit: "cover" }}
-    />
-  </Grid>
-)}
-
-      {/* Like and Comment Section */}
-      <Grid
-  container
-  justifyContent="space-between"
-  alignItems="center"
-  marginBottom="1rem"
->
-  <Grid item>
-    {/* Like Button */}
-    <img
-      src={likeStatus === "like" ? LikeIcon : LikedIcon}
-      alt="Like Icon"
-      style={{
-        width: '24px',
-        height: '24px',
-        verticalAlign: 'middle',
-        marginRight: '4px',
-        cursor: 'pointer' // Set cursor to pointer
-      }}
-      onClick={handleLike} // Add onClick handler
-    />
-    {/* Display like count */}
-    {likeCount}
-  </Grid>
-  <Grid item>
-    {/* Comment Button */}
-    <img
-      src={CommentIcon}
-      alt="Comment Icon"
-      style={{
-        width: '24px',
-        height: '24px',
-        verticalAlign: 'middle',
-        marginRight: '4px',
-        cursor: 'pointer' // Set cursor to pointer
-      }}
-      onClick={toggleCommentSection} // Add onClick handler
-    />
-  </Grid>
-</Grid>
-
-      {/* Location Section */}
-      {post.location && post.location.length > 0 && (
-        <Grid item xs={12} textAlign="right">
-          <Typography variant="body2" color="textSecondary">
-            Locations: {post.location.map((loc) => loc.label).join(", ")}
+          <Typography variant="body1" marginBottom="1rem">
+            {description}
           </Typography>
-        </Grid>
-      )}
 
-      {/* Comment Section */}
-      {showCommentSection && (
-        <CommentSection comments={comments} onAddComment={handleComment} />
+          {/* Display post image if available */}
+          {postImage && (
+            <Grid
+              item
+              xs={12}
+              marginBottom="1rem"
+              overflow="hidden"
+              borderRadius="0.5rem"
+              style={{
+                position: "relative",
+                width: "100%",
+                paddingBottom: "100%",
+              }}
+            >
+              <img
+                src={`data:${postImage.contentType};base64,${postImage.data}`}
+                alt="Post"
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            </Grid>
+          )}
+
+          {/* Like and Comment Section */}
+          <Grid
+            container
+            justifyContent="space-between"
+            alignItems="center"
+            marginBottom="1rem"
+          >
+            {/* Like Button */}
+            <Grid item>
+              <img
+                src={likeStatus === "like" ? LikeIcon : LikedIcon}
+                alt="Like Icon"
+                style={{
+                  width: "24px",
+                  height: "24px",
+                  verticalAlign: "middle",
+                  marginRight: "4px",
+                  cursor: "pointer", // Set cursor to pointer
+                  transition: "transform 0.2s", // Add transition for animation
+                  transform: likeStatus === "like" ? "scale(1)" : "scale(1.2)", // Scale animation
+                }}
+                onClick={handleLike} // Add onClick handler
+              />
+              {/* Display like count */}
+              {likeCount}
+            </Grid>
+            {/* Comment Button */}
+            <Grid item>
+              <img
+                src={CommentIcon}
+                alt="Comment Icon"
+                style={{
+                  width: "24px",
+                  height: "24px",
+                  verticalAlign: "middle",
+                  marginRight: "4px",
+                  cursor: "pointer", // Set cursor to pointer
+                  transition: "transform 0.2s", // Add transition for animation
+                  transform: "scale(1)", // Initial scale
+                }}
+                onClick={toggleCommentSection} // Add onClick handler
+              />
+            </Grid>
+          </Grid>
+
+          {/* Location Section */}
+          {post.location && post.location.length > 0 && (
+            <Grid item xs={12} textAlign="right">
+              <Typography variant="body3" color="textSecondary">
+                Locations: {post.location.map((loc) => loc.label).join(", ")}
+              </Typography>
+            </Grid>
+          )}
+
+          {/* Comment Section */}
+          {showCommentSection && (
+            <CommentSection comments={comments} onAddComment={handleComment} />
+          )}
+        </>
       )}
     </Grid>
   );
