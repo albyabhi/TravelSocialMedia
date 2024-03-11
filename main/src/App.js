@@ -100,9 +100,15 @@ function App() {
               path="/mainview/:userId"
               element={auth ? <MainProfile /> : <Navigate to="/login" />}
             />
+            
+            <Route 
+              path="/travelguideView/:guideId/:userId"
+              element={auth ? <TravelGuideView /> : <Navigate to="/login" /> }
+              />
+
             {/* Admin routes */}
             <Route path="/admindashboard" element={<Users />} />
-            <Route path="/travelguideView/:guideId/:userId" element={<TravelGuideView />} />            
+                   
             <Route path="/location" element={<Locationtab />} />
             <Route path="/viewedit" element={<Viewedit />} />
             <Route path="/state" element={<State />} />

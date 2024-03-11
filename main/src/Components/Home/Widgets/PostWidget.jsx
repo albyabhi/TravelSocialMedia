@@ -4,6 +4,7 @@ import {
   Typography,
   Button,
   Input,
+  Grow,
   Avatar,
   Grid,
   CircularProgress,
@@ -128,6 +129,7 @@ const PostWidget = ({ post }) => {
   };
 
   return (
+    
     <Grid
       container
       direction="column"
@@ -163,6 +165,7 @@ const PostWidget = ({ post }) => {
         <>
           {/* Display post details */}
           {userData && profileData && (
+            <Grow in={!loading} timeout={500}>
             <Grid container alignItems="center" marginBottom="1rem">
               {/* Clickable profile picture */}
               <Grid item>
@@ -189,6 +192,7 @@ const PostWidget = ({ post }) => {
                 </Typography>
               </Grid>
             </Grid>
+            </Grow>
           )}
 
           <Typography variant="body1" marginBottom="1rem">
@@ -196,6 +200,8 @@ const PostWidget = ({ post }) => {
           </Typography>
 
           {/* Display post image if available */}
+          <Grow in={!loading} timeout={500}>
+
           {postImage && (
             <Grid
               item
@@ -223,6 +229,7 @@ const PostWidget = ({ post }) => {
               />
             </Grid>
           )}
+          </Grow>
 
           {/* Like and Comment Section */}
           <Grid
@@ -285,6 +292,7 @@ const PostWidget = ({ post }) => {
         </>
       )}
     </Grid>
+    
   );
 };
 

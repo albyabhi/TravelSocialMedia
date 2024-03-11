@@ -10,6 +10,8 @@ import { theme } from "../Home/theme";
 import logo from "../Assets/main.png"
 import Bgimage from "../Assets/loginbg.png"
 import { InputLabel } from "@mui/material";
+import Alert from "@mui/material/Alert"; 
+import Slide from '@mui/material/Slide';
 
 // Apply the styles using styled(Box)
 const FormWrapper = styled(Box)(({ theme }) => ({
@@ -28,6 +30,7 @@ const FormWrapper = styled(Box)(({ theme }) => ({
 const Login = ({ setAuth }) => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
+  const [loginSuccess, setLoginSuccess] = useState(false);
   const [focusedField, setFocusedField] = useState("");
   const [loginData, setLoginData] = useState({
     email: "",
@@ -52,13 +55,17 @@ const Login = ({ setAuth }) => {
         setErrorMessage("Authentication rejected. User is inactive.");
         return;
       }
+      setLoginSuccess(true);
       localStorage.setItem("token", response.data.token);
       setAuth(true);
-      if (profileupdate === "Done") {
-        navigate("/home");
-      } else {
-        navigate("/profile");
-      }
+      setTimeout(() => {
+        if (profileupdate === "Done") {
+          navigate("/home");
+        } else {
+          navigate("/profile");
+        }
+      }, 1500);
+     
     } catch (error) {
       if (error.response.status === 401) {
         setErrorMessage("Incorrect Email or Password");
@@ -79,6 +86,8 @@ const Login = ({ setAuth }) => {
     setFocusedField("");
   };
 
+  
+
   return (
     <Box
       display="flex"
@@ -93,6 +102,24 @@ const Login = ({ setAuth }) => {
         backgroundPosition: "center",
       }}
     >
+      <Slide
+            direction="down"
+            in={loginSuccess}
+            mountOnEnter
+            unmountOnExit
+            timeout={{ enter: 1000, exit: 500 }}
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "10px",
+            }}
+          >
+        <div style={{ position: 'absolute', top: '50px', transform: 'translateX(-50%)', zIndex: '9999' }}>
+          <Alert variant="filled" severity="success" color="secondary">
+            Login Successfully
+          </Alert>
+        </div>
+      </Slide>
       <FormWrapper>
       <img src={logo} alt="NomadGram Logo" style={{ width: "200px", marginBottom: "1rem" }} />
 
@@ -136,6 +163,7 @@ const Login = ({ setAuth }) => {
               {errorMessage}
             </Typography>
           )}
+          
         </form>
       </FormWrapper>
     </Box>

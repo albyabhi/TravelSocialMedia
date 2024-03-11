@@ -178,11 +178,13 @@ router.post('/like/:Id', authenticateToken, async (req, res) => {
       // User already liked the post, remove the like
       post.likes.splice(existingLikeIndex, 1);
       await post.save();
+      console.log('unliked');
       return res.status(200).json({ message: 'Post unliked successfully.' });
     } else {
       // User hasn't liked the post, add the like
       post.likes.push({ userId });
       await post.save();
+      console.log('liked');
       return res.status(200).json({ message: 'Post liked successfully.' });
     }
   } catch (error) {

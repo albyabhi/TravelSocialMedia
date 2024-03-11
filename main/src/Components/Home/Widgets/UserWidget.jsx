@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Box, Divider, Typography } from '@mui/material';
+import { Box, Divider, Typography, Grow } from '@mui/material';
 import FlexBetween from '../Props/FlexBetween';
 import WidgetWrapper from '../Props/WidgetWrapper';
 import { CenteredContainer } from '../Props/CenteredContainer';
@@ -10,8 +10,6 @@ const UserWidget = () => {
   const [user, setUser] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
   const [isProfileEdWidgetVisible, setProfileEdWidgetVisible] = useState(false);
-
-  
 
   const getUser = async () => {
     try {
@@ -53,7 +51,7 @@ const UserWidget = () => {
 
   const { username, bio } = user;
 
-  const OpenWidget = () => {
+  const openWidget = () => {
     setProfileEdWidgetVisible((prevVisibility) => !prevVisibility);
   };
   const closeWidget = () => {
@@ -61,54 +59,56 @@ const UserWidget = () => {
   };
 
   return (
-    <WidgetWrapper>
-      {/* UPPER ROW (Centered) */}
-      <FlexBetween
-        gap="0.5rem"
-        pb="0.5rem"
-        justifyContent="center"
-        alignItems="center"
-        style={{ flexDirection: 'column', textAlign: 'center' }}
-      >
-        {/* Display profile picture */}
-        {profilePicture && profilePicture.data && (
-          <img
-            src={`data:${profilePicture.contentType};base64,${profilePicture.data.toString('base64')}`}
-            alt={username}
-            style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover' }}
-          />
+    <Grow in={true}>
+      <WidgetWrapper>
+        {/* UPPER ROW (Centered) */}
+        <FlexBetween
+          gap="0.5rem"
+          pb="0.5rem"
+          justifyContent="center"
+          alignItems="center"
+          style={{ flexDirection: 'column', textAlign: 'center' }}
+        >
+          {/* Display profile picture */}
+          {profilePicture && profilePicture.data && (
+            <img
+              src={`data:${profilePicture.contentType};base64,${profilePicture.data.toString('base64')}`}
+              alt={username}
+              style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover' }}
+            />
+          )}
+        </FlexBetween>
+
+        {/* FIRST ROW (Centered) */}
+        <FlexBetween
+          gap="0.5rem"
+          pb="0.5rem"
+          justifyContent="center"
+          alignItems="center"
+          style={{ cursor: 'pointer' }}
+          onClick={openWidget}
+        >
+          <Typography variant="h4" fontWeight="500" style={{ textAlign: 'center' }}>
+            {username}
+          </Typography>
+        </FlexBetween>
+        <Divider />
+        {/* SECOND ROW (Centered) */}
+        <FlexBetween gap="1rem" justifyContent="center" alignItems="center">
+          <Box style={{ textAlign: 'center' }}>
+            {/* Display bio */}
+            <Typography style={{ margin: '0' }}>{bio}</Typography>
+          </Box>
+        </FlexBetween>
+
+        {/* Render ProfileEdWidget inside CenteredContainer */}
+        {isProfileEdWidgetVisible && (
+          <CenteredContainer>
+            <ProfileEdWidget onClose={closeWidget} />
+          </CenteredContainer>
         )}
-      </FlexBetween>
-
-      {/* FIRST ROW (Centered) */}
-      <FlexBetween
-        gap="0.5rem"
-        pb="0.5rem"
-        justifyContent="center"
-        alignItems="center"
-        style={{ cursor: 'pointer' }}
-        onClick={OpenWidget}
-      >
-        <Typography variant="h4" fontWeight="500" style={{ textAlign: 'center' }}>
-          {username}
-        </Typography>
-      </FlexBetween>
-      <Divider />
-      {/* SECOND ROW (Centered) */}
-      <FlexBetween gap="1rem" justifyContent="center" alignItems="center">
-        <Box style={{ textAlign: 'center' }}>
-          {/* Display bio */}
-          <Typography style={{ margin: '0' }}>{bio}</Typography>
-        </Box>
-      </FlexBetween>
-
-      {/* Render ProfileEdWidget inside CenteredContainer */}
-      {isProfileEdWidgetVisible && (
-        <CenteredContainer>
-          <ProfileEdWidget onClose={closeWidget} />
-        </CenteredContainer>
-      )}
-    </WidgetWrapper>
+      </WidgetWrapper>
+    </Grow>
   );
 };
 

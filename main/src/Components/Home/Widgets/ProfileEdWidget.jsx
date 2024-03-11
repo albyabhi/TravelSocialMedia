@@ -17,6 +17,7 @@ import {
   Box,
   InputLabel,
   CircularProgress,
+  Grow,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 
@@ -238,6 +239,7 @@ const ProfileEdWidget = ({ onClose }) => {
 
 
   return (
+    <Grow in={true}>
     <Box
       style={{
         marginTop: "9rem", // Adjust the top margin as needed
@@ -451,6 +453,7 @@ const ProfileEdWidget = ({ onClose }) => {
     </IconButton>
   </Container>
 </Box>
+</Grow>
   );
 };
 

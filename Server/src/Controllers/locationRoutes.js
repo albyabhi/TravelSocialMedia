@@ -134,7 +134,7 @@ router.get("/locations/search", async (req, res) => {
     }
 
     // Use a case-insensitive regular expression for partial match
-    const locations = await Location.find({ name: new RegExp(locationName, 'i') });
+    const locations = await Location.find({ name: new RegExp(locationName, 'i') }).populate('image');
 
     if (locations.length === 0) {
       return res.status(404).json({ message: "No locations found." });
