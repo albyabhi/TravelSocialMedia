@@ -77,6 +77,7 @@ const CenteredLogo = styled("div")({
 
 const Signup = () => {
   const navigate = useNavigate();
+  const [signupError, setSignupError] = useState("");
   const [signupSuccess, setsignupSuccess] = useState(false);
   const [userData, setUserData] = useState({
     username: "",
@@ -90,11 +91,16 @@ const Signup = () => {
 
   const handleSignup = async () => {
     try {
+      // Password validation
+      if (userData.password.length < 8) {
+        throw new Error("Password must be at least 8 characters long.");
+      }
+  
       const response = await axios.post(
         "http://localhost:5000/api/signup",
         userData
       );
-
+  
       if (response && response.data) {
         setsignupSuccess(true);
         console.log(response.data);
@@ -109,6 +115,7 @@ const Signup = () => {
         "Signup failed:",
         error.response ? error.response.data.message : error.message
       );
+      setSignupError(error.message); // Assuming you have state for signupError
     }
   };
 
@@ -137,19 +144,20 @@ const Signup = () => {
           {" "}
           {/* Content */}
           <Box position="absolute" top="10px" width="100%" zIndex="9999">
-      <Slide
-        direction="down"
-        in={signupSuccess}
-        mountOnEnter
-        unmountOnExit
-        timeout={{ enter: 1000, exit: 500 }}
-        style={{ display: "flex", justifyContent: "center" , margin: "30px" }}
-      >
-        <Alert variant="filled" severity="success" color="secondary">
-          Signup Successful
-        </Alert>
-      </Slide>
-    </Box>
+  <Slide
+    direction="down"
+    in={signupSuccess}
+    mountOnEnter
+    unmountOnExit
+    timeout={{ enter: 1000, exit: 500 }}
+    style={{ display: "flex", justifyContent: "center", margin: "30px" }}
+  >
+    <Alert variant="filled" severity="success" color="secondary">
+      Signup Successful
+    </Alert>
+  </Slide>
+  
+</Box>
           <Box
             display="flex"
             flex={1}
@@ -197,6 +205,12 @@ const Signup = () => {
                 >
                   Sign Up
                 </Button>
+
+                {signupError && (
+    <Typography variant="body2" >
+      {signupError}
+    </Typography>
+  )}
 
                 <Typography variant="body2" style={{ textAlign: "center" }}>
                   Already a user? <Link to="/login">Login</Link>

@@ -87,7 +87,7 @@ const TravelGuideView = () => {
     navigate(`/profileview/${userId}`); // Navigate to profile view
   };
   
-  
+
   
 
   return (
@@ -214,6 +214,17 @@ const TravelGuideView = () => {
                 >
                   Show Posts of this location
                 </Typography>
+                 
+                <Typography
+      component="a"
+      href={`https://www.google.com/search?q=${encodeURIComponent(destination.name)}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ cursor: 'pointer', textDecoration: 'underline', color: 'grey' }}
+    >
+      More Information on Google
+    </Typography>
+
               </Box>
             ))}
           </Box>

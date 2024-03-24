@@ -255,7 +255,7 @@ const PostWidget = ({ post }) => {
                 onClick={handleLike} // Add onClick handler
               />
               {/* Display like count */}
-              {likeCount}
+                 {likeCount}
             </Grid>
             {/* Comment Button */}
             <Grid item>
@@ -280,7 +280,7 @@ const PostWidget = ({ post }) => {
           {post.location && post.location.length > 0 && (
             <Grid item xs={12} textAlign="right">
               <Typography variant="body3" color="textSecondary">
-                Locations: {post.location.map((loc) => loc.label).join(", ")}
+                Location- <b>{post.location.map((loc) => loc.label).join(", ")}</b>
               </Typography>
             </Grid>
           )}

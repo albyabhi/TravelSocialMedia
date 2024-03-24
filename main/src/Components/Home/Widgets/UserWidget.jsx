@@ -3,13 +3,12 @@ import axios from 'axios';
 import { Box, Divider, Typography, Grow } from '@mui/material';
 import FlexBetween from '../Props/FlexBetween';
 import WidgetWrapper from '../Props/WidgetWrapper';
-import { CenteredContainer } from '../Props/CenteredContainer';
-import ProfileEdWidget from './ProfileEdWidget';
+
 
 const UserWidget = () => {
   const [user, setUser] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
-  const [isProfileEdWidgetVisible, setProfileEdWidgetVisible] = useState(false);
+ 
 
   const getUser = async () => {
     try {
@@ -51,12 +50,7 @@ const UserWidget = () => {
 
   const { username, bio } = user;
 
-  const openWidget = () => {
-    setProfileEdWidgetVisible((prevVisibility) => !prevVisibility);
-  };
-  const closeWidget = () => {
-    setProfileEdWidgetVisible(false);
-  };
+ 
 
   return (
     <Grow in={true}>
@@ -85,8 +79,8 @@ const UserWidget = () => {
           pb="0.5rem"
           justifyContent="center"
           alignItems="center"
-          style={{ cursor: 'pointer' }}
-          onClick={openWidget}
+          
+          
         >
           <Typography variant="h4" fontWeight="500" style={{ textAlign: 'center' }}>
             {username}
@@ -102,11 +96,7 @@ const UserWidget = () => {
         </FlexBetween>
 
         {/* Render ProfileEdWidget inside CenteredContainer */}
-        {isProfileEdWidgetVisible && (
-          <CenteredContainer>
-            <ProfileEdWidget onClose={closeWidget} />
-          </CenteredContainer>
-        )}
+        
       </WidgetWrapper>
     </Grow>
   );

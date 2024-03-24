@@ -352,7 +352,12 @@ router.get("/users/search", async (req, res) => {
     }
 
     // Use a case-insensitive regular expression for partial match
-    const users = await User.find({ username: new RegExp(username, 'i') });
+    const regex = new RegExp(username, 'i');
+
+    // Search for users matching the provided username
+    const users = await User.find({ username: regex })
+                             .limit(10) // Limit the number of results
+                             .sort({ createdAt: -1 }) // Sort by creation date (or any other relevant criteria)
 
     if (users.length === 0) {
       return res.status(404).json({ message: "No users found." });

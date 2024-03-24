@@ -14,7 +14,7 @@ import {
   InputBase,
   IconButton,
   Zoom,
-  Grow,
+  CircularProgress,
   Slide
 } from "@mui/material";
 import axios from "axios";
@@ -170,24 +170,28 @@ const TravelGuideSearchResultItem = ({
   description,
   image,
   onClick,
+  itinerary,
 }) => {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
   const [profilePicture, setProfilePicture] = useState("");
-
+  const [numDays, setNumDays] = useState(0);
+  const [loading, setLoading] = useState(false);
+  
   useEffect(() => {
     const fetchUserData = async () => {
+      setLoading(true); // Set loading to true before fetching
       try {
-        // Fetch user data using userId
         const response = await axios.get(
           `http://localhost:5000/api/user/${userId}`
         );
         const userData = response.data;
-        // Update state with user name and profile picture
         setUserName(userData.username);
         setProfilePicture(userData.profilePicture);
       } catch (error) {
         console.error("Error fetching user data:", error);
+      } finally {
+        setLoading(false); // Set loading to false after fetching
       }
     };
 
@@ -197,6 +201,24 @@ const TravelGuideSearchResultItem = ({
   const handleNavigate = () => {
     navigate(`/travelguideView/${guideId}/${userId}`);
   };
+
+  useEffect(() => {
+    // Calculate the number of day arrays
+    const countDays = () => {
+      let count = 0;
+      if (itinerary) {
+        for (const day in itinerary) {
+          if (Array.isArray(itinerary[day])) {
+            count++;
+          }
+        }
+      }
+      return count;
+    };
+    setNumDays(countDays());
+  }, [itinerary]);
+ 
+  console.log(numDays);
 
   return (
     <Zoom in={true}>
@@ -208,69 +230,78 @@ const TravelGuideSearchResultItem = ({
           padding: "16px",
         }}
       >
-        <div>
-          {/* Display the profile picture and user name */}
-          <Box
-            display="flex"
-            alignItems="center"
-            bg="grey.200"
-            borderRadius="8px"
-            p={2}
-            mb={2}
-          >
-            {profilePicture && (
-              <Avatar
-                alt="Profile"
-                src={`data:${profilePicture.contentType};base64,${profilePicture.data}`}
-                sx={{
-                  width: "50px",
-                  height: "50px",
-                  marginRight: "16px",
-                  borderRadius: "50%",
-                }}
-              />
-            )}
-            {userName && (
-              <Typography variant="subtitle1">{userName}</Typography>
-            )}
+        {loading ? ( // Display circular loading when loading state is true
+          <Box display="flex" justifyContent="center" alignItems="center" height="150px">
+            <CircularProgress />
           </Box>
+        ) : (
+          <div>
+            <Box
+              display="flex"
+              alignItems="center"
+              bg="grey.200"
+              borderRadius="8px"
+              p={2}
+              mb={2}
+            >
+              {profilePicture && (
+                <Avatar
+                  alt="Profile"
+                  src={`data:${profilePicture.contentType};base64,${profilePicture.data}`}
+                  sx={{
+                    width: "50px",
+                    height: "50px",
+                    marginRight: "16px",
+                    borderRadius: "50%",
+                  }}
+                />
+              )}
+              {userName && (
+                <Typography variant="subtitle1">{userName}</Typography>
+              )}
+            </Box>
 
-          {/* Display the travel guide information */}
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-            bg="grey.200"
-            borderRadius="8px"
-            p={2}
-            mb={2}
-            onClick={handleNavigate}
-            style={{
-              cursor: "pointer",
-              backgroundImage: image
-                ? `url(data:${image.contentType};base64,${image.data})`
-                : "none",
-              backgroundSize: "cover",
-              height: "150px",
-            }}
-          >
-            <div>
-              <Typography
-                variant="h6"
-                style={{ color: "white", textShadow: "1px 2px 1px black" }}
-              >
-                {title}
-              </Typography>
-              {/* Display the description */}
-              <Typography
-                variant="body1"
-                style={{ color: "white", textShadow: "1px 2px 1px black" }}
-              >
-                {description}
-              </Typography>
-            </div>
-          </Box>
-        </div>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              bg="grey.200"
+              borderRadius="8px"
+              p={2}
+              mb={2}
+              onClick={handleNavigate}
+              style={{
+                cursor: "pointer",
+                backgroundImage: image
+                  ? `url(data:${image.contentType};base64,${image.data})`
+                  : "none",
+                backgroundSize: "cover",
+                height: "150px",
+              }}
+            >
+              <div>
+                <Typography
+                  variant="h6"
+                  style={{ color: "white", textShadow: "1px 2px 1px black" }}
+                >
+                  <i>{title}</i>
+                </Typography>
+                <Typography
+                  variant="body1"
+                  style={{ color: "white", textShadow: "1px 2px 1px black" }}
+                >
+                  {description}
+                </Typography>
+                <Typography
+                  variant="body1"
+                  style={{ color: "white", textShadow: "1px 2px 1px black" }}
+                >
+                  Days : {numDays}
+                </Typography>
+              </div>
+            </Box>
+          </div>
+        )}
       </Container>
     </Zoom>
   );
@@ -408,6 +439,7 @@ const Search = () => {
                     ? guide.featureDestination.image
                     : null
                 }
+                itinerary={guide.itinerary}
               />
             ))}
         </Box>
